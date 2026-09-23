@@ -1,0 +1,95 @@
+rules:
+- id: cwe124-write-through-pointer-before-buffer
+  languages:
+  - c
+  - cpp
+  paths:
+    include:
+    - '*.c'
+    - '*.h'
+    - '*.cpp'
+    - '*.cc'
+    - '*.cxx'
+    - '*.c++'
+    - '*.hpp'
+    - '*.hh'
+    - '*.hxx'
+    - '*.inc'
+  severity: ERROR
+  message: A pointer computed by subtracting a constant from a buffer pointer is used as a write destination,
+    which writes before the start of the buffer.
+  metadata:
+    vulnerability_class: Buffer Underwrite ('Buffer Underflow')
+    help: |
+      ## Summary
+      A pointer computed by subtracting a constant from a buffer pointer is used as a write destination, which writes before the start of the buffer.
+
+      ## Remediation
+      Check that indexes and pointer offsets are not negative and do not move before the start of the buffer before writing.
+    category: security
+    cwe:
+    - 'CWE-124: Buffer Underwrite (''Buffer Underflow'')'
+    references:
+    - https://cwe.mitre.org/data/definitions/124.html
+    confidence: MEDIUM
+    likelihood: MEDIUM
+    impact: HIGH
+    subcategory:
+    - vuln
+    technology:
+    - c
+    - cpp
+    source: Validated against NIST Juliet C/C++ Test Suite v1.3
+    remediation: Check that indexes and pointer offsets are not negative and do not move before the start
+      of the buffer before writing.
+  mode: taint
+  pattern-sources:
+  - patterns:
+    - pattern-either:
+      - pattern: $BUF - $K
+      - patterns:
+        - pattern-inside: |
+            $RT $F(...) { ... $P = $BUF - $K; ... }
+        - pattern: $P
+      - patterns:
+        - pattern-inside: |
+            $RT $F(...) { ... $P = $BUF - $K; ... }
+        - pattern-inside: |
+            $RT $F(...) { ... *$Q1 = $P; ... }
+        - pattern-inside: |
+            $RT $F(...) { ... $T1 $Q1 = &$V; ... }
+        - pattern-inside: |
+            $RT $F(...) { ... $T2 $Q2 = &$V; ... }
+        - pattern: '*$Q2'
+    - metavariable-regex:
+        metavariable: $BUF
+        regex: ^[A-Za-z_]\w*$
+    - metavariable-regex:
+        metavariable: $K
+        regex: ^[0-9]+$
+    - metavariable-comparison:
+        metavariable: $K
+        comparison: $K > 0
+  pattern-propagators:
+  - pattern: $U.$FLD = $X
+    from: $X
+    to: $U
+  pattern-sinks:
+  - patterns:
+    - pattern-either:
+      - pattern: strcpy($DST, ...)
+      - pattern: wcscpy($DST, ...)
+      - pattern: strncpy($DST, ...)
+      - pattern: wcsncpy($DST, ...)
+      - pattern: memcpy($DST, ...)
+      - pattern: memmove($DST, ...)
+      - pattern: wmemcpy($DST, ...)
+      - pattern: wmemmove($DST, ...)
+      - pattern: strcat($DST, ...)
+      - pattern: wcscat($DST, ...)
+      - pattern: strncat($DST, ...)
+      - pattern: wcsncat($DST, ...)
+      - pattern: memset($DST, ...)
+      - pattern: wmemset($DST, ...)
+      - pattern: $DST[$I] = $V
+    - focus-metavariable: $DST

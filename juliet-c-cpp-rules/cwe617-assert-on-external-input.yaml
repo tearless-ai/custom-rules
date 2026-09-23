@@ -1,0 +1,88 @@
+rules:
+- id: cwe617-assert-on-external-input
+  languages:
+  - c
+  - cpp
+  paths:
+    include:
+    - '*.c'
+    - '*.h'
+    - '*.cpp'
+    - '*.cc'
+    - '*.cxx'
+    - '*.c++'
+    - '*.hpp'
+    - '*.hh'
+    - '*.hxx'
+    - '*.inc'
+  severity: WARNING
+  message: This assertion depends on a value that comes from an external or random source, so an attacker
+    or bad input can trigger it and abort the program.
+  metadata:
+    vulnerability_class: Reachable Assertion
+    help: |
+      ## Summary
+      This assertion depends on a value that comes from an external or random source, so an attacker or bad input can trigger it and abort the program.
+
+      ## Remediation
+      Do not assert on conditions that external input can violate; validate input and handle errors explicitly.
+    category: security
+    cwe:
+    - 'CWE-617: Reachable Assertion'
+    references:
+    - https://cwe.mitre.org/data/definitions/617.html
+    confidence: MEDIUM
+    likelihood: MEDIUM
+    impact: MEDIUM
+    subcategory:
+    - vuln
+    technology:
+    - c
+    - cpp
+    source: Validated against NIST Juliet C/C++ Test Suite v1.3
+    remediation: Do not assert on conditions that external input can violate; validate input and handle
+      errors explicitly.
+  mode: taint
+  pattern-sources:
+  - pattern: rand()
+  - pattern: random()
+  - pattern: RAND32()
+  - pattern: RAND64()
+  - by-side-effect: true
+    patterns:
+    - pattern: fgets($BUF, ...)
+    - focus-metavariable: $BUF
+  - by-side-effect: true
+    patterns:
+    - pattern: fgetws($BUF, ...)
+    - focus-metavariable: $BUF
+  - by-side-effect: true
+    patterns:
+    - pattern-either:
+      - pattern: fscanf($F, $FMT, &$V)
+      - pattern: scanf($FMT, &$V)
+      - pattern: fwscanf($F, $FMT, &$V)
+      - pattern: wscanf($FMT, &$V)
+    - focus-metavariable: $V
+  - by-side-effect: true
+    patterns:
+    - pattern-either:
+      - pattern: recv($S, $BUF, ...)
+      - pattern: recvfrom($S, $BUF, ...)
+      - pattern: read($S, $BUF, ...)
+    - focus-metavariable: $BUF
+  - pattern: getenv(...)
+  - patterns:
+    - pattern-either:
+      - pattern-inside: |
+          $R = recv($S, $BUF, ...);
+          ...
+      - pattern-inside: |
+          $R = recvfrom($S, $BUF, ...);
+          ...
+      - pattern-inside: |
+          $R = read($S, $BUF, ...);
+          ...
+    - pattern: $BUF
+  pattern-sinks:
+  - pattern: assert(...)

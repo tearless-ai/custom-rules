@@ -1,0 +1,45 @@
+rules:
+- id: cwe483-unbraced-if-multiple-statements-on-line
+  languages:
+  - c
+  - cpp
+  paths:
+    include:
+    - '*.c'
+    - '*.h'
+    - '*.cpp'
+    - '*.cc'
+    - '*.cxx'
+    - '*.c++'
+    - '*.hpp'
+    - '*.hh'
+    - '*.hxx'
+    - '*.inc'
+  severity: WARNING
+  message: Only the first statement after this unbraced if on the same line is conditional; the following
+    statement on the line always executes.
+  metadata:
+    vulnerability_class: Incorrect Block Delimitation
+    help: |
+      ## Summary
+      Only the first statement after this unbraced if on the same line is conditional; the following statement on the line always executes.
+
+      ## Remediation
+      Always use braces for multi-statement if/else/loop bodies.
+    category: correctness
+    cwe:
+    - 'CWE-483: Incorrect Block Delimitation'
+    references:
+    - https://cwe.mitre.org/data/definitions/483.html
+    confidence: MEDIUM
+    likelihood: MEDIUM
+    impact: MEDIUM
+    subcategory:
+    - vuln
+    technology:
+    - c
+    - cpp
+    source: Validated against NIST Juliet C/C++ Test Suite v1.3
+    remediation: Always use braces for multi-statement if/else/loop bodies.
+  pattern-regex: (?m)^[ \t]*(?:if|while|for)[ \t]*\((?:[^()\n]|\((?:[^()\n]|\([^()\n]*\))*\))*\)[ \t]*[^\s{;/][^;\n{}]*;[
+    \t]*(?!else\b)[A-Za-z_*(][^\n]*;

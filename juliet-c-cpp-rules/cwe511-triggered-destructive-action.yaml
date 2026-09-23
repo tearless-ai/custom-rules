@@ -1,0 +1,79 @@
+rules:
+- id: cwe511-triggered-destructive-action
+  languages:
+  - c
+  - cpp
+  paths:
+    include:
+    - '*.c'
+    - '*.h'
+    - '*.cpp'
+    - '*.cc'
+    - '*.cxx'
+    - '*.c++'
+    - '*.hpp'
+    - '*.hh'
+    - '*.hxx'
+    - '*.inc'
+  severity: ERROR
+  message: $DEL() destroys data only when a date, random-number or counter trigger fires, which is the
+    signature of a logic bomb.
+  metadata:
+    vulnerability_class: Logic/Time Bomb
+    help: |
+      ## Summary
+      `$DEL()` destroys data only when a date, random-number or counter trigger fires, which is the signature of a logic bomb.
+
+      ## Remediation
+      Remove date- or time-triggered logic that performs destructive or unauthorized actions.
+    category: security
+    cwe:
+    - 'CWE-511: Logic/Time Bomb'
+    references:
+    - https://cwe.mitre.org/data/definitions/511.html
+    confidence: MEDIUM
+    likelihood: MEDIUM
+    impact: HIGH
+    subcategory:
+    - vuln
+    technology:
+    - c
+    - cpp
+    source: Validated against NIST Juliet C/C++ Test Suite v1.3
+    remediation: Remove date- or time-triggered logic that performs destructive or unauthorized actions.
+  patterns:
+  - pattern: $DEL(...)
+  - metavariable-regex:
+      metavariable: $DEL
+      regex: ^(unlink|_unlink|_wunlink|UNLINK|remove|_wremove|REMOVE|DeleteFile|DeleteFileA|DeleteFileW|RemoveDirectoryA|RemoveDirectoryW|rmdir|_rmdir|SHFileOperationA|SHFileOperationW)$
+  - pattern-either:
+    - pattern-inside: |
+        if (<... CompareFileTime(...) ...>) { ... }
+    - pattern-inside: |
+        if (<... difftime(...) ...>) { ... }
+    - pattern-inside: |
+        time(&$NOW);
+        ...
+        if (<... $NOW ...>) { ... }
+    - pattern-inside: |
+        $NOW = time(NULL);
+        ...
+        if (<... $NOW ...>) { ... }
+    - pattern-inside: |
+        $T $NOW = time(NULL);
+        ...
+        if (<... $NOW ...>) { ... }
+    - pattern-inside: |
+        if (<... rand() ...>) { ... }
+    - pattern-inside: |
+        if (<... random() ...>) { ... }
+    - patterns:
+      - pattern-inside: |
+          if ($CNT == $LIMIT) { ... }
+      - pattern-either:
+        - pattern-inside: |
+            do { ... $CNT++; } while ($W);
+        - pattern-inside: |
+            while ($W) { ... $CNT++; }
+        - pattern-inside: |
+            for (...) { ... $CNT++; }

@@ -1,0 +1,52 @@
+rules:
+- id: cwe835-for-ever-without-exit
+  languages:
+  - c
+  - cpp
+  paths:
+    include:
+    - '*.c'
+    - '*.h'
+    - '*.cpp'
+    - '*.cc'
+    - '*.cxx'
+    - '*.c++'
+    - '*.hpp'
+    - '*.hh'
+    - '*.hxx'
+    - '*.inc'
+  severity: ERROR
+  message: This for(;;) loop has no break, return, goto, or exit in its body, so it never terminates.
+  metadata:
+    vulnerability_class: Loop with Unreachable Exit Condition ('Infinite Loop')
+    help: |
+      ## Summary
+      This for(;;) loop has no break, return, goto, or exit in its body, so it never terminates.
+
+      ## Remediation
+      Ensure every loop has a reachable exit condition.
+    category: correctness
+    cwe:
+    - 'CWE-835: Loop with Unreachable Exit Condition (''Infinite Loop'')'
+    references:
+    - https://cwe.mitre.org/data/definitions/835.html
+    confidence: HIGH
+    likelihood: MEDIUM
+    impact: HIGH
+    subcategory:
+    - vuln
+    technology:
+    - c
+    - cpp
+    source: Validated against NIST Juliet C/C++ Test Suite v1.3
+    remediation: Ensure every loop has a reachable exit condition.
+  patterns:
+  - pattern-regex: \bfor\s*\(\s*[^;()]*;\s*;[^)]*\)
+  - pattern-inside: for (...) { ... }
+  - pattern-not-inside: for (...) { ... break; ... }
+  - pattern-not-inside: for (...) { ... return; ... }
+  - pattern-not-inside: for (...) { ... return $R; ... }
+  - pattern-not-inside: for (...) { ... goto $L; ... }
+  - pattern-not-inside: for (...) { ... exit(...); ... }
+  - pattern-not-inside: for (...) { ... abort(); ... }
+  - pattern-not-inside: for (...) { ... throw $E; ... }

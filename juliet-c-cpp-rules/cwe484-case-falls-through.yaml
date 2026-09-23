@@ -1,0 +1,46 @@
+rules:
+- id: cwe484-case-falls-through
+  languages:
+  - c
+  - cpp
+  paths:
+    include:
+    - '*.c'
+    - '*.h'
+    - '*.cpp'
+    - '*.cc'
+    - '*.cxx'
+    - '*.c++'
+    - '*.hpp'
+    - '*.hh'
+    - '*.hxx'
+    - '*.inc'
+  severity: WARNING
+  message: This case label executes statements and then falls through into the next case without a break,
+    return, or other jump.
+  metadata:
+    vulnerability_class: Omitted Break Statement in Switch
+    help: |
+      ## Summary
+      This case label executes statements and then falls through into the next case without a break, return, or other jump.
+
+      ## Remediation
+      End every case with break (or an explicit fallthrough annotation) to avoid unintended fall-through.
+    category: correctness
+    cwe:
+    - 'CWE-484: Omitted Break Statement in Switch'
+    references:
+    - https://cwe.mitre.org/data/definitions/484.html
+    confidence: MEDIUM
+    likelihood: MEDIUM
+    impact: MEDIUM
+    subcategory:
+    - vuln
+    technology:
+    - c
+    - cpp
+    source: Validated against NIST Juliet C/C++ Test Suite v1.3
+    remediation: End every case with break (or an explicit fallthrough annotation) to avoid unintended
+      fall-through.
+  pattern-regex: (?m)^[ \t]*case\b[^:\n]*:[ \t]*\r?\n(?:(?![ \t]*(?:break|return|goto|continue|throw|exit|abort|case\b|default\b|[{}]|/\*.*fall|//.*fall))[^\n]*\n){1,20}?(?=[
+    \t]*(?:case\b[^:\n]*|default[ \t]*):)

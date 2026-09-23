@@ -1,0 +1,63 @@
+rules:
+- id: cwe758-missing-return-in-non-void-function
+  languages:
+  - c
+  - cpp
+  paths:
+    include:
+    - '*.c'
+    - '*.h'
+    - '*.cpp'
+    - '*.cc'
+    - '*.cxx'
+    - '*.c++'
+    - '*.hpp'
+    - '*.hh'
+    - '*.hxx'
+    - '*.inc'
+  severity: ERROR
+  message: Non-void function $F can reach the end of its body without returning a value; using the result
+    is undefined behavior.
+  metadata:
+    vulnerability_class: Reliance on Undefined, Unspecified, or Implementation-Defined Behavior
+    help: |
+      ## Summary
+      Non-void function `$F` can reach the end of its body without returning a value; using the result is undefined behavior.
+
+      ## Remediation
+      Avoid undefined behavior: do not read uninitialized memory, and always return a value from non-void functions.
+    category: correctness
+    cwe:
+    - 'CWE-758: Reliance on Undefined, Unspecified, or Implementation-Defined Behavior'
+    references:
+    - https://cwe.mitre.org/data/definitions/758.html
+    confidence: MEDIUM
+    likelihood: MEDIUM
+    impact: HIGH
+    subcategory:
+    - vuln
+    technology:
+    - c
+    - cpp
+    source: Validated against NIST Juliet C/C++ Test Suite v1.3
+    remediation: 'Avoid undefined behavior: do not read uninitialized memory, and always return a value
+      from non-void functions.'
+  patterns:
+  - pattern: |
+      $T $F(...) { ... }
+  - metavariable-regex:
+      metavariable: $T
+      regex: ^(?!void$).+
+  - metavariable-regex:
+      metavariable: $F
+      regex: ^(?!main$|wmain$|_tmain$)
+  - pattern-not: |
+      $T $F(...) { ... return $X; }
+  - pattern-not: |
+      $T $F(...) { ... return $X; ... }
+  - pattern-not: |
+      $T $F(...) { ... exit(...); }
+  - pattern-not: |
+      $T $F(...) { ... abort(...); }
+  - pattern-not: |
+      $T $F(...) { ... throw $E; }

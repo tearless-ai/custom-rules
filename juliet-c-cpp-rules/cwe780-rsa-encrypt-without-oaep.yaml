@@ -1,0 +1,74 @@
+rules:
+- id: cwe780-rsa-encrypt-without-oaep
+  languages:
+  - c
+  - cpp
+  paths:
+    include:
+    - '*.c'
+    - '*.h'
+    - '*.cpp'
+    - '*.cc'
+    - '*.cxx'
+    - '*.c++'
+    - '*.hpp'
+    - '*.hh'
+    - '*.hxx'
+    - '*.inc'
+  severity: WARNING
+  message: CryptEncrypt() is used with an RSA key but without the CRYPT_OAEP flag, so PKCS#1 v1.5 padding
+    is used.
+  metadata:
+    vulnerability_class: Use of RSA Algorithm without OAEP
+    help: |
+      ## Summary
+      CryptEncrypt() is used with an RSA key but without the CRYPT_OAEP flag, so PKCS#1 v1.5 padding is used.
+
+      ## Remediation
+      Use RSA with OAEP padding (e.g. CRYPT_OAEP) instead of PKCS#1 v1.5 or no padding.
+    category: security
+    cwe:
+    - 'CWE-780: Use of RSA Algorithm without OAEP'
+    references:
+    - https://cwe.mitre.org/data/definitions/780.html
+    confidence: HIGH
+    likelihood: MEDIUM
+    impact: MEDIUM
+    subcategory:
+    - vuln
+    technology:
+    - c
+    - cpp
+    source: Validated against NIST Juliet C/C++ Test Suite v1.3
+    remediation: Use RSA with OAEP padding (e.g. CRYPT_OAEP) instead of PKCS#1 v1.5 or no padding.
+  patterns:
+  - pattern: CryptEncrypt($KEY, $HASH, $FINAL, $FLAGS, ...)
+  - pattern-not: CryptEncrypt($KEY, $HASH, $FINAL, <... CRYPT_OAEP ...>, ...)
+  - pattern-either:
+    - pattern-inside: |
+        $T $FN(...) {
+          ...
+          if (<... CryptDeriveKey($P, $ALG, $H, $F, &$KEY) ...>) { ... }
+          ...
+        }
+    - pattern-inside: |
+        $T $FN(...) {
+          ...
+          CryptDeriveKey($P, $ALG, $H, $F, &$KEY);
+          ...
+        }
+    - pattern-inside: |
+        $T $FN(...) {
+          ...
+          if (<... CryptGenKey($P, $ALG, $F, &$KEY) ...>) { ... }
+          ...
+        }
+    - pattern-inside: |
+        $T $FN(...) {
+          ...
+          CryptGenKey($P, $ALG, $F, &$KEY);
+          ...
+        }
+  - metavariable-regex:
+      metavariable: $ALG
+      regex: ^(CALG_RSA_SIGN|CALG_RSA_KEYX|AT_KEYEXCHANGE|AT_SIGNATURE)$

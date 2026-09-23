@@ -1,0 +1,96 @@
+rules:
+- id: cwe321-hardcoded-key-material-used-for-encryption
+  languages:
+  - c
+  - cpp
+  paths:
+    include:
+    - '*.c'
+    - '*.h'
+    - '*.cpp'
+    - '*.cc'
+    - '*.cxx'
+    - '*.c++'
+    - '*.hpp'
+    - '*.hh'
+    - '*.hxx'
+    - '*.inc'
+  severity: ERROR
+  message: This function derives its encryption key from a hard-coded string, so anyone with the binary
+    can recover the key.
+  metadata:
+    vulnerability_class: Use of Hard-coded Cryptographic Key
+    help: |
+      ## Summary
+      This function derives its encryption key from a hard-coded string, so anyone with the binary can recover the key.
+
+      ## Remediation
+      Remove hard-coded cryptographic keys; derive keys from protected secrets or load them from a key store.
+    category: security
+    cwe:
+    - 'CWE-321: Use of Hard-coded Cryptographic Key'
+    references:
+    - https://cwe.mitre.org/data/definitions/321.html
+    confidence: MEDIUM
+    likelihood: MEDIUM
+    impact: HIGH
+    subcategory:
+    - vuln
+    technology:
+    - c
+    - cpp
+    source: Validated against NIST Juliet C/C++ Test Suite v1.3
+    remediation: Remove hard-coded cryptographic keys; derive keys from protected secrets or load them
+      from a key store.
+  options:
+    constant_propagation: false
+  patterns:
+  - pattern-either:
+    - pattern: CryptEncrypt(...)
+    - pattern: CryptDecrypt(...)
+  - pattern-either:
+    - pattern-inside: |
+        $T $FN(...) {
+          ...
+          $CPY($K, $LIT);
+          ...
+        }
+    - pattern-inside: |
+        $T $FN(...) {
+          ...
+          $CPY($K, $LIT, ...);
+          ...
+        }
+  - metavariable-regex:
+      metavariable: $CPY
+      regex: ^(strcpy|wcscpy|_tcscpy|_mbscpy|strncpy|wcsncpy|memcpy|lstrcpyA|lstrcpyW|StringCchCopyA|StringCchCopyW)$
+  - metavariable-regex:
+      metavariable: $LIT
+      regex: ^(L?"[^"]*"|[A-Z][A-Z0-9_]*)$
+  - pattern-either:
+    - pattern-inside: |
+        $T $FN(...) {
+          ...
+          if (<... CryptHashData($H, ($CAST) $K2, ...) ...>) {...}
+          ...
+        }
+    - pattern-inside: |
+        $T $FN(...) {
+          ...
+          if (<... CryptHashData($H, $K2, ...) ...>) {...}
+          ...
+        }
+    - pattern-inside: |
+        $T $FN(...) {
+          ...
+          CryptHashData($H, ($CAST) $K2, ...);
+          ...
+        }
+    - pattern-inside: |
+        $T $FN(...) {
+          ...
+          CryptHashData($H, $K2, ...);
+          ...
+        }
+  - metavariable-comparison:
+      comparison: str($K) == str($K2)

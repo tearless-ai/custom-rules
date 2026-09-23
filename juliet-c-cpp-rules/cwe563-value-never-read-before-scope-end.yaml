@@ -1,0 +1,322 @@
+rules:
+- id: cwe563-value-never-read-before-scope-end
+  languages:
+  - c
+  - cpp
+  paths:
+    include:
+    - '*.c'
+    - '*.h'
+    - '*.cpp'
+    - '*.cc'
+    - '*.cxx'
+    - '*.c++'
+    - '*.hpp'
+    - '*.hh'
+    - '*.hxx'
+    - '*.inc'
+  severity: WARNING
+  message: The value assigned to local variable $X is never read before $X goes out of scope.
+  metadata:
+    vulnerability_class: Assignment to Variable without Use
+    help: |
+      ## Summary
+      The value assigned to local variable `$X` is never read before `$X` goes out of scope.
+
+      ## Remediation
+      Remove variables and assignments whose values are never used, or use them as intended.
+    category: correctness
+    cwe:
+    - 'CWE-563: Assignment to Variable without Use'
+    references:
+    - https://cwe.mitre.org/data/definitions/563.html
+    confidence: MEDIUM
+    likelihood: MEDIUM
+    impact: MEDIUM
+    subcategory:
+    - vuln
+    technology:
+    - c
+    - cpp
+    source: Validated against NIST Juliet C/C++ Test Suite v1.3
+    remediation: Remove variables and assignments whose values are never used, or use them as intended.
+  patterns:
+  - pattern-either:
+    - pattern-inside: |
+        $R $FN(...) {
+          ...
+          $T $X;
+          ...
+        }
+    - pattern-inside: |
+        $R $FN(...) {
+          ...
+          $T $X = $V;
+          ...
+        }
+    - pattern-inside: |
+        $R $FN(..., $T $X, ...) { ... }
+  - pattern-not-inside: |
+      $R $FN(..., $T3 &$X, ...) { ... }
+  - pattern-not-inside: |
+      $T2 &$REF = $X;
+      ...
+  - pattern-not-inside: |
+      $T2 *$REF = &$X;
+      ...
+  - pattern-not-inside: |
+      $R $FN(..., $T $X, ...) {
+        ...
+        $F(..., <... $X ...>, ...);
+        ...
+      }
+  - pattern-not-inside: |
+      $R $FN(..., $T $X, ...) {
+        ...
+        $Y = <... $X ...>;
+        ...
+      }
+  - pattern-not-inside: |
+      $R $FN(..., $T $X, ...) {
+        ...
+        return <... $X ...>;
+        ...
+      }
+  - pattern-not-inside: |
+      $R $FN(..., $T $X, ...) {
+        ...
+        $T2 $Y = <... $X ...>;
+        ...
+      }
+  - pattern-not-inside: |
+      $R $FN(..., $T $X, ...) {
+        ...
+        $Y += <... $X ...>;
+        ...
+      }
+  - pattern-not-inside: |
+      $R $FN(..., $T $X, ...) {
+        ...
+        if (<... $X ...>) $S;
+        ...
+      }
+  - pattern-not-inside: |
+      $R $FN(..., $T $X, ...) {
+        ...
+        $O.$M(..., <... $X ...>, ...);
+        ...
+      }
+  - pattern-not-inside: |
+      $R $FN(..., $T $X, ...) {
+        ...
+        $O->$M(..., <... $X ...>, ...);
+        ...
+      }
+  - pattern-not-inside: |
+      $R $FN(..., $T $X, ...) {
+        ...
+        $T2 $Y = new $C(..., <... $X ...>, ...);
+        ...
+      }
+  - pattern-not-inside: |
+      $R $FN(..., $T $X, ...) {
+        ...
+        $T2 *$Y = new $C(..., <... $X ...>, ...);
+        ...
+      }
+  - pattern-not-inside: |
+      $R $FN(..., $T $X, ...) {
+        ...
+        $T2 *$Y = <... $X ...>;
+        ...
+      }
+  - pattern-not-inside: |
+      $R $FN(..., $T $X, ...) {
+        ...
+        $T2 &$Y = <... $X ...>;
+        ...
+      }
+  - pattern-not-inside: |
+      $R $FN(..., $T $X, ...) {
+        ...
+        $T2 $Y(..., <... $X ...>, ...);
+        ...
+      }
+  - pattern-not-inside: |
+      $R $FN(..., $T $X, ...) {
+        ...
+        <... $X.$M(...) ...>;
+        ...
+      }
+  - pattern-not-inside: |
+      $R $FN(..., $T $X, ...) {
+        ...
+        <... $X->$M(...) ...>;
+        ...
+      }
+  - pattern-not-inside: |
+      $R $FN(..., $T $X, ...) {
+        ...
+        delete $X;
+        ...
+      }
+  - pattern-not-inside: |
+      $R $FN(..., $T $X, ...) {
+        ...
+        delete [] $X;
+        ...
+      }
+  - pattern-not-inside: |
+      $R $FN(..., $T $X, ...) {
+        ...
+        <... $X[$I] ...>;
+        ...
+      }
+  - pattern-not-inside: |
+      $R $FN(..., $T $X, ...) {
+        ...
+        <... $X->$FF ...>;
+        ...
+      }
+  - pattern-not-inside: |
+      $R $FN(..., $T $X, ...) {
+        ...
+        $Y = <... $X.$FF ...>;
+        ...
+      }
+  - pattern-not-inside: |
+      $R $FN(...) {
+        ...
+        $F(..., <... $X ...>, ...);
+        ...
+      }
+  - pattern-not-inside: |
+      $R $FN(...) {
+        ...
+        $Y = <... $X ...>;
+        ...
+      }
+  - pattern-not-inside: |
+      $R $FN(...) {
+        ...
+        return <... $X ...>;
+        ...
+      }
+  - pattern-not-inside: |
+      $R $FN(...) {
+        ...
+        $T2 $Y = <... $X ...>;
+        ...
+      }
+  - pattern-not-inside: |
+      $R $FN(...) {
+        ...
+        $Y += <... $X ...>;
+        ...
+      }
+  - pattern-not-inside: |
+      $R $FN(...) {
+        ...
+        if (<... $X ...>) $S;
+        ...
+      }
+  - pattern-not-inside: |
+      $R $FN(...) {
+        ...
+        $O.$M(..., <... $X ...>, ...);
+        ...
+      }
+  - pattern-not-inside: |
+      $R $FN(...) {
+        ...
+        $O->$M(..., <... $X ...>, ...);
+        ...
+      }
+  - pattern-not-inside: |
+      $R $FN(...) {
+        ...
+        $T2 $Y = new $C(..., <... $X ...>, ...);
+        ...
+      }
+  - pattern-not-inside: |
+      $R $FN(...) {
+        ...
+        $T2 *$Y = new $C(..., <... $X ...>, ...);
+        ...
+      }
+  - pattern-not-inside: |
+      $R $FN(...) {
+        ...
+        $T2 *$Y = <... $X ...>;
+        ...
+      }
+  - pattern-not-inside: |
+      $R $FN(...) {
+        ...
+        $T2 &$Y = <... $X ...>;
+        ...
+      }
+  - pattern-not-inside: |
+      $R $FN(...) {
+        ...
+        $T2 $Y(..., <... $X ...>, ...);
+        ...
+      }
+  - pattern-not-inside: |
+      $R $FN(...) {
+        ...
+        <... $X.$M(...) ...>;
+        ...
+      }
+  - pattern-not-inside: |
+      $R $FN(...) {
+        ...
+        <... $X->$M(...) ...>;
+        ...
+      }
+  - pattern-not-inside: |
+      $R $FN(...) {
+        ...
+        delete $X;
+        ...
+      }
+  - pattern-not-inside: |
+      $R $FN(...) {
+        ...
+        delete [] $X;
+        ...
+      }
+  - pattern-not-inside: |
+      $R $FN(...) {
+        ...
+        <... $X[$I] ...>;
+        ...
+      }
+  - pattern-not-inside: |
+      $R $FN(...) {
+        ...
+        <... $X->$FF ...>;
+        ...
+      }
+  - pattern-not-inside: |
+      $R $FN(...) {
+        ...
+        $Y = <... $X.$FF ...>;
+        ...
+      }
+  - pattern-either:
+    - pattern: |
+        $T $X = $V;
+        ...
+    - pattern: |
+        $X = $V;
+        ...
+    - pattern: |
+        $X.$FLD = $V;
+        ...
+  - pattern-not: |
+      $T $X($ARG1);
+      ...
+  - pattern-not: |
+      $T $X($ARG1, ...);
+      ...

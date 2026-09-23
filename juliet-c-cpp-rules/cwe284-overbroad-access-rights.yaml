@@ -1,0 +1,80 @@
+rules:
+- id: cwe284-overbroad-access-rights
+  languages:
+  - c
+  - cpp
+  paths:
+    include:
+    - '*.c'
+    - '*.h'
+    - '*.cpp'
+    - '*.cc'
+    - '*.cxx'
+    - '*.c++'
+    - '*.hpp'
+    - '*.hh'
+    - '*.hxx'
+    - '*.inc'
+  severity: WARNING
+  message: $F() requests all access rights; request only the specific rights the code needs.
+  metadata:
+    vulnerability_class: Improper Access Control
+    help: |
+      ## Summary
+      `$F()` requests all access rights; request only the specific rights the code needs.
+
+      ## Remediation
+      Request only the access rights actually needed instead of GENERIC_ALL/KEY_ALL_ACCESS, and create named pipes with FILE_FLAG_FIRST_PIPE_INSTANCE.
+    category: security
+    cwe:
+    - 'CWE-284: Improper Access Control'
+    references:
+    - https://cwe.mitre.org/data/definitions/284.html
+    confidence: MEDIUM
+    likelihood: MEDIUM
+    impact: MEDIUM
+    subcategory:
+    - vuln
+    technology:
+    - c
+    - cpp
+    source: Validated against NIST Juliet C/C++ Test Suite v1.3
+    remediation: Request only the access rights actually needed instead of GENERIC_ALL/KEY_ALL_ACCESS,
+      and create named pipes with FILE_FLAG_FIRST_PIPE_INSTANCE.
+  patterns:
+  - pattern-either:
+    - patterns:
+      - pattern: $F($NAME, $ACCESS, ...)
+      - metavariable-regex:
+          metavariable: $F
+          regex: ^(CreateFile|CreateFileA|CreateFileW|SHRegCreateUSKey|SHRegCreateUSKeyA|SHRegCreateUSKeyW|SHRegOpenUSKeyA|SHRegOpenUSKeyW)$
+    - patterns:
+      - pattern: $F($NAME, $FLAGS, $ACCESS, ...)
+      - metavariable-regex:
+          metavariable: $F
+          regex: ^(CreateWindowStation|CreateWindowStationA|CreateWindowStationW)$
+    - patterns:
+      - pattern: $F($NAME, $DEV, $MODE, $FLAGS, $ACCESS, ...)
+      - metavariable-regex:
+          metavariable: $F
+          regex: ^(CreateDesktop|CreateDesktopA|CreateDesktopW|CreateDesktopExA|CreateDesktopExW)$
+    - patterns:
+      - pattern: $F($ROOT, $SUB, $RES, $CLS, $OPT, $ACCESS, ...)
+      - metavariable-regex:
+          metavariable: $F
+          regex: ^(RegCreateKeyEx|RegCreateKeyExA|RegCreateKeyExW)$
+    - patterns:
+      - pattern: $F($ROOT, $SUB, $OPT, $ACCESS, ...)
+      - metavariable-regex:
+          metavariable: $F
+          regex: ^(RegOpenKeyEx|RegOpenKeyExA|RegOpenKeyExW)$
+  - metavariable-pattern:
+      metavariable: $ACCESS
+      pattern-either:
+      - pattern: <... GENERIC_ALL ...>
+      - pattern: <... FILE_ALL_ACCESS ...>
+      - pattern: <... KEY_ALL_ACCESS ...>
+      - pattern: <... WINSTA_ALL_ACCESS ...>
+      - pattern: <... DESKTOP_ALL_ACCESS ...>
+      - pattern: <... STANDARD_RIGHTS_ALL ...>
+  - focus-metavariable: $F

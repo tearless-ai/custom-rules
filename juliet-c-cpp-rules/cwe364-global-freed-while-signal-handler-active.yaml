@@ -1,0 +1,86 @@
+rules:
+- id: cwe364-global-freed-while-signal-handler-active
+  languages:
+  - c
+  - cpp
+  paths:
+    include:
+    - '*.c'
+    - '*.h'
+    - '*.cpp'
+    - '*.cc'
+    - '*.cxx'
+    - '*.c++'
+    - '*.hpp'
+    - '*.hh'
+    - '*.hxx'
+    - '*.inc'
+  severity: ERROR
+  message: $G is checked and freed while signal handler $H, which also dereferences $G, is still installed;
+    a signal arriving between the check and the free causes a race (use after free or double free).
+  metadata:
+    vulnerability_class: Signal Handler Race Condition
+    help: |
+      ## Summary
+      `$G` is checked and freed while signal handler `$H`, which also dereferences `$G`, is still installed; a signal arriving between the check and the free causes a race (use after free or double free).
+
+      ## Remediation
+      Make signal handlers async-signal-safe: only set a volatile sig_atomic_t flag and do the real work outside the handler.
+    category: security
+    cwe:
+    - 'CWE-364: Signal Handler Race Condition'
+    references:
+    - https://cwe.mitre.org/data/definitions/364.html
+    confidence: MEDIUM
+    likelihood: MEDIUM
+    impact: HIGH
+    subcategory:
+    - vuln
+    technology:
+    - c
+    - cpp
+    source: Validated against NIST Juliet C/C++ Test Suite v1.3
+    remediation: 'Make signal handlers async-signal-safe: only set a volatile sig_atomic_t flag and do
+      the real work outside the handler.'
+  patterns:
+  - pattern-inside: |
+      $R $H($T $SG) { ... }
+      ...
+  - pattern-either:
+    - pattern-inside: |
+        $R $H($T $SG) { ... $G->$FLD = $V; ... }
+        ...
+    - pattern-inside: |
+        $R $H($T $SG) { ... *$G = $V; ... }
+        ...
+    - pattern-inside: |
+        $R $H($T $SG) { ... free($G); ... }
+        ...
+  - pattern-inside: |
+      signal($SIGNUM, $H);
+      ...
+  - pattern-not-inside: |
+      signal($SIGNUM, $H);
+      ...
+      signal($SIGNUM, SIG_DFL);
+      ...
+  - pattern-not-inside: |
+      signal($SIGNUM, $H);
+      ...
+      signal($SIGNUM, SIG_IGN);
+      ...
+  - pattern-not-inside: |
+      signal($SIGNUM, $H);
+      ...
+      sigprocmask(...);
+      ...
+  - pattern-not-inside: |
+      signal($SIGNUM, $H);
+      ...
+      pthread_sigmask(...);
+      ...
+  - pattern-either:
+    - pattern: |
+        if ($G != NULL) { ... free($G); ... }
+    - pattern: |
+        if ($G) { ... free($G); ... }

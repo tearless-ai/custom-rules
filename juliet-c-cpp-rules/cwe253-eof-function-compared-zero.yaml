@@ -1,0 +1,52 @@
+rules:
+- id: cwe253-eof-function-compared-zero
+  languages:
+  - c
+  - cpp
+  paths:
+    include:
+    - '*.c'
+    - '*.h'
+    - '*.cpp'
+    - '*.cc'
+    - '*.cxx'
+    - '*.c++'
+    - '*.hpp'
+    - '*.hh'
+    - '*.hxx'
+    - '*.inc'
+  severity: WARNING
+  message: $F() signals failure with EOF/WEOF (or a negative value), not 0, so this check does not detect
+    errors.
+  metadata:
+    vulnerability_class: Incorrect Check of Function Return Value
+    help: |
+      ## Summary
+      `$F()` signals failure with EOF/WEOF (or a negative value), not 0, so this check does not detect errors.
+
+      ## Remediation
+      Compare return values against the function's documented error value (e.g. EOF, NULL, INVALID_HANDLE_VALUE, -1) rather than an assumed one.
+    category: security
+    cwe:
+    - 'CWE-253: Incorrect Check of Function Return Value'
+    references:
+    - https://cwe.mitre.org/data/definitions/253.html
+    confidence: MEDIUM
+    likelihood: MEDIUM
+    impact: MEDIUM
+    subcategory:
+    - vuln
+    technology:
+    - c
+    - cpp
+    source: Validated against NIST Juliet C/C++ Test Suite v1.3
+    remediation: Compare return values against the function's documented error value (e.g. EOF, NULL,
+      INVALID_HANDLE_VALUE, -1) rather than an assumed one.
+  patterns:
+  - pattern-either:
+    - pattern: $F(...) == 0
+    - pattern: $F(...) != 0
+    - pattern: 0 == $F(...)
+  - metavariable-regex:
+      metavariable: $F
+      regex: ^(fputc|fputwc|fputs|fputws|putc|putwc|putchar|putwchar|puts|_putws|PUTS|fprintf|fwprintf|printf|wprintf|snprintf|_snprintf|_snwprintf|swprintf|SNPRINTF|fscanf|fwscanf|scanf|wscanf|sscanf|swscanf)$

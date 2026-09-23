@@ -1,0 +1,55 @@
+rules:
+- id: cwe272-unquoted-process-path-with-space
+  languages:
+  - c
+  - cpp
+  paths:
+    include:
+    - '*.c'
+    - '*.h'
+    - '*.cpp'
+    - '*.cc'
+    - '*.cxx'
+    - '*.c++'
+    - '*.hpp'
+    - '*.hh'
+    - '*.hxx'
+    - '*.inc'
+  severity: WARNING
+  message: The command line passed to $F() starts with an unquoted executable path containing a space,
+    so Windows may run a different program (for example C:\Program.exe).
+  metadata:
+    vulnerability_class: Least Privilege Violation
+    help: |
+      ## Summary
+      The command line passed to `$F()` starts with an unquoted executable path containing a space, so Windows may run a different program (for example C:\Program.exe).
+
+      ## Remediation
+      Request the least privilege needed: write per-user registry keys instead of HKLM, and quote executable paths passed to process-creation APIs.
+    category: security
+    cwe:
+    - 'CWE-272: Least Privilege Violation'
+    references:
+    - https://learn.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-createprocessa
+    confidence: MEDIUM
+    likelihood: MEDIUM
+    impact: MEDIUM
+    subcategory:
+    - vuln
+    technology:
+    - c
+    - cpp
+    source: Validated against NIST Juliet C/C++ Test Suite v1.3
+    remediation: 'Request the least privilege needed: write per-user registry keys instead of HKLM, and
+      quote executable paths passed to process-creation APIs.'
+  patterns:
+  - pattern-either:
+    - pattern: $F(NULL, $CMD, ...)
+    - pattern: $F($TOKEN, NULL, $CMD, ...)
+  - metavariable-regex:
+      metavariable: $F
+      regex: ^(CreateProcess|CreateProcessA|CreateProcessW|CreateProcessAsUser|CreateProcessAsUserA|CreateProcessAsUserW|CreateProcessWithTokenW|CreateProcessWithLogonW)$
+  - metavariable-regex:
+      metavariable: $CMD
+      regex: ^L?"[A-Za-z]:\\\\[^" ]* [^"]*\\\\
+  - focus-metavariable: $F

@@ -1,0 +1,37 @@
+rules:
+- id: cwe390-empty-catch-block
+  languages:
+  - regex
+  paths:
+    include:
+    - '*.cpp'
+    - '*.cc'
+    - '*.cxx'
+    - '*.hpp'
+  severity: WARNING
+  message: This catch block is empty, so the caught exception is silently swallowed.
+  metadata:
+    vulnerability_class: Detection of Error Condition Without Action
+    help: |
+      ## Summary
+      This catch block is empty, so the caught exception is silently swallowed.
+
+      ## Remediation
+      Handle detected errors: report, recover or abort instead of leaving the error branch empty.
+    category: security
+    cwe:
+    - 'CWE-390: Detection of Error Condition Without Action'
+    references:
+    - https://cwe.mitre.org/data/definitions/390.html
+    confidence: MEDIUM
+    likelihood: MEDIUM
+    impact: MEDIUM
+    subcategory:
+    - vuln
+    technology:
+    - c
+    - cpp
+    source: Validated against NIST Juliet C/C++ Test Suite v1.3
+    remediation: 'Handle detected errors: report, recover or abort instead of leaving the error branch
+      empty.'
+  pattern-regex: \}\s*catch\s*\([^()]*\)\s*\{(?:\s|/\*(?:[^*]|\*(?!/))*\*/|//[^\n]*)*\}

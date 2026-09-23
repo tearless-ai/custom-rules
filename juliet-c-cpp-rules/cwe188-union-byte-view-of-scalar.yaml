@@ -1,0 +1,58 @@
+rules:
+- id: cwe188-union-byte-view-of-scalar
+  languages:
+  - c
+  - cpp
+  paths:
+    include:
+    - '*.c'
+    - '*.h'
+    - '*.cpp'
+    - '*.cc'
+    - '*.cxx'
+    - '*.c++'
+    - '*.hpp'
+    - '*.hh'
+    - '*.hxx'
+    - '*.inc'
+  severity: WARNING
+  message: A scalar stored in a union is modified through an overlapping structure of smaller fields,
+    which depends on byte order and layout.
+  metadata:
+    vulnerability_class: Reliance on Data/Memory Layout
+    help: |
+      ## Summary
+      A scalar stored in a union is modified through an overlapping structure of smaller fields, which depends on byte order and layout.
+
+      ## Remediation
+      Access struct and union members by name; do not rely on member offsets, padding or layout via pointer arithmetic.
+    category: security
+    cwe:
+    - 'CWE-188: Reliance on Data/Memory Layout'
+    references:
+    - https://cwe.mitre.org/data/definitions/188.html
+    confidence: MEDIUM
+    likelihood: MEDIUM
+    impact: MEDIUM
+    subcategory:
+    - vuln
+    technology:
+    - c
+    - cpp
+    source: Validated against NIST Juliet C/C++ Test Suite v1.3
+    remediation: Access struct and union members by name; do not rely on member offsets, padding or layout
+      via pointer arithmetic.
+  patterns:
+  - pattern-inside: |
+      $U.$SCALAR = $V;
+      ...
+  - pattern-either:
+    - pattern: $U.$VIEW.$PART = $X
+    - pattern: $U.$VIEW.$PART |= $X
+    - pattern: $U.$VIEW.$PART &= $X
+    - pattern: $U.$VIEW.$PART ^= $X
+    - pattern: $U.$VIEW.$PART += $X
+    - pattern: $U.$VIEW[$I] = $X
+    - pattern: $U.$VIEW[$I] |= $X
+  - metavariable-comparison:
+      comparison: str($SCALAR) != str($VIEW)

@@ -1,0 +1,53 @@
+rules:
+- id: cwe587-pointer-assigned-fixed-address
+  languages:
+  - c
+  - cpp
+  paths:
+    include:
+    - '*.c'
+    - '*.h'
+    - '*.cpp'
+    - '*.cc'
+    - '*.cxx'
+    - '*.c++'
+    - '*.hpp'
+    - '*.hh'
+    - '*.hxx'
+    - '*.inc'
+  severity: WARNING
+  message: A pointer is assigned a hard-coded non-null numeric address, which is not portable and may
+    point at unmapped or attacker-controlled memory.
+  metadata:
+    vulnerability_class: Assignment of a Fixed Address to a Pointer
+    help: |
+      ## Summary
+      A pointer is assigned a hard-coded non-null numeric address, which is not portable and may point at unmapped or attacker-controlled memory.
+
+      ## Remediation
+      Do not assign fixed numeric addresses to pointers; obtain addresses from allocations or objects.
+    category: security
+    cwe:
+    - 'CWE-587: Assignment of a Fixed Address to a Pointer'
+    references:
+    - https://cwe.mitre.org/data/definitions/587.html
+    confidence: HIGH
+    likelihood: MEDIUM
+    impact: MEDIUM
+    subcategory:
+    - vuln
+    technology:
+    - c
+    - cpp
+    source: Validated against NIST Juliet C/C++ Test Suite v1.3
+    remediation: Do not assign fixed numeric addresses to pointers; obtain addresses from allocations
+      or objects.
+  patterns:
+  - pattern-either:
+    - pattern: $T * $P = ($CT) $ADDR;
+    - patterns:
+      - pattern: $P = ($CT *) $ADDR
+      - pattern-not-inside: $T * $P = ($CT2) $ADDR;
+  - metavariable-regex:
+      metavariable: $ADDR
+      regex: ^(0[xX][0-9a-fA-F]*[1-9a-fA-F][0-9a-fA-F]*|[1-9][0-9]*)[uUlL]*$

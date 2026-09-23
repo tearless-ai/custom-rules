@@ -1,0 +1,83 @@
+rules:
+- id: cwe325-encrypt-with-uninitialized-key
+  languages:
+  - c
+  - cpp
+  paths:
+    include:
+    - '*.c'
+    - '*.h'
+    - '*.cpp'
+    - '*.cc'
+    - '*.cxx'
+    - '*.c++'
+    - '*.hpp'
+    - '*.hh'
+    - '*.hxx'
+    - '*.inc'
+  severity: WARNING
+  message: $CRYPT() is called with the key handle $KEY, which is still NULL because no key was derived,
+    generated or imported.
+  metadata:
+    vulnerability_class: Missing Cryptographic Step
+    help: |
+      ## Summary
+      `$CRYPT()` is called with the key handle `$KEY`, which is still NULL because no key was derived, generated or imported.
+
+      ## Remediation
+      Perform every required cryptographic step (e.g. hash the key material, call CryptEncrypt/CryptHashData) before using the result.
+    category: security
+    cwe:
+    - 'CWE-325: Missing Cryptographic Step'
+    references:
+    - https://cwe.mitre.org/data/definitions/325.html
+    confidence: MEDIUM
+    likelihood: MEDIUM
+    impact: MEDIUM
+    subcategory:
+    - vuln
+    technology:
+    - c
+    - cpp
+    source: Validated against NIST Juliet C/C++ Test Suite v1.3
+    remediation: Perform every required cryptographic step (e.g. hash the key material, call CryptEncrypt/CryptHashData)
+      before using the result.
+  patterns:
+  - pattern: $CRYPT($KEY, ...)
+  - metavariable-regex:
+      metavariable: $CRYPT
+      regex: ^(CryptEncrypt|CryptDecrypt)$
+  - pattern-either:
+    - pattern-inside: |
+        $T $KEY = ($C) NULL;
+        ...
+    - pattern-inside: |
+        $T $KEY = NULL;
+        ...
+    - pattern-inside: |
+        $T $KEY = 0;
+        ...
+  - pattern-not-inside: |
+      if (<... CryptDeriveKey($P, $A, $H, $F, &$KEY) ...>) { ... }
+      ...
+  - pattern-not-inside: |
+      CryptDeriveKey($P, $A, $H, $F, &$KEY);
+      ...
+  - pattern-not-inside: |
+      if (<... CryptGenKey($P, $A, $F, &$KEY) ...>) { ... }
+      ...
+  - pattern-not-inside: |
+      CryptGenKey($P, $A, $F, &$KEY);
+      ...
+  - pattern-not-inside: |
+      if (<... CryptImportKey($P, $D, $L, $PK, $F, &$KEY) ...>) { ... }
+      ...
+  - pattern-not-inside: |
+      CryptImportKey($P, $D, $L, $PK, $F, &$KEY);
+      ...
+  - pattern-not-inside: |
+      if (<... CryptDuplicateKey($K0, $R, $F, &$KEY) ...>) { ... }
+      ...
+  - pattern-not-inside: |
+      CryptDuplicateKey($K0, $R, $F, &$KEY);
+      ...

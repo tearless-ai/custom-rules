@@ -1,0 +1,66 @@
+rules:
+- id: cwe272-hklm-registry-write
+  languages:
+  - c
+  - cpp
+  paths:
+    include:
+    - '*.c'
+    - '*.h'
+    - '*.cpp'
+    - '*.cc'
+    - '*.cxx'
+    - '*.c++'
+    - '*.hpp'
+    - '*.hh'
+    - '*.hxx'
+    - '*.inc'
+  severity: WARNING
+  message: $F() opens a key under HKEY_LOCAL_MACHINE for writing, which requires administrative rights;
+    per-user data belongs under HKEY_CURRENT_USER.
+  metadata:
+    vulnerability_class: Least Privilege Violation
+    help: |
+      ## Summary
+      `$F()` opens a key under HKEY_LOCAL_MACHINE for writing, which requires administrative rights; per-user data belongs under HKEY_CURRENT_USER.
+
+      ## Remediation
+      Request the least privilege needed: write per-user registry keys instead of HKLM, and quote executable paths passed to process-creation APIs.
+    category: security
+    cwe:
+    - 'CWE-272: Least Privilege Violation'
+    references:
+    - https://cwe.mitre.org/data/definitions/272.html
+    confidence: MEDIUM
+    likelihood: MEDIUM
+    impact: MEDIUM
+    subcategory:
+    - vuln
+    technology:
+    - c
+    - cpp
+    source: Validated against NIST Juliet C/C++ Test Suite v1.3
+    remediation: 'Request the least privilege needed: write per-user registry keys instead of HKLM, and
+      quote executable paths passed to process-creation APIs.'
+  patterns:
+  - pattern-either:
+    - patterns:
+      - pattern: $F(HKEY_LOCAL_MACHINE, ...)
+      - metavariable-regex:
+          metavariable: $F
+          regex: ^(RegCreateKey|RegCreateKeyA|RegCreateKeyW|RegCreateKeyEx|RegCreateKeyExA|RegCreateKeyExW|RegCreateKeyTransactedA|RegCreateKeyTransactedW)$
+    - patterns:
+      - pattern: $F(HKEY_LOCAL_MACHINE, $SUB, $OPT, $ACCESS, ...)
+      - metavariable-regex:
+          metavariable: $F
+          regex: ^(RegOpenKeyEx|RegOpenKeyExA|RegOpenKeyExW)$
+      - metavariable-pattern:
+          metavariable: $ACCESS
+          pattern-either:
+          - pattern: <... KEY_WRITE ...>
+          - pattern: <... KEY_ALL_ACCESS ...>
+          - pattern: <... KEY_SET_VALUE ...>
+          - pattern: <... KEY_CREATE_SUB_KEY ...>
+          - pattern: <... GENERIC_WRITE ...>
+          - pattern: <... GENERIC_ALL ...>
+  - focus-metavariable: $F

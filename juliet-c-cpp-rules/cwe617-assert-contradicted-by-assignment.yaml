@@ -1,0 +1,61 @@
+rules:
+- id: cwe617-assert-contradicted-by-assignment
+  languages:
+  - c
+  - cpp
+  paths:
+    include:
+    - '*.c'
+    - '*.h'
+    - '*.cpp'
+    - '*.cc'
+    - '*.cxx'
+    - '*.c++'
+    - '*.hpp'
+    - '*.hh'
+    - '*.hxx'
+    - '*.inc'
+  severity: WARNING
+  message: A value below $M flows into this assertion that requires a value greater than $M, so the assertion
+    is guaranteed to fail when reached.
+  metadata:
+    vulnerability_class: Reachable Assertion
+    help: |
+      ## Summary
+      A value below `$M` flows into this assertion that requires a value greater than `$M`, so the assertion is guaranteed to fail when reached.
+
+      ## Remediation
+      Do not assert on conditions that external input can violate; validate input and handle errors explicitly.
+    category: correctness
+    cwe:
+    - 'CWE-617: Reachable Assertion'
+    references:
+    - https://cwe.mitre.org/data/definitions/617.html
+    confidence: HIGH
+    likelihood: MEDIUM
+    impact: MEDIUM
+    subcategory:
+    - vuln
+    technology:
+    - c
+    - cpp
+    source: Validated against NIST Juliet C/C++ Test Suite v1.3
+    remediation: Do not assert on conditions that external input can violate; validate input and handle
+      errors explicitly.
+  mode: taint
+  options:
+    taint_unify_mvars: true
+  pattern-sources:
+  - patterns:
+    - pattern: $M - $K
+    - metavariable-regex:
+        metavariable: $K
+        regex: ^[1-9][0-9]*[uUlL]*$
+  pattern-sinks:
+  - patterns:
+    - pattern-either:
+      - pattern: assert($X > $M)
+      - pattern: assert($X >= $M)
+      - pattern: assert($M < $X)
+      - pattern: assert($M <= $X)
+    - focus-metavariable: $X

@@ -1,0 +1,52 @@
+rules:
+- id: cwe253-unsigned-size-compared-negative
+  languages:
+  - c
+  - cpp
+  paths:
+    include:
+    - '*.c'
+    - '*.h'
+    - '*.cpp'
+    - '*.cc'
+    - '*.cxx'
+    - '*.c++'
+    - '*.hpp'
+    - '*.hh'
+    - '*.hxx'
+    - '*.inc'
+  severity: WARNING
+  message: $F() returns an unsigned size_t, so a negative-result check can never detect a short or failed
+    transfer.
+  metadata:
+    vulnerability_class: Incorrect Check of Function Return Value
+    help: |
+      ## Summary
+      `$F()` returns an unsigned size_t, so a negative-result check can never detect a short or failed transfer.
+
+      ## Remediation
+      Compare return values against the function's documented error value (e.g. EOF, NULL, INVALID_HANDLE_VALUE, -1) rather than an assumed one.
+    category: security
+    cwe:
+    - 'CWE-253: Incorrect Check of Function Return Value'
+    references:
+    - https://cwe.mitre.org/data/definitions/253.html
+    confidence: HIGH
+    likelihood: MEDIUM
+    impact: MEDIUM
+    subcategory:
+    - vuln
+    technology:
+    - c
+    - cpp
+    source: Validated against NIST Juliet C/C++ Test Suite v1.3
+    remediation: Compare return values against the function's documented error value (e.g. EOF, NULL,
+      INVALID_HANDLE_VALUE, -1) rather than an assumed one.
+  patterns:
+  - pattern-either:
+    - pattern: $F(...) < 0
+    - pattern: $F(...) <= -1
+    - pattern: $F(...) == -1
+  - metavariable-regex:
+      metavariable: $F
+      regex: ^(fread|fwrite|strlen|wcslen)$

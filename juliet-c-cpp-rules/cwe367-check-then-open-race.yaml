@@ -1,0 +1,65 @@
+rules:
+- id: cwe367-check-then-open-race
+  languages:
+  - c
+  - cpp
+  paths:
+    include:
+    - '*.c'
+    - '*.h'
+    - '*.cpp'
+    - '*.cc'
+    - '*.cxx'
+    - '*.c++'
+    - '*.hpp'
+    - '*.hh'
+    - '*.hxx'
+    - '*.inc'
+  severity: WARNING
+  message: $CHK() checks the file $FN before it is opened by name, so the file can be swapped between
+    the check and the use (TOCTOU race).
+  metadata:
+    vulnerability_class: Time-of-check Time-of-use (TOCTOU) Race Condition
+    help: |
+      ## Summary
+      `$CHK()` checks the file `$FN` before it is opened by name, so the file can be swapped between the check and the use (TOCTOU race).
+
+      ## Remediation
+      Open the file first and then check properties on the open handle (fstat) instead of checking a path and then opening it.
+    category: security
+    cwe:
+    - 'CWE-367: Time-of-check Time-of-use (TOCTOU) Race Condition'
+    references:
+    - https://cwe.mitre.org/data/definitions/367.html
+    confidence: MEDIUM
+    likelihood: MEDIUM
+    impact: MEDIUM
+    subcategory:
+    - vuln
+    technology:
+    - c
+    - cpp
+    source: Validated against NIST Juliet C/C++ Test Suite v1.3
+    remediation: Open the file first and then check properties on the open handle (fstat) instead of checking
+      a path and then opening it.
+  patterns:
+  - pattern: $CHK($FN, ...)
+  - metavariable-regex:
+      metavariable: $CHK
+      regex: ^(access|_access|_waccess|ACCESS|stat|_stat|_wstat|lstat|STAT|GetFileAttributesA|GetFileAttributesW|PathFileExistsA|PathFileExistsW)$
+  - pattern-either:
+    - pattern-inside: |
+        if (<... $CHK($FN, ...) ...>) { ... }
+        ...
+        $FD = $OPEN($FN, ...);
+    - pattern-inside: |
+        if (<... $CHK($FN, ...) ...>) { ... }
+        ...
+        if (<... $OPEN($FN, ...) ...>) { ... }
+    - pattern-inside: |
+        if (<... $CHK($FN, ...) ...>) { ... }
+        ...
+        $OPEN($FN, ...);
+  - metavariable-regex:
+      metavariable: $OPEN
+      regex: ^(open|_open|_wopen|OPEN|fopen|_wfopen|FOPEN|CreateFileA|CreateFileW|CreateFile|creat|unlink|remove|rename|chmod|chown)$

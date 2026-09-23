@@ -1,0 +1,63 @@
+rules:
+- id: cwe506-encrypted-payload-executed
+  languages:
+  - c
+  - cpp
+  paths:
+    include:
+    - '*.c'
+    - '*.h'
+    - '*.cpp'
+    - '*.cc'
+    - '*.cxx'
+    - '*.c++'
+    - '*.hpp'
+    - '*.hh'
+    - '*.hxx'
+    - '*.inc'
+  severity: ERROR
+  message: The embedded byte array $P is decrypted at run time and then executed, which hides the real
+    command from reviewers.
+  metadata:
+    vulnerability_class: Embedded Malicious Code
+    help: |
+      ## Summary
+      The embedded byte array `$P` is decrypted at run time and then executed, which hides the real command from reviewers.
+
+      ## Remediation
+      Remove hidden functionality that deletes, modifies or exfiltrates data or executes encoded commands.
+    category: security
+    cwe:
+    - 'CWE-506: Embedded Malicious Code'
+    references:
+    - https://cwe.mitre.org/data/definitions/506.html
+    confidence: HIGH
+    likelihood: MEDIUM
+    impact: HIGH
+    subcategory:
+    - vuln
+    technology:
+    - c
+    - cpp
+    source: Validated against NIST Juliet C/C++ Test Suite v1.3
+    remediation: Remove hidden functionality that deletes, modifies or exfiltrates data or executes encoded
+      commands.
+  patterns:
+  - pattern: $T $P[$N] = $INIT;
+  - pattern-inside: |
+      $T $P[$N] = $INIT;
+      ...
+      if (<... CryptDecrypt($K, $H, $FIN, $FL, <... $P ...>, ...) ...>) { ... }
+      ...
+  - pattern-either:
+    - pattern-inside: |
+        $T $P[$N] = $INIT;
+        ...
+        if (<... $EXEC(<... $P ...>, ...) ...>) { ... }
+    - pattern-inside: |
+        $T $P[$N] = $INIT;
+        ...
+        $EXEC(<... $P ...>, ...);
+  - metavariable-regex:
+      metavariable: $EXEC
+      regex: ^(system|_wsystem|popen|_popen|WinExec|ShellExecuteA|ShellExecuteW|execl|execlp|execv|execvp|CreateProcessA|CreateProcessW)$

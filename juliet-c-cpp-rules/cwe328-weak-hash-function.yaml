@@ -1,0 +1,48 @@
+rules:
+- id: cwe328-weak-hash-function
+  languages:
+  - c
+  - cpp
+  paths:
+    include:
+    - '*.c'
+    - '*.h'
+    - '*.cpp'
+    - '*.cc'
+    - '*.cxx'
+    - '*.c++'
+    - '*.hpp'
+    - '*.hh'
+    - '*.hxx'
+    - '*.inc'
+  severity: WARNING
+  message: $F() computes a weak hash (MD2/MD4/MD5/SHA-1); use SHA-256 or stronger.
+  metadata:
+    vulnerability_class: Use of Weak Hash
+    help: |
+      ## Summary
+      `$F()` computes a weak hash (MD2/MD4/MD5/SHA-1); use SHA-256 or stronger.
+
+      ## Remediation
+      Replace MD5/SHA-1 for security uses with SHA-256 or stronger; use a password-hashing function such as Argon2 or bcrypt for passwords.
+    category: security
+    cwe:
+    - 'CWE-328: Use of Weak Hash'
+    references:
+    - https://cwe.mitre.org/data/definitions/328.html
+    confidence: MEDIUM
+    likelihood: MEDIUM
+    impact: MEDIUM
+    subcategory:
+    - vuln
+    technology:
+    - c
+    - cpp
+    source: Validated against NIST Juliet C/C++ Test Suite v1.3
+    remediation: Replace MD5/SHA-1 for security uses with SHA-256 or stronger; use a password-hashing
+      function such as Argon2 or bcrypt for passwords.
+  patterns:
+  - pattern: $F(...)
+  - metavariable-regex:
+      metavariable: $F
+      regex: ^(MD2|MD4|MD5|SHA1|MD5_Init|MD4_Init|SHA1_Init|EVP_md5|EVP_md4|EVP_sha1|EVP_md2)$

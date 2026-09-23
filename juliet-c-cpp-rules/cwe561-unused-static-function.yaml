@@ -1,0 +1,65 @@
+rules:
+- id: cwe561-unused-static-function
+  languages:
+  - c
+  - cpp
+  paths:
+    include:
+    - '*.c'
+    - '*.h'
+    - '*.cpp'
+    - '*.cc'
+    - '*.cxx'
+    - '*.c++'
+    - '*.hpp'
+    - '*.hh'
+    - '*.hxx'
+    - '*.inc'
+  severity: WARNING
+  message: The file-local function $F is never called or referenced in this translation unit, so it is
+    dead code.
+  metadata:
+    vulnerability_class: Dead Code
+    help: |
+      ## Summary
+      The file-local function `$F` is never called or referenced in this translation unit, so it is dead code.
+
+      ## Remediation
+      Remove dead code that can never execute.
+    category: correctness
+    cwe:
+    - 'CWE-561: Dead Code'
+    references:
+    - https://cwe.mitre.org/data/definitions/561.html
+    confidence: MEDIUM
+    likelihood: MEDIUM
+    impact: MEDIUM
+    subcategory:
+    - vuln
+    technology:
+    - c
+    - cpp
+    source: Validated against NIST Juliet C/C++ Test Suite v1.3
+    remediation: Remove dead code that can never execute.
+  patterns:
+  - pattern: |
+      static $R $F(...) { ... }
+  - pattern-not-inside: |
+      static $R $F(...) { ... }
+      ...
+      $R2 $G(...) { ... <... $F ...>; ... }
+  - pattern-not-inside: |
+      static $R $F(...) { ... }
+      ...
+      $R2 $G(...) { ... if (<... $F ...>) $S; ... }
+  - pattern-not-inside: |
+      $R2 $G(...) { ... <... $F ...>; ... }
+      ...
+      static $R $F(...) { ... }
+  - pattern-not-inside: |
+      $T3 $V = <... $F ...>;
+      ...
+  - metavariable-regex:
+      metavariable: $F
+      regex: ^(?!main$)
+  - focus-metavariable: $F

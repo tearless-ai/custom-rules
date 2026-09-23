@@ -1,0 +1,47 @@
+rules:
+- id: cwe571-unsigned-compared-with-zero
+  languages:
+  - c
+  - cpp
+  paths:
+    include:
+    - '*.c'
+    - '*.h'
+    - '*.cpp'
+    - '*.cc'
+    - '*.cxx'
+    - '*.c++'
+    - '*.hpp'
+    - '*.hh'
+    - '*.hxx'
+    - '*.inc'
+  severity: WARNING
+  message: An unsigned value compared this way against zero is always true.
+  metadata:
+    vulnerability_class: Expression is Always True
+    help: |
+      ## Summary
+      An unsigned value compared this way against zero is always true.
+
+      ## Remediation
+      Fix conditions that are always true; they indicate a logic error or a missing check.
+    category: correctness
+    cwe:
+    - 'CWE-571: Expression is Always True'
+    references:
+    - https://cwe.mitre.org/data/definitions/571.html
+    confidence: HIGH
+    likelihood: MEDIUM
+    impact: MEDIUM
+    subcategory:
+    - vuln
+    technology:
+    - c
+    - cpp
+    source: Validated against NIST Juliet C/C++ Test Suite v1.3
+    remediation: Fix conditions that are always true; they indicate a logic error or a missing check.
+  pattern-either:
+  - pattern: (unsigned int $U) >= 0
+  - pattern: (unsigned $U) >= 0
+  - pattern: (unsigned long $U) >= 0
+  - pattern: (size_t $U) >= 0

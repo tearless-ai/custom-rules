@@ -1,0 +1,49 @@
+rules:
+- id: cwe242-gets
+  languages:
+  - c
+  - cpp
+  paths:
+    include:
+    - '*.c'
+    - '*.h'
+    - '*.cpp'
+    - '*.cc'
+    - '*.cxx'
+    - '*.c++'
+    - '*.hpp'
+    - '*.hh'
+    - '*.hxx'
+    - '*.inc'
+  severity: ERROR
+  message: $F() cannot limit the amount of input it reads and always risks a buffer overflow; use fgets()
+    instead.
+  metadata:
+    vulnerability_class: Use of Inherently Dangerous Function
+    help: |
+      ## Summary
+      `$F()` cannot limit the amount of input it reads and always risks a buffer overflow; use fgets() instead.
+
+      ## Remediation
+      Replace inherently dangerous functions such as gets() with bounded alternatives such as fgets().
+    category: security
+    cwe:
+    - 'CWE-242: Use of Inherently Dangerous Function'
+    references:
+    - https://cwe.mitre.org/data/definitions/242.html
+    confidence: HIGH
+    likelihood: MEDIUM
+    impact: HIGH
+    subcategory:
+    - vuln
+    technology:
+    - c
+    - cpp
+    source: Validated against NIST Juliet C/C++ Test Suite v1.3
+    remediation: Replace inherently dangerous functions such as gets() with bounded alternatives such
+      as fgets().
+  patterns:
+  - pattern: $F(...)
+  - metavariable-regex:
+      metavariable: $F
+      regex: ^(gets|_getws|_getts)$

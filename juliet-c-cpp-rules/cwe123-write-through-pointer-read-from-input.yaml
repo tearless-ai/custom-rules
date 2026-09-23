@@ -1,0 +1,84 @@
+rules:
+- id: cwe123-write-through-pointer-read-from-input
+  languages:
+  - c
+  - cpp
+  paths:
+    include:
+    - '*.c'
+    - '*.h'
+    - '*.cpp'
+    - '*.cc'
+    - '*.cxx'
+    - '*.c++'
+    - '*.hpp'
+    - '*.hh'
+    - '*.hxx'
+    - '*.inc'
+  severity: ERROR
+  message: A pointer loaded from a structure whose raw bytes were filled from external input is dereferenced
+    for a write, giving the attacker a write-what-where primitive.
+  metadata:
+    vulnerability_class: Write-what-where Condition
+    help: |
+      ## Summary
+      A pointer loaded from a structure whose raw bytes were filled from external input is dereferenced for a write, giving the attacker a write-what-where primitive.
+
+      ## Remediation
+      Never write through a pointer or to an address derived from untrusted data; validate the target against known-good objects before any write.
+    category: security
+    cwe:
+    - 'CWE-123: Write-what-where Condition'
+    references:
+    - https://cwe.mitre.org/data/definitions/123.html
+    confidence: MEDIUM
+    likelihood: MEDIUM
+    impact: HIGH
+    subcategory:
+    - vuln
+    technology:
+    - c
+    - cpp
+    source: Validated against NIST Juliet C/C++ Test Suite v1.3
+    remediation: Never write through a pointer or to an address derived from untrusted data; validate
+      the target against known-good objects before any write.
+  mode: taint
+  pattern-sources:
+  - patterns:
+    - pattern-either:
+      - pattern-inside: |
+          $RT $F(...) { ... <... fgets(($CT) &$P, ...) ...>; ... }
+      - pattern-inside: |
+          $RT $F(...) { ... <... fread(($CT) &$P, ...) ...>; ... }
+      - pattern-inside: |
+          $RT $F(...) { ... <... recv($S, ($CT) &$P, ...) ...>; ... }
+      - pattern-inside: |
+          $RT $F(...) { ... <... read($S, ($CT) &$P, ...) ...>; ... }
+      - pattern-inside: |
+          $RT $F(...) { ... <... fgets(&$P, ...) ...>; ... }
+      - pattern-inside: |
+          $RT $F(...) { ... <... fread(&$P, ...) ...>; ... }
+      - pattern-inside: |
+          $RT $F(...) { ... <... recv($S, &$P, ...) ...>; ... }
+      - pattern-inside: |
+          $RT $F(...) { ... <... read($S, &$P, ...) ...>; ... }
+    - pattern-either:
+      - pattern: $P
+      - patterns:
+        - pattern-inside: |
+            $RT $F(...) { ... *$Q1 = $P; ... }
+        - pattern-inside: |
+            $RT $F(...) { ... $T1 $Q1 = &$V; ... }
+        - pattern-inside: |
+            $RT $F(...) { ... $T2 $Q2 = &$V; ... }
+        - pattern: '*$Q2'
+  pattern-propagators:
+  - pattern: $U.$FLD = $X
+    from: $X
+    to: $U
+  pattern-sinks:
+  - patterns:
+    - pattern-either:
+      - pattern: $PTR->$FLD = $V
+      - pattern: '*$PTR = $V'
+    - focus-metavariable: $PTR

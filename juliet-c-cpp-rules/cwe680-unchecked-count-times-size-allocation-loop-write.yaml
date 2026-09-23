@@ -1,0 +1,114 @@
+rules:
+- id: cwe680-unchecked-count-times-size-allocation-loop-write
+  languages:
+  - c
+  - cpp
+  paths:
+    include:
+    - '*.c'
+    - '*.h'
+    - '*.cpp'
+    - '*.cc'
+    - '*.cxx'
+    - '*.c++'
+    - '*.hpp'
+    - '*.hh'
+    - '*.hxx'
+    - '*.inc'
+  severity: ERROR
+  message: A buffer is allocated with an element count from input or a huge constant multiplied by the
+    element size without an overflow check, and a loop then writes that many elements, overflowing the
+    undersized allocation.
+  metadata:
+    vulnerability_class: Integer Overflow to Buffer Overflow
+    help: |
+      ## Summary
+      A buffer is allocated with an element count from input or a huge constant multiplied by the element size without an overflow check, and a loop then writes that many elements, overflowing the undersized allocation.
+
+      ## Remediation
+      Check that count * element_size cannot overflow before allocating (use calloc or a checked multiply), and validate counts from input.
+    category: security
+    cwe:
+    - 'CWE-680: Integer Overflow to Buffer Overflow'
+    references:
+    - https://cwe.mitre.org/data/definitions/680.html
+    confidence: MEDIUM
+    likelihood: MEDIUM
+    impact: HIGH
+    subcategory:
+    - vuln
+    technology:
+    - c
+    - cpp
+    source: Validated against NIST Juliet C/C++ Test Suite v1.3
+    remediation: Check that count * element_size cannot overflow before allocating (use calloc or a checked
+      multiply), and validate counts from input.
+  mode: taint
+  pattern-sources:
+  - patterns:
+    - pattern-either:
+      - patterns:
+        - pattern-inside: |
+            $RT $F(...) { ... $P = $E; ... }
+        - metavariable-pattern:
+            metavariable: $E
+            pattern-either:
+            - pattern: atoi(...)
+            - pattern: atol(...)
+            - pattern: atoll(...)
+            - pattern: strtol(...)
+            - pattern: strtoul(...)
+            - pattern: strtoll(...)
+            - pattern: rand()
+            - pattern: RAND32()
+            - pattern: <... INT_MAX ...>
+            - pattern: <... UINT_MAX ...>
+            - pattern: <... SIZE_MAX ...>
+            - pattern: <... LONG_MAX ...>
+      - pattern-inside: |
+          $RT $F(...) { ... fscanf($FP, $FMT, &$P); ... }
+      - pattern-inside: |
+          $RT $F(...) { ... scanf($FMT, &$P); ... }
+    - pattern-either:
+      - pattern: $P
+      - patterns:
+        - pattern-inside: |
+            $RT $F(...) { ... *$Q1 = $P; ... }
+        - pattern-inside: |
+            $RT $F(...) { ... $T1 $Q1 = &$V; ... }
+        - pattern-inside: |
+            $RT $F(...) { ... $T2 $Q2 = &$V; ... }
+        - pattern: '*$Q2'
+  pattern-propagators:
+  - pattern: $U.$FLD = $X
+    from: $X
+    to: $U
+  - pattern: $PTR = ($CT) new $ET[$SIZE]
+    from: $SIZE
+    to: $PTR
+  - pattern: $PTR = new $ET[$SIZE]
+    from: $SIZE
+    to: $PTR
+  pattern-sanitizers:
+  - patterns:
+    - pattern-inside: if (<... $X < <... $MAX / sizeof(...) ...> ...>) { ... }
+    - pattern: $X
+  pattern-sinks:
+  - patterns:
+    - pattern-either:
+      - pattern-inside: |
+          $PTR = ($CT) malloc(<... $N * sizeof(...) ...>);
+          ...
+      - pattern-inside: |
+          $PTR = ($CT) malloc(<... sizeof(...) * $N ...>);
+          ...
+      - pattern-inside: |
+          $PTR = ($CT) calloc(...);
+          ...
+      - pattern-inside: |
+          $BYTES = $N * sizeof(...);
+          ...
+    - pattern-inside: |
+        for (...; $I < $BOUND; ...) { ... }
+    - pattern: $PTR[$I] = $V
+    - focus-metavariable: $PTR

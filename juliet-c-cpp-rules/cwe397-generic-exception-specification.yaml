@@ -1,0 +1,39 @@
+rules:
+- id: cwe397-generic-exception-specification
+  languages:
+  - regex
+  paths:
+    include:
+    - '*.cpp'
+    - '*.cc'
+    - '*.cxx'
+    - '*.hpp'
+    - '*.h'
+  severity: WARNING
+  message: This function's exception specification names a generic exception (throw (...) or throw (std::exception)),
+    which tells callers nothing about the errors to handle.
+  metadata:
+    vulnerability_class: Declaration of Throws for Generic Exception
+    help: |
+      ## Summary
+      This function's exception specification names a generic exception (throw (...) or throw (std::exception)), which tells callers nothing about the errors to handle.
+
+      ## Remediation
+      Throw specific exception types that describe the error instead of generic ones such as std::exception.
+    category: security
+    cwe:
+    - 'CWE-397: Declaration of Throws for Generic Exception'
+    references:
+    - https://cwe.mitre.org/data/definitions/397.html
+    confidence: MEDIUM
+    likelihood: MEDIUM
+    impact: MEDIUM
+    subcategory:
+    - vuln
+    technology:
+    - c
+    - cpp
+    source: Validated against NIST Juliet C/C++ Test Suite v1.3
+    remediation: Throw specific exception types that describe the error instead of generic ones such as
+      std::exception.
+  pattern-regex: \)\s*throw\s*\(\s*(?:\.\.\.|(?:std\s*::\s*)?exception)\s*\)

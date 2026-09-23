@@ -1,0 +1,59 @@
+rules:
+- id: cwe325-key-derived-from-empty-hash
+  languages:
+  - c
+  - cpp
+  paths:
+    include:
+    - '*.c'
+    - '*.h'
+    - '*.cpp'
+    - '*.cc'
+    - '*.cxx'
+    - '*.c++'
+    - '*.hpp'
+    - '*.hh'
+    - '*.hxx'
+    - '*.inc'
+  severity: WARNING
+  message: CryptDeriveKey() derives a key from the hash $H without any data having been hashed into it
+    (missing CryptHashData()).
+  metadata:
+    vulnerability_class: Missing Cryptographic Step
+    help: |
+      ## Summary
+      CryptDeriveKey() derives a key from the hash `$H` without any data having been hashed into it (missing CryptHashData()).
+
+      ## Remediation
+      Perform every required cryptographic step (e.g. hash the key material, call CryptEncrypt/CryptHashData) before using the result.
+    category: security
+    cwe:
+    - 'CWE-325: Missing Cryptographic Step'
+    references:
+    - https://cwe.mitre.org/data/definitions/325.html
+    confidence: MEDIUM
+    likelihood: MEDIUM
+    impact: MEDIUM
+    subcategory:
+    - vuln
+    technology:
+    - c
+    - cpp
+    source: Validated against NIST Juliet C/C++ Test Suite v1.3
+    remediation: Perform every required cryptographic step (e.g. hash the key material, call CryptEncrypt/CryptHashData)
+      before using the result.
+  patterns:
+  - pattern: CryptDeriveKey($P, $ALG, $H, ...)
+  - pattern-either:
+    - pattern-inside: |
+        if (<... CryptCreateHash($P2, $A, $K, $F, &$H) ...>) { ... }
+        ...
+    - pattern-inside: |
+        CryptCreateHash($P2, $A, $K, $F, &$H);
+        ...
+  - pattern-not-inside: |
+      if (<... CryptHashData($H, ...) ...>) { ... }
+      ...
+  - pattern-not-inside: |
+      CryptHashData($H, ...);
+      ...

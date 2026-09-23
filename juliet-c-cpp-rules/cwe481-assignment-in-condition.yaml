@@ -1,0 +1,53 @@
+rules:
+- id: cwe481-assignment-in-condition
+  languages:
+  - c
+  - cpp
+  paths:
+    include:
+    - '*.c'
+    - '*.h'
+    - '*.cpp'
+    - '*.cc'
+    - '*.cxx'
+    - '*.c++'
+    - '*.hpp'
+    - '*.hh'
+    - '*.hxx'
+    - '*.inc'
+  severity: ERROR
+  message: The condition assigns the constant $V to $X instead of comparing with it; this was almost certainly
+    meant to be '=='.
+  metadata:
+    vulnerability_class: Assigning instead of Comparing
+    help: |
+      ## Summary
+      The condition assigns the constant `$V` to `$X` instead of comparing with it; this was almost certainly meant to be '=='.
+
+      ## Remediation
+      Use == for comparison in conditions; enable compiler warnings for assignments in conditions.
+    category: correctness
+    cwe:
+    - 'CWE-481: Assigning instead of Comparing'
+    references:
+    - https://cwe.mitre.org/data/definitions/481.html
+    confidence: HIGH
+    likelihood: MEDIUM
+    impact: HIGH
+    subcategory:
+    - vuln
+    technology:
+    - c
+    - cpp
+    source: Validated against NIST Juliet C/C++ Test Suite v1.3
+    remediation: Use == for comparison in conditions; enable compiler warnings for assignments in conditions.
+  patterns:
+  - pattern-either:
+    - pattern: if ($X = $V) $S;
+    - pattern: if ($X = $V) $S; else $S2;
+    - pattern: while ($X = $V) $S;
+    - pattern: if (<... ($X = $V) ...>) $S;
+  - metavariable-regex:
+      metavariable: $V
+      regex: ^(-?[0-9][0-9a-fA-FxXuUlL.]*|'.*'|true|false)$
+  - focus-metavariable: $X

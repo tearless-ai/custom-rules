@@ -1,0 +1,54 @@
+rules:
+- id: cwe467-malloc-sizeof-pointer-variable
+  languages:
+  - c
+  - cpp
+  paths:
+    include:
+    - '*.c'
+    - '*.h'
+    - '*.cpp'
+    - '*.cc'
+    - '*.cxx'
+    - '*.c++'
+    - '*.hpp'
+    - '*.hh'
+    - '*.hxx'
+    - '*.inc'
+  severity: ERROR
+  message: The allocation size is sizeof() of the pointer variable that receives the allocation rather
+    than of the pointed-to type, so only pointer-size bytes are allocated.
+  metadata:
+    vulnerability_class: Use of sizeof() on a Pointer Type
+    help: |
+      ## Summary
+      The allocation size is sizeof() of the pointer variable that receives the allocation rather than of the pointed-to type, so only pointer-size bytes are allocated.
+
+      ## Remediation
+      Use sizeof on the pointed-to type or the element count, not on the pointer variable.
+    category: security
+    cwe:
+    - 'CWE-467: Use of sizeof() on a Pointer Type'
+    references:
+    - https://cwe.mitre.org/data/definitions/467.html
+    confidence: HIGH
+    likelihood: MEDIUM
+    impact: HIGH
+    subcategory:
+    - vuln
+    technology:
+    - c
+    - cpp
+    source: Validated against NIST Juliet C/C++ Test Suite v1.3
+    remediation: Use sizeof on the pointed-to type or the element count, not on the pointer variable.
+  pattern-either:
+  - pattern: $P = ($CT) malloc(sizeof($P))
+  - pattern: $P = malloc(sizeof($P))
+  - pattern: $P = ($CT) calloc($N, sizeof($P))
+  - pattern: $P = calloc($N, sizeof($P))
+  - pattern: $P = ($CT) realloc($P, sizeof($P))
+  - pattern: $P = realloc($P, sizeof($P))
+  - pattern: $T * $P = ($CT) malloc(sizeof($P));
+  - pattern: $T * $P = malloc(sizeof($P));
+  - pattern: $P = ($CT) malloc($N * sizeof($P))
+  - pattern: $P = malloc($N * sizeof($P))

@@ -1,0 +1,118 @@
+rules:
+- id: cwe835-constant-true-loop-without-exit
+  languages:
+  - c
+  - cpp
+  paths:
+    include:
+    - '*.c'
+    - '*.h'
+    - '*.cpp'
+    - '*.cc'
+    - '*.cxx'
+    - '*.c++'
+    - '*.hpp'
+    - '*.hh'
+    - '*.hxx'
+    - '*.inc'
+  severity: ERROR
+  message: This loop condition is always true and the loop body contains no break, return, goto, or exit,
+    so the loop never terminates.
+  metadata:
+    vulnerability_class: Loop with Unreachable Exit Condition ('Infinite Loop')
+    help: |
+      ## Summary
+      This loop condition is always true and the loop body contains no break, return, goto, or exit, so the loop never terminates.
+
+      ## Remediation
+      Ensure every loop has a reachable exit condition.
+    category: correctness
+    cwe:
+    - 'CWE-835: Loop with Unreachable Exit Condition (''Infinite Loop'')'
+    references:
+    - https://cwe.mitre.org/data/definitions/835.html
+    confidence: HIGH
+    likelihood: MEDIUM
+    impact: HIGH
+    subcategory:
+    - vuln
+    technology:
+    - c
+    - cpp
+    source: Validated against NIST Juliet C/C++ Test Suite v1.3
+    remediation: Ensure every loop has a reachable exit condition.
+  patterns:
+  - pattern-either:
+    - pattern: while ($C) { ... }
+    - pattern: do { ... } while ($C);
+    - pattern: for ($I; $C; $N) { ... }
+  - metavariable-regex:
+      metavariable: $C
+      regex: ^\s*(1|true|TRUE)\s*$
+  - pattern-not: |
+      while ($C) { ... break; ... }
+  - pattern-not: |
+      while ($C) { ... return; ... }
+  - pattern-not: |
+      while ($C) { ... return $R; ... }
+  - pattern-not: |
+      while ($C) { ... goto $L; ... }
+  - pattern-not: |
+      while ($C) { ... exit(...); ... }
+  - pattern-not: |
+      while ($C) { ... abort(); ... }
+  - pattern-not: |
+      while ($C) { ... _exit(...); ... }
+  - pattern-not: |
+      while ($C) { ... throw $E; ... }
+  - pattern-not: |
+      while ($C) { ... longjmp(...); ... }
+  - pattern-not: |
+      while ($C) { ... ExitProcess(...); ... }
+  - pattern-not: |
+      while ($C) { ... pthread_exit(...); ... }
+  - pattern-not: |
+      do { ... break; ... } while ($C);
+  - pattern-not: |
+      do { ... return; ... } while ($C);
+  - pattern-not: |
+      do { ... return $R; ... } while ($C);
+  - pattern-not: |
+      do { ... goto $L; ... } while ($C);
+  - pattern-not: |
+      do { ... exit(...); ... } while ($C);
+  - pattern-not: |
+      do { ... abort(); ... } while ($C);
+  - pattern-not: |
+      do { ... _exit(...); ... } while ($C);
+  - pattern-not: |
+      do { ... throw $E; ... } while ($C);
+  - pattern-not: |
+      do { ... longjmp(...); ... } while ($C);
+  - pattern-not: |
+      do { ... ExitProcess(...); ... } while ($C);
+  - pattern-not: |
+      do { ... pthread_exit(...); ... } while ($C);
+  - pattern-not: |
+      for ($I; $C; $N) { ... break; ... }
+  - pattern-not: |
+      for ($I; $C; $N) { ... return; ... }
+  - pattern-not: |
+      for ($I; $C; $N) { ... return $R; ... }
+  - pattern-not: |
+      for ($I; $C; $N) { ... goto $L; ... }
+  - pattern-not: |
+      for ($I; $C; $N) { ... exit(...); ... }
+  - pattern-not: |
+      for ($I; $C; $N) { ... abort(); ... }
+  - pattern-not: |
+      for ($I; $C; $N) { ... _exit(...); ... }
+  - pattern-not: |
+      for ($I; $C; $N) { ... throw $E; ... }
+  - pattern-not: |
+      for ($I; $C; $N) { ... longjmp(...); ... }
+  - pattern-not: |
+      for ($I; $C; $N) { ... ExitProcess(...); ... }
+  - pattern-not: |
+      for ($I; $C; $N) { ... pthread_exit(...); ... }
+  - focus-metavariable: $C

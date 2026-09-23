@@ -1,0 +1,57 @@
+rules:
+- id: cwe570-condition-on-constant-function
+  languages:
+  - c
+  - cpp
+  paths:
+    include:
+    - '*.c'
+    - '*.h'
+    - '*.cpp'
+    - '*.cc'
+    - '*.cxx'
+    - '*.c++'
+    - '*.hpp'
+    - '*.hh'
+    - '*.hxx'
+    - '*.inc'
+  severity: WARNING
+  message: $F always returns $K, so this condition is always false.
+  metadata:
+    vulnerability_class: Expression is Always False
+    help: |
+      ## Summary
+      `$F` always returns `$K`, so this condition is always false.
+
+      ## Remediation
+      Fix conditions that are always false; they indicate a logic error or dead code.
+    category: correctness
+    cwe:
+    - 'CWE-570: Expression is Always False'
+    references:
+    - https://cwe.mitre.org/data/definitions/570.html
+    confidence: HIGH
+    likelihood: MEDIUM
+    impact: MEDIUM
+    subcategory:
+    - vuln
+    technology:
+    - c
+    - cpp
+    source: Validated against NIST Juliet C/C++ Test Suite v1.3
+    remediation: Fix conditions that are always false; they indicate a logic error or dead code.
+  patterns:
+  - pattern-either:
+    - pattern-inside: |
+        static $T $F() { return $K; }
+        ...
+    - pattern-inside: |
+        static $T $F(void) { return $K; }
+        ...
+  - metavariable-regex:
+      metavariable: $K
+      regex: ^-?[0-9]+$
+  - pattern: if ($F()) $S;
+  - metavariable-comparison:
+      comparison: $K == 0
+  - focus-metavariable: $F

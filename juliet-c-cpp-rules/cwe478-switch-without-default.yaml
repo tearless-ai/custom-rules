@@ -1,0 +1,44 @@
+rules:
+- id: cwe478-switch-without-default
+  languages:
+  - c
+  - cpp
+  paths:
+    include:
+    - '*.c'
+    - '*.h'
+    - '*.cpp'
+    - '*.cc'
+    - '*.cxx'
+    - '*.c++'
+    - '*.hpp'
+    - '*.hh'
+    - '*.hxx'
+    - '*.inc'
+  severity: WARNING
+  message: This switch statement ends without a default case, so values not covered by the case labels
+    are silently ignored.
+  metadata:
+    vulnerability_class: Missing Default Case in Multiple Condition Expression
+    help: |
+      ## Summary
+      This switch statement ends without a default case, so values not covered by the case labels are silently ignored.
+
+      ## Remediation
+      Add a default case to every switch to handle unexpected values.
+    category: correctness
+    cwe:
+    - 'CWE-478: Missing Default Case in Multiple Condition Expression'
+    references:
+    - https://cwe.mitre.org/data/definitions/478.html
+    confidence: MEDIUM
+    likelihood: MEDIUM
+    impact: MEDIUM
+    subcategory:
+    - vuln
+    technology:
+    - c
+    - cpp
+    source: Validated against NIST Juliet C/C++ Test Suite v1.3
+    remediation: Add a default case to every switch to handle unexpected values.
+  pattern-regex: \bswitch\s*\([^;{}]*\)\s*\{(?:(?!\bdefault\s*:)[^{}])*\bcase\b(?:(?!\bdefault\s*:)[^{}])*\K\}

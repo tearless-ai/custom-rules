@@ -1,0 +1,71 @@
+rules:
+- id: cwe468-typed-pointer-offset-scaled-by-sizeof
+  languages:
+  - c
+  - cpp
+  paths:
+    include:
+    - '*.c'
+    - '*.h'
+    - '*.cpp'
+    - '*.cc'
+    - '*.cxx'
+    - '*.c++'
+    - '*.hpp'
+    - '*.hh'
+    - '*.hxx'
+    - '*.inc'
+  severity: ERROR
+  message: An offset multiplied by sizeof() is added to a typed (non-byte) pointer, but pointer arithmetic
+    already scales by the element size, so the offset is scaled twice.
+  metadata:
+    vulnerability_class: Incorrect Pointer Scaling
+    help: |
+      ## Summary
+      An offset multiplied by sizeof() is added to a typed (non-byte) pointer, but pointer arithmetic already scales by the element size, so the offset is scaled twice.
+
+      ## Remediation
+      Do not multiply by sizeof when doing pointer arithmetic; the compiler already scales offsets by the element size.
+    category: security
+    cwe:
+    - 'CWE-468: Incorrect Pointer Scaling'
+    references:
+    - https://cwe.mitre.org/data/definitions/468.html
+    confidence: MEDIUM
+    likelihood: MEDIUM
+    impact: HIGH
+    subcategory:
+    - vuln
+    technology:
+    - c
+    - cpp
+    source: Validated against NIST Juliet C/C++ Test Suite v1.3
+    remediation: Do not multiply by sizeof when doing pointer arithmetic; the compiler already scales
+      offsets by the element size.
+  patterns:
+  - pattern-either:
+    - pattern: '*($P + $N * sizeof(...))'
+    - pattern: '*($P + sizeof(...) * $N)'
+    - pattern: '*($P + sizeof(...))'
+    - pattern: ($P + $N * sizeof(...))->$FLD
+    - pattern: ($P + sizeof(...) * $N)->$FLD
+    - pattern: ($P + sizeof(...))->$FLD
+  - pattern-not-inside: |
+      char * $P = $INIT;
+      ...
+  - pattern-not-inside: |
+      unsigned char * $P = $INIT;
+      ...
+  - pattern-not-inside: |
+      void * $P = $INIT;
+      ...
+  - pattern-not-inside: |
+      uint8_t * $P = $INIT;
+      ...
+  - pattern-either:
+    - pattern-inside: |
+        $T * $P = $INIT;
+        ...
+    - pattern-inside: |
+        $T * $P;
+        ...

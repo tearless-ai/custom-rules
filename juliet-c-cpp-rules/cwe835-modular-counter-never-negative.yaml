@@ -1,0 +1,122 @@
+rules:
+- id: cwe835-modular-counter-never-negative
+  languages:
+  - c
+  - cpp
+  paths:
+    include:
+    - '*.c'
+    - '*.h'
+    - '*.cpp'
+    - '*.cc'
+    - '*.cxx'
+    - '*.c++'
+    - '*.hpp'
+    - '*.hh'
+    - '*.hxx'
+    - '*.inc'
+  severity: ERROR
+  message: $I is only ever updated modulo $M starting from a non-negative value, so the loop condition
+    '$I >= 0' is always true and the loop has no other exit.
+  metadata:
+    vulnerability_class: Loop with Unreachable Exit Condition ('Infinite Loop')
+    help: |
+      ## Summary
+      `$I` is only ever updated modulo `$M` starting from a non-negative value, so the loop condition '`$I` >= 0' is always true and the loop has no other exit.
+
+      ## Remediation
+      Ensure every loop has a reachable exit condition.
+    category: correctness
+    cwe:
+    - 'CWE-835: Loop with Unreachable Exit Condition (''Infinite Loop'')'
+    references:
+    - https://cwe.mitre.org/data/definitions/835.html
+    confidence: HIGH
+    likelihood: MEDIUM
+    impact: HIGH
+    subcategory:
+    - vuln
+    technology:
+    - c
+    - cpp
+    source: Validated against NIST Juliet C/C++ Test Suite v1.3
+    remediation: Ensure every loop has a reachable exit condition.
+  patterns:
+  - pattern-either:
+    - pattern: |
+        while ($I >= 0) { ... $I = ($I + $K) % $M; ... }
+    - pattern: |
+        do { ... $I = ($I + $K) % $M; ... } while ($I >= 0);
+    - pattern: |
+        for ($INIT; $I >= 0; $I = ($I + $K) % $M) { ... }
+  - pattern-not: |
+      while ($I >= 0) { ... break; ... }
+  - pattern-not: |
+      while ($I >= 0) { ... return; ... }
+  - pattern-not: |
+      while ($I >= 0) { ... return $R; ... }
+  - pattern-not: |
+      while ($I >= 0) { ... goto $L; ... }
+  - pattern-not: |
+      while ($I >= 0) { ... exit(...); ... }
+  - pattern-not: |
+      while ($I >= 0) { ... abort(); ... }
+  - pattern-not: |
+      while ($I >= 0) { ... _exit(...); ... }
+  - pattern-not: |
+      while ($I >= 0) { ... throw $E; ... }
+  - pattern-not: |
+      while ($I >= 0) { ... longjmp(...); ... }
+  - pattern-not: |
+      while ($I >= 0) { ... ExitProcess(...); ... }
+  - pattern-not: |
+      while ($I >= 0) { ... pthread_exit(...); ... }
+  - pattern-not: |
+      do { ... break; ... } while ($I >= 0);
+  - pattern-not: |
+      do { ... return; ... } while ($I >= 0);
+  - pattern-not: |
+      do { ... return $R; ... } while ($I >= 0);
+  - pattern-not: |
+      do { ... goto $L; ... } while ($I >= 0);
+  - pattern-not: |
+      do { ... exit(...); ... } while ($I >= 0);
+  - pattern-not: |
+      do { ... abort(); ... } while ($I >= 0);
+  - pattern-not: |
+      do { ... _exit(...); ... } while ($I >= 0);
+  - pattern-not: |
+      do { ... throw $E; ... } while ($I >= 0);
+  - pattern-not: |
+      do { ... longjmp(...); ... } while ($I >= 0);
+  - pattern-not: |
+      do { ... ExitProcess(...); ... } while ($I >= 0);
+  - pattern-not: |
+      do { ... pthread_exit(...); ... } while ($I >= 0);
+  - pattern-not: |
+      for ($INIT; $I >= 0; $I = ($I + $K) % $M) { ... break; ... }
+  - pattern-not: |
+      for ($INIT; $I >= 0; $I = ($I + $K) % $M) { ... return; ... }
+  - pattern-not: |
+      for ($INIT; $I >= 0; $I = ($I + $K) % $M) { ... return $R; ... }
+  - pattern-not: |
+      for ($INIT; $I >= 0; $I = ($I + $K) % $M) { ... goto $L; ... }
+  - pattern-not: |
+      for ($INIT; $I >= 0; $I = ($I + $K) % $M) { ... exit(...); ... }
+  - pattern-not: |
+      for ($INIT; $I >= 0; $I = ($I + $K) % $M) { ... abort(); ... }
+  - pattern-not: |
+      for ($INIT; $I >= 0; $I = ($I + $K) % $M) { ... _exit(...); ... }
+  - pattern-not: |
+      for ($INIT; $I >= 0; $I = ($I + $K) % $M) { ... throw $E; ... }
+  - pattern-not: |
+      for ($INIT; $I >= 0; $I = ($I + $K) % $M) { ... longjmp(...); ... }
+  - pattern-not: |
+      for ($INIT; $I >= 0; $I = ($I + $K) % $M) { ... ExitProcess(...); ... }
+  - pattern-not: |
+      for ($INIT; $I >= 0; $I = ($I + $K) % $M) { ... pthread_exit(...); ... }
+  - pattern-either:
+    - pattern: while ($COND) $S;
+    - pattern: for ($INIT; $COND; $STEP) $S;
+    - pattern: do $S; while ($COND);
+  - focus-metavariable: $COND

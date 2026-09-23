@@ -1,0 +1,61 @@
+rules:
+- id: cwe506-encoded-payload-executed
+  languages:
+  - c
+  - cpp
+  paths:
+    include:
+    - '*.c'
+    - '*.h'
+    - '*.cpp'
+    - '*.cc'
+    - '*.cxx'
+    - '*.c++'
+    - '*.hpp'
+    - '*.hh'
+    - '*.hxx'
+    - '*.inc'
+  severity: ERROR
+  message: The string literal in $P is base64-decoded at run time and then executed, which hides the real
+    command from reviewers.
+  metadata:
+    vulnerability_class: Embedded Malicious Code
+    help: |
+      ## Summary
+      The string literal in `$P` is base64-decoded at run time and then executed, which hides the real command from reviewers.
+
+      ## Remediation
+      Remove hidden functionality that deletes, modifies or exfiltrates data or executes encoded commands.
+    category: security
+    cwe:
+    - 'CWE-506: Embedded Malicious Code'
+    references:
+    - https://cwe.mitre.org/data/definitions/506.html
+    confidence: HIGH
+    likelihood: MEDIUM
+    impact: HIGH
+    subcategory:
+    - vuln
+    technology:
+    - c
+    - cpp
+    source: Validated against NIST Juliet C/C++ Test Suite v1.3
+    remediation: Remove hidden functionality that deletes, modifies or exfiltrates data or executes encoded
+      commands.
+  patterns:
+  - pattern: $T $P = $LIT;
+  - metavariable-regex:
+      metavariable: $LIT
+      regex: ^L?"[A-Za-z0-9+/]{4,}={0,2}"$
+  - pattern-inside: |
+      $T $P = $LIT;
+      ...
+      if (<... $DEC($P, ...) ...>) { ... }
+      ...
+      if (<... $EXEC(...) ...>) { ... }
+  - metavariable-regex:
+      metavariable: $DEC
+      regex: ^(CryptStringToBinaryA|CryptStringToBinaryW|CryptStringToBinary|base64_decode|b64_decode|EVP_DecodeBlock)$
+  - metavariable-regex:
+      metavariable: $EXEC
+      regex: ^(system|_wsystem|popen|_popen|WinExec|ShellExecuteA|ShellExecuteW|execl|execlp|execv|execvp|CreateProcessA|CreateProcessW)$

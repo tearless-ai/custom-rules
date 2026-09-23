@@ -1,0 +1,991 @@
+rules:
+- id: cwe688-format-argument-type-mismatch
+  languages:
+  - c
+  - cpp
+  paths:
+    include:
+    - '*.c'
+    - '*.h'
+    - '*.cpp'
+    - '*.cc'
+    - '*.cxx'
+    - '*.c++'
+    - '*.hpp'
+    - '*.hh'
+    - '*.hxx'
+    - '*.inc'
+  severity: ERROR
+  message: The argument $A has type an incompatible type, which does not match the conversion specifier
+    in the format string; this is undefined behavior.
+  metadata:
+    vulnerability_class: Function Call With Incorrect Variable or Reference as Argument
+    help: |
+      ## Summary
+      The argument `$A` has type an incompatible type, which does not match the conversion specifier in the format string; this is undefined behavior.
+
+      ## Remediation
+      Pass the intended variable to each argument, matching the types the format string or API expects.
+    category: correctness
+    cwe:
+    - 'CWE-688: Function Call With Incorrect Variable or Reference as Argument'
+    references:
+    - https://cwe.mitre.org/data/definitions/688.html
+    confidence: HIGH
+    likelihood: MEDIUM
+    impact: HIGH
+    subcategory:
+    - vuln
+    technology:
+    - c
+    - cpp
+    source: Validated against NIST Juliet C/C++ Test Suite v1.3
+    remediation: Pass the intended variable to each argument, matching the types the format string or
+      API expects.
+  patterns:
+  - pattern-either:
+    - patterns:
+      - pattern: printf($FMT, (int $A))
+      - metavariable-regex:
+          metavariable: $FMT
+          regex: '^L?"(?:[^%"\\]|\\.|%%)*%[-+ #0]*[0-9]*(?:\.[0-9]+)?(?:s)(?:[^%"\\]|\\.|%%)*"$'
+    - patterns:
+      - pattern: wprintf($FMT, (int $A))
+      - metavariable-regex:
+          metavariable: $FMT
+          regex: '^L?"(?:[^%"\\]|\\.|%%)*%[-+ #0]*[0-9]*(?:\.[0-9]+)?(?:s)(?:[^%"\\]|\\.|%%)*"$'
+    - patterns:
+      - pattern: sprintf($D, $FMT, (int $A))
+      - metavariable-regex:
+          metavariable: $FMT
+          regex: '^L?"(?:[^%"\\]|\\.|%%)*%[-+ #0]*[0-9]*(?:\.[0-9]+)?(?:s)(?:[^%"\\]|\\.|%%)*"$'
+    - patterns:
+      - pattern: fprintf($D, $FMT, (int $A))
+      - metavariable-regex:
+          metavariable: $FMT
+          regex: '^L?"(?:[^%"\\]|\\.|%%)*%[-+ #0]*[0-9]*(?:\.[0-9]+)?(?:s)(?:[^%"\\]|\\.|%%)*"$'
+    - patterns:
+      - pattern: swprintf($D, $N, $FMT, (int $A))
+      - metavariable-regex:
+          metavariable: $FMT
+          regex: '^L?"(?:[^%"\\]|\\.|%%)*%[-+ #0]*[0-9]*(?:\.[0-9]+)?(?:s)(?:[^%"\\]|\\.|%%)*"$'
+    - patterns:
+      - pattern: snprintf($D, $N, $FMT, (int $A))
+      - metavariable-regex:
+          metavariable: $FMT
+          regex: '^L?"(?:[^%"\\]|\\.|%%)*%[-+ #0]*[0-9]*(?:\.[0-9]+)?(?:s)(?:[^%"\\]|\\.|%%)*"$'
+    - patterns:
+      - pattern: fwprintf($D, $FMT, (int $A))
+      - metavariable-regex:
+          metavariable: $FMT
+          regex: '^L?"(?:[^%"\\]|\\.|%%)*%[-+ #0]*[0-9]*(?:\.[0-9]+)?(?:s)(?:[^%"\\]|\\.|%%)*"$'
+    - patterns:
+      - pattern: printf($FMT, (long $A))
+      - metavariable-regex:
+          metavariable: $FMT
+          regex: '^L?"(?:[^%"\\]|\\.|%%)*%[-+ #0]*[0-9]*(?:\.[0-9]+)?(?:s)(?:[^%"\\]|\\.|%%)*"$'
+    - patterns:
+      - pattern: wprintf($FMT, (long $A))
+      - metavariable-regex:
+          metavariable: $FMT
+          regex: '^L?"(?:[^%"\\]|\\.|%%)*%[-+ #0]*[0-9]*(?:\.[0-9]+)?(?:s)(?:[^%"\\]|\\.|%%)*"$'
+    - patterns:
+      - pattern: sprintf($D, $FMT, (long $A))
+      - metavariable-regex:
+          metavariable: $FMT
+          regex: '^L?"(?:[^%"\\]|\\.|%%)*%[-+ #0]*[0-9]*(?:\.[0-9]+)?(?:s)(?:[^%"\\]|\\.|%%)*"$'
+    - patterns:
+      - pattern: fprintf($D, $FMT, (long $A))
+      - metavariable-regex:
+          metavariable: $FMT
+          regex: '^L?"(?:[^%"\\]|\\.|%%)*%[-+ #0]*[0-9]*(?:\.[0-9]+)?(?:s)(?:[^%"\\]|\\.|%%)*"$'
+    - patterns:
+      - pattern: swprintf($D, $N, $FMT, (long $A))
+      - metavariable-regex:
+          metavariable: $FMT
+          regex: '^L?"(?:[^%"\\]|\\.|%%)*%[-+ #0]*[0-9]*(?:\.[0-9]+)?(?:s)(?:[^%"\\]|\\.|%%)*"$'
+    - patterns:
+      - pattern: snprintf($D, $N, $FMT, (long $A))
+      - metavariable-regex:
+          metavariable: $FMT
+          regex: '^L?"(?:[^%"\\]|\\.|%%)*%[-+ #0]*[0-9]*(?:\.[0-9]+)?(?:s)(?:[^%"\\]|\\.|%%)*"$'
+    - patterns:
+      - pattern: fwprintf($D, $FMT, (long $A))
+      - metavariable-regex:
+          metavariable: $FMT
+          regex: '^L?"(?:[^%"\\]|\\.|%%)*%[-+ #0]*[0-9]*(?:\.[0-9]+)?(?:s)(?:[^%"\\]|\\.|%%)*"$'
+    - patterns:
+      - pattern: printf($FMT, (short $A))
+      - metavariable-regex:
+          metavariable: $FMT
+          regex: '^L?"(?:[^%"\\]|\\.|%%)*%[-+ #0]*[0-9]*(?:\.[0-9]+)?(?:s)(?:[^%"\\]|\\.|%%)*"$'
+    - patterns:
+      - pattern: wprintf($FMT, (short $A))
+      - metavariable-regex:
+          metavariable: $FMT
+          regex: '^L?"(?:[^%"\\]|\\.|%%)*%[-+ #0]*[0-9]*(?:\.[0-9]+)?(?:s)(?:[^%"\\]|\\.|%%)*"$'
+    - patterns:
+      - pattern: sprintf($D, $FMT, (short $A))
+      - metavariable-regex:
+          metavariable: $FMT
+          regex: '^L?"(?:[^%"\\]|\\.|%%)*%[-+ #0]*[0-9]*(?:\.[0-9]+)?(?:s)(?:[^%"\\]|\\.|%%)*"$'
+    - patterns:
+      - pattern: fprintf($D, $FMT, (short $A))
+      - metavariable-regex:
+          metavariable: $FMT
+          regex: '^L?"(?:[^%"\\]|\\.|%%)*%[-+ #0]*[0-9]*(?:\.[0-9]+)?(?:s)(?:[^%"\\]|\\.|%%)*"$'
+    - patterns:
+      - pattern: swprintf($D, $N, $FMT, (short $A))
+      - metavariable-regex:
+          metavariable: $FMT
+          regex: '^L?"(?:[^%"\\]|\\.|%%)*%[-+ #0]*[0-9]*(?:\.[0-9]+)?(?:s)(?:[^%"\\]|\\.|%%)*"$'
+    - patterns:
+      - pattern: snprintf($D, $N, $FMT, (short $A))
+      - metavariable-regex:
+          metavariable: $FMT
+          regex: '^L?"(?:[^%"\\]|\\.|%%)*%[-+ #0]*[0-9]*(?:\.[0-9]+)?(?:s)(?:[^%"\\]|\\.|%%)*"$'
+    - patterns:
+      - pattern: fwprintf($D, $FMT, (short $A))
+      - metavariable-regex:
+          metavariable: $FMT
+          regex: '^L?"(?:[^%"\\]|\\.|%%)*%[-+ #0]*[0-9]*(?:\.[0-9]+)?(?:s)(?:[^%"\\]|\\.|%%)*"$'
+    - patterns:
+      - pattern: printf($FMT, (char $A))
+      - metavariable-regex:
+          metavariable: $FMT
+          regex: '^L?"(?:[^%"\\]|\\.|%%)*%[-+ #0]*[0-9]*(?:\.[0-9]+)?(?:s)(?:[^%"\\]|\\.|%%)*"$'
+    - patterns:
+      - pattern: wprintf($FMT, (char $A))
+      - metavariable-regex:
+          metavariable: $FMT
+          regex: '^L?"(?:[^%"\\]|\\.|%%)*%[-+ #0]*[0-9]*(?:\.[0-9]+)?(?:s)(?:[^%"\\]|\\.|%%)*"$'
+    - patterns:
+      - pattern: sprintf($D, $FMT, (char $A))
+      - metavariable-regex:
+          metavariable: $FMT
+          regex: '^L?"(?:[^%"\\]|\\.|%%)*%[-+ #0]*[0-9]*(?:\.[0-9]+)?(?:s)(?:[^%"\\]|\\.|%%)*"$'
+    - patterns:
+      - pattern: fprintf($D, $FMT, (char $A))
+      - metavariable-regex:
+          metavariable: $FMT
+          regex: '^L?"(?:[^%"\\]|\\.|%%)*%[-+ #0]*[0-9]*(?:\.[0-9]+)?(?:s)(?:[^%"\\]|\\.|%%)*"$'
+    - patterns:
+      - pattern: swprintf($D, $N, $FMT, (char $A))
+      - metavariable-regex:
+          metavariable: $FMT
+          regex: '^L?"(?:[^%"\\]|\\.|%%)*%[-+ #0]*[0-9]*(?:\.[0-9]+)?(?:s)(?:[^%"\\]|\\.|%%)*"$'
+    - patterns:
+      - pattern: snprintf($D, $N, $FMT, (char $A))
+      - metavariable-regex:
+          metavariable: $FMT
+          regex: '^L?"(?:[^%"\\]|\\.|%%)*%[-+ #0]*[0-9]*(?:\.[0-9]+)?(?:s)(?:[^%"\\]|\\.|%%)*"$'
+    - patterns:
+      - pattern: fwprintf($D, $FMT, (char $A))
+      - metavariable-regex:
+          metavariable: $FMT
+          regex: '^L?"(?:[^%"\\]|\\.|%%)*%[-+ #0]*[0-9]*(?:\.[0-9]+)?(?:s)(?:[^%"\\]|\\.|%%)*"$'
+    - patterns:
+      - pattern: printf($FMT, (double $A))
+      - metavariable-regex:
+          metavariable: $FMT
+          regex: '^L?"(?:[^%"\\]|\\.|%%)*%[-+ #0]*[0-9]*(?:\.[0-9]+)?(?:s)(?:[^%"\\]|\\.|%%)*"$'
+    - patterns:
+      - pattern: wprintf($FMT, (double $A))
+      - metavariable-regex:
+          metavariable: $FMT
+          regex: '^L?"(?:[^%"\\]|\\.|%%)*%[-+ #0]*[0-9]*(?:\.[0-9]+)?(?:s)(?:[^%"\\]|\\.|%%)*"$'
+    - patterns:
+      - pattern: sprintf($D, $FMT, (double $A))
+      - metavariable-regex:
+          metavariable: $FMT
+          regex: '^L?"(?:[^%"\\]|\\.|%%)*%[-+ #0]*[0-9]*(?:\.[0-9]+)?(?:s)(?:[^%"\\]|\\.|%%)*"$'
+    - patterns:
+      - pattern: fprintf($D, $FMT, (double $A))
+      - metavariable-regex:
+          metavariable: $FMT
+          regex: '^L?"(?:[^%"\\]|\\.|%%)*%[-+ #0]*[0-9]*(?:\.[0-9]+)?(?:s)(?:[^%"\\]|\\.|%%)*"$'
+    - patterns:
+      - pattern: swprintf($D, $N, $FMT, (double $A))
+      - metavariable-regex:
+          metavariable: $FMT
+          regex: '^L?"(?:[^%"\\]|\\.|%%)*%[-+ #0]*[0-9]*(?:\.[0-9]+)?(?:s)(?:[^%"\\]|\\.|%%)*"$'
+    - patterns:
+      - pattern: snprintf($D, $N, $FMT, (double $A))
+      - metavariable-regex:
+          metavariable: $FMT
+          regex: '^L?"(?:[^%"\\]|\\.|%%)*%[-+ #0]*[0-9]*(?:\.[0-9]+)?(?:s)(?:[^%"\\]|\\.|%%)*"$'
+    - patterns:
+      - pattern: fwprintf($D, $FMT, (double $A))
+      - metavariable-regex:
+          metavariable: $FMT
+          regex: '^L?"(?:[^%"\\]|\\.|%%)*%[-+ #0]*[0-9]*(?:\.[0-9]+)?(?:s)(?:[^%"\\]|\\.|%%)*"$'
+    - patterns:
+      - pattern: printf($FMT, (float $A))
+      - metavariable-regex:
+          metavariable: $FMT
+          regex: '^L?"(?:[^%"\\]|\\.|%%)*%[-+ #0]*[0-9]*(?:\.[0-9]+)?(?:s)(?:[^%"\\]|\\.|%%)*"$'
+    - patterns:
+      - pattern: wprintf($FMT, (float $A))
+      - metavariable-regex:
+          metavariable: $FMT
+          regex: '^L?"(?:[^%"\\]|\\.|%%)*%[-+ #0]*[0-9]*(?:\.[0-9]+)?(?:s)(?:[^%"\\]|\\.|%%)*"$'
+    - patterns:
+      - pattern: sprintf($D, $FMT, (float $A))
+      - metavariable-regex:
+          metavariable: $FMT
+          regex: '^L?"(?:[^%"\\]|\\.|%%)*%[-+ #0]*[0-9]*(?:\.[0-9]+)?(?:s)(?:[^%"\\]|\\.|%%)*"$'
+    - patterns:
+      - pattern: fprintf($D, $FMT, (float $A))
+      - metavariable-regex:
+          metavariable: $FMT
+          regex: '^L?"(?:[^%"\\]|\\.|%%)*%[-+ #0]*[0-9]*(?:\.[0-9]+)?(?:s)(?:[^%"\\]|\\.|%%)*"$'
+    - patterns:
+      - pattern: swprintf($D, $N, $FMT, (float $A))
+      - metavariable-regex:
+          metavariable: $FMT
+          regex: '^L?"(?:[^%"\\]|\\.|%%)*%[-+ #0]*[0-9]*(?:\.[0-9]+)?(?:s)(?:[^%"\\]|\\.|%%)*"$'
+    - patterns:
+      - pattern: snprintf($D, $N, $FMT, (float $A))
+      - metavariable-regex:
+          metavariable: $FMT
+          regex: '^L?"(?:[^%"\\]|\\.|%%)*%[-+ #0]*[0-9]*(?:\.[0-9]+)?(?:s)(?:[^%"\\]|\\.|%%)*"$'
+    - patterns:
+      - pattern: fwprintf($D, $FMT, (float $A))
+      - metavariable-regex:
+          metavariable: $FMT
+          regex: '^L?"(?:[^%"\\]|\\.|%%)*%[-+ #0]*[0-9]*(?:\.[0-9]+)?(?:s)(?:[^%"\\]|\\.|%%)*"$'
+    - patterns:
+      - pattern: printf($FMT, (unsigned int $A))
+      - metavariable-regex:
+          metavariable: $FMT
+          regex: '^L?"(?:[^%"\\]|\\.|%%)*%[-+ #0]*[0-9]*(?:\.[0-9]+)?(?:s)(?:[^%"\\]|\\.|%%)*"$'
+    - patterns:
+      - pattern: wprintf($FMT, (unsigned int $A))
+      - metavariable-regex:
+          metavariable: $FMT
+          regex: '^L?"(?:[^%"\\]|\\.|%%)*%[-+ #0]*[0-9]*(?:\.[0-9]+)?(?:s)(?:[^%"\\]|\\.|%%)*"$'
+    - patterns:
+      - pattern: sprintf($D, $FMT, (unsigned int $A))
+      - metavariable-regex:
+          metavariable: $FMT
+          regex: '^L?"(?:[^%"\\]|\\.|%%)*%[-+ #0]*[0-9]*(?:\.[0-9]+)?(?:s)(?:[^%"\\]|\\.|%%)*"$'
+    - patterns:
+      - pattern: fprintf($D, $FMT, (unsigned int $A))
+      - metavariable-regex:
+          metavariable: $FMT
+          regex: '^L?"(?:[^%"\\]|\\.|%%)*%[-+ #0]*[0-9]*(?:\.[0-9]+)?(?:s)(?:[^%"\\]|\\.|%%)*"$'
+    - patterns:
+      - pattern: swprintf($D, $N, $FMT, (unsigned int $A))
+      - metavariable-regex:
+          metavariable: $FMT
+          regex: '^L?"(?:[^%"\\]|\\.|%%)*%[-+ #0]*[0-9]*(?:\.[0-9]+)?(?:s)(?:[^%"\\]|\\.|%%)*"$'
+    - patterns:
+      - pattern: snprintf($D, $N, $FMT, (unsigned int $A))
+      - metavariable-regex:
+          metavariable: $FMT
+          regex: '^L?"(?:[^%"\\]|\\.|%%)*%[-+ #0]*[0-9]*(?:\.[0-9]+)?(?:s)(?:[^%"\\]|\\.|%%)*"$'
+    - patterns:
+      - pattern: fwprintf($D, $FMT, (unsigned int $A))
+      - metavariable-regex:
+          metavariable: $FMT
+          regex: '^L?"(?:[^%"\\]|\\.|%%)*%[-+ #0]*[0-9]*(?:\.[0-9]+)?(?:s)(?:[^%"\\]|\\.|%%)*"$'
+    - patterns:
+      - pattern: printf($FMT, (unsigned long $A))
+      - metavariable-regex:
+          metavariable: $FMT
+          regex: '^L?"(?:[^%"\\]|\\.|%%)*%[-+ #0]*[0-9]*(?:\.[0-9]+)?(?:s)(?:[^%"\\]|\\.|%%)*"$'
+    - patterns:
+      - pattern: wprintf($FMT, (unsigned long $A))
+      - metavariable-regex:
+          metavariable: $FMT
+          regex: '^L?"(?:[^%"\\]|\\.|%%)*%[-+ #0]*[0-9]*(?:\.[0-9]+)?(?:s)(?:[^%"\\]|\\.|%%)*"$'
+    - patterns:
+      - pattern: sprintf($D, $FMT, (unsigned long $A))
+      - metavariable-regex:
+          metavariable: $FMT
+          regex: '^L?"(?:[^%"\\]|\\.|%%)*%[-+ #0]*[0-9]*(?:\.[0-9]+)?(?:s)(?:[^%"\\]|\\.|%%)*"$'
+    - patterns:
+      - pattern: fprintf($D, $FMT, (unsigned long $A))
+      - metavariable-regex:
+          metavariable: $FMT
+          regex: '^L?"(?:[^%"\\]|\\.|%%)*%[-+ #0]*[0-9]*(?:\.[0-9]+)?(?:s)(?:[^%"\\]|\\.|%%)*"$'
+    - patterns:
+      - pattern: swprintf($D, $N, $FMT, (unsigned long $A))
+      - metavariable-regex:
+          metavariable: $FMT
+          regex: '^L?"(?:[^%"\\]|\\.|%%)*%[-+ #0]*[0-9]*(?:\.[0-9]+)?(?:s)(?:[^%"\\]|\\.|%%)*"$'
+    - patterns:
+      - pattern: snprintf($D, $N, $FMT, (unsigned long $A))
+      - metavariable-regex:
+          metavariable: $FMT
+          regex: '^L?"(?:[^%"\\]|\\.|%%)*%[-+ #0]*[0-9]*(?:\.[0-9]+)?(?:s)(?:[^%"\\]|\\.|%%)*"$'
+    - patterns:
+      - pattern: fwprintf($D, $FMT, (unsigned long $A))
+      - metavariable-regex:
+          metavariable: $FMT
+          regex: '^L?"(?:[^%"\\]|\\.|%%)*%[-+ #0]*[0-9]*(?:\.[0-9]+)?(?:s)(?:[^%"\\]|\\.|%%)*"$'
+    - patterns:
+      - pattern: printf($FMT, (long long $A))
+      - metavariable-regex:
+          metavariable: $FMT
+          regex: '^L?"(?:[^%"\\]|\\.|%%)*%[-+ #0]*[0-9]*(?:\.[0-9]+)?(?:s)(?:[^%"\\]|\\.|%%)*"$'
+    - patterns:
+      - pattern: wprintf($FMT, (long long $A))
+      - metavariable-regex:
+          metavariable: $FMT
+          regex: '^L?"(?:[^%"\\]|\\.|%%)*%[-+ #0]*[0-9]*(?:\.[0-9]+)?(?:s)(?:[^%"\\]|\\.|%%)*"$'
+    - patterns:
+      - pattern: sprintf($D, $FMT, (long long $A))
+      - metavariable-regex:
+          metavariable: $FMT
+          regex: '^L?"(?:[^%"\\]|\\.|%%)*%[-+ #0]*[0-9]*(?:\.[0-9]+)?(?:s)(?:[^%"\\]|\\.|%%)*"$'
+    - patterns:
+      - pattern: fprintf($D, $FMT, (long long $A))
+      - metavariable-regex:
+          metavariable: $FMT
+          regex: '^L?"(?:[^%"\\]|\\.|%%)*%[-+ #0]*[0-9]*(?:\.[0-9]+)?(?:s)(?:[^%"\\]|\\.|%%)*"$'
+    - patterns:
+      - pattern: swprintf($D, $N, $FMT, (long long $A))
+      - metavariable-regex:
+          metavariable: $FMT
+          regex: '^L?"(?:[^%"\\]|\\.|%%)*%[-+ #0]*[0-9]*(?:\.[0-9]+)?(?:s)(?:[^%"\\]|\\.|%%)*"$'
+    - patterns:
+      - pattern: snprintf($D, $N, $FMT, (long long $A))
+      - metavariable-regex:
+          metavariable: $FMT
+          regex: '^L?"(?:[^%"\\]|\\.|%%)*%[-+ #0]*[0-9]*(?:\.[0-9]+)?(?:s)(?:[^%"\\]|\\.|%%)*"$'
+    - patterns:
+      - pattern: fwprintf($D, $FMT, (long long $A))
+      - metavariable-regex:
+          metavariable: $FMT
+          regex: '^L?"(?:[^%"\\]|\\.|%%)*%[-+ #0]*[0-9]*(?:\.[0-9]+)?(?:s)(?:[^%"\\]|\\.|%%)*"$'
+    - patterns:
+      - pattern: printf($FMT, (size_t $A))
+      - metavariable-regex:
+          metavariable: $FMT
+          regex: '^L?"(?:[^%"\\]|\\.|%%)*%[-+ #0]*[0-9]*(?:\.[0-9]+)?(?:s)(?:[^%"\\]|\\.|%%)*"$'
+    - patterns:
+      - pattern: wprintf($FMT, (size_t $A))
+      - metavariable-regex:
+          metavariable: $FMT
+          regex: '^L?"(?:[^%"\\]|\\.|%%)*%[-+ #0]*[0-9]*(?:\.[0-9]+)?(?:s)(?:[^%"\\]|\\.|%%)*"$'
+    - patterns:
+      - pattern: sprintf($D, $FMT, (size_t $A))
+      - metavariable-regex:
+          metavariable: $FMT
+          regex: '^L?"(?:[^%"\\]|\\.|%%)*%[-+ #0]*[0-9]*(?:\.[0-9]+)?(?:s)(?:[^%"\\]|\\.|%%)*"$'
+    - patterns:
+      - pattern: fprintf($D, $FMT, (size_t $A))
+      - metavariable-regex:
+          metavariable: $FMT
+          regex: '^L?"(?:[^%"\\]|\\.|%%)*%[-+ #0]*[0-9]*(?:\.[0-9]+)?(?:s)(?:[^%"\\]|\\.|%%)*"$'
+    - patterns:
+      - pattern: swprintf($D, $N, $FMT, (size_t $A))
+      - metavariable-regex:
+          metavariable: $FMT
+          regex: '^L?"(?:[^%"\\]|\\.|%%)*%[-+ #0]*[0-9]*(?:\.[0-9]+)?(?:s)(?:[^%"\\]|\\.|%%)*"$'
+    - patterns:
+      - pattern: snprintf($D, $N, $FMT, (size_t $A))
+      - metavariable-regex:
+          metavariable: $FMT
+          regex: '^L?"(?:[^%"\\]|\\.|%%)*%[-+ #0]*[0-9]*(?:\.[0-9]+)?(?:s)(?:[^%"\\]|\\.|%%)*"$'
+    - patterns:
+      - pattern: fwprintf($D, $FMT, (size_t $A))
+      - metavariable-regex:
+          metavariable: $FMT
+          regex: '^L?"(?:[^%"\\]|\\.|%%)*%[-+ #0]*[0-9]*(?:\.[0-9]+)?(?:s)(?:[^%"\\]|\\.|%%)*"$'
+    - patterns:
+      - pattern: printf($FMT, (char * $A))
+      - metavariable-regex:
+          metavariable: $FMT
+          regex: '^L?"(?:[^%"\\]|\\.|%%)*%[-+ #0]*[0-9]*(?:\.[0-9]+)?(?:(?:hh|h|l|ll|z|j|t)?[dioxXuc])(?:[^%"\\]|\\.|%%)*"$'
+    - patterns:
+      - pattern: wprintf($FMT, (char * $A))
+      - metavariable-regex:
+          metavariable: $FMT
+          regex: '^L?"(?:[^%"\\]|\\.|%%)*%[-+ #0]*[0-9]*(?:\.[0-9]+)?(?:(?:hh|h|l|ll|z|j|t)?[dioxXuc])(?:[^%"\\]|\\.|%%)*"$'
+    - patterns:
+      - pattern: sprintf($D, $FMT, (char * $A))
+      - metavariable-regex:
+          metavariable: $FMT
+          regex: '^L?"(?:[^%"\\]|\\.|%%)*%[-+ #0]*[0-9]*(?:\.[0-9]+)?(?:(?:hh|h|l|ll|z|j|t)?[dioxXuc])(?:[^%"\\]|\\.|%%)*"$'
+    - patterns:
+      - pattern: fprintf($D, $FMT, (char * $A))
+      - metavariable-regex:
+          metavariable: $FMT
+          regex: '^L?"(?:[^%"\\]|\\.|%%)*%[-+ #0]*[0-9]*(?:\.[0-9]+)?(?:(?:hh|h|l|ll|z|j|t)?[dioxXuc])(?:[^%"\\]|\\.|%%)*"$'
+    - patterns:
+      - pattern: swprintf($D, $N, $FMT, (char * $A))
+      - metavariable-regex:
+          metavariable: $FMT
+          regex: '^L?"(?:[^%"\\]|\\.|%%)*%[-+ #0]*[0-9]*(?:\.[0-9]+)?(?:(?:hh|h|l|ll|z|j|t)?[dioxXuc])(?:[^%"\\]|\\.|%%)*"$'
+    - patterns:
+      - pattern: snprintf($D, $N, $FMT, (char * $A))
+      - metavariable-regex:
+          metavariable: $FMT
+          regex: '^L?"(?:[^%"\\]|\\.|%%)*%[-+ #0]*[0-9]*(?:\.[0-9]+)?(?:(?:hh|h|l|ll|z|j|t)?[dioxXuc])(?:[^%"\\]|\\.|%%)*"$'
+    - patterns:
+      - pattern: fwprintf($D, $FMT, (char * $A))
+      - metavariable-regex:
+          metavariable: $FMT
+          regex: '^L?"(?:[^%"\\]|\\.|%%)*%[-+ #0]*[0-9]*(?:\.[0-9]+)?(?:(?:hh|h|l|ll|z|j|t)?[dioxXuc])(?:[^%"\\]|\\.|%%)*"$'
+    - patterns:
+      - pattern: printf($FMT, (wchar_t * $A))
+      - metavariable-regex:
+          metavariable: $FMT
+          regex: '^L?"(?:[^%"\\]|\\.|%%)*%[-+ #0]*[0-9]*(?:\.[0-9]+)?(?:(?:hh|h|l|ll|z|j|t)?[dioxXuc])(?:[^%"\\]|\\.|%%)*"$'
+    - patterns:
+      - pattern: wprintf($FMT, (wchar_t * $A))
+      - metavariable-regex:
+          metavariable: $FMT
+          regex: '^L?"(?:[^%"\\]|\\.|%%)*%[-+ #0]*[0-9]*(?:\.[0-9]+)?(?:(?:hh|h|l|ll|z|j|t)?[dioxXuc])(?:[^%"\\]|\\.|%%)*"$'
+    - patterns:
+      - pattern: sprintf($D, $FMT, (wchar_t * $A))
+      - metavariable-regex:
+          metavariable: $FMT
+          regex: '^L?"(?:[^%"\\]|\\.|%%)*%[-+ #0]*[0-9]*(?:\.[0-9]+)?(?:(?:hh|h|l|ll|z|j|t)?[dioxXuc])(?:[^%"\\]|\\.|%%)*"$'
+    - patterns:
+      - pattern: fprintf($D, $FMT, (wchar_t * $A))
+      - metavariable-regex:
+          metavariable: $FMT
+          regex: '^L?"(?:[^%"\\]|\\.|%%)*%[-+ #0]*[0-9]*(?:\.[0-9]+)?(?:(?:hh|h|l|ll|z|j|t)?[dioxXuc])(?:[^%"\\]|\\.|%%)*"$'
+    - patterns:
+      - pattern: swprintf($D, $N, $FMT, (wchar_t * $A))
+      - metavariable-regex:
+          metavariable: $FMT
+          regex: '^L?"(?:[^%"\\]|\\.|%%)*%[-+ #0]*[0-9]*(?:\.[0-9]+)?(?:(?:hh|h|l|ll|z|j|t)?[dioxXuc])(?:[^%"\\]|\\.|%%)*"$'
+    - patterns:
+      - pattern: snprintf($D, $N, $FMT, (wchar_t * $A))
+      - metavariable-regex:
+          metavariable: $FMT
+          regex: '^L?"(?:[^%"\\]|\\.|%%)*%[-+ #0]*[0-9]*(?:\.[0-9]+)?(?:(?:hh|h|l|ll|z|j|t)?[dioxXuc])(?:[^%"\\]|\\.|%%)*"$'
+    - patterns:
+      - pattern: fwprintf($D, $FMT, (wchar_t * $A))
+      - metavariable-regex:
+          metavariable: $FMT
+          regex: '^L?"(?:[^%"\\]|\\.|%%)*%[-+ #0]*[0-9]*(?:\.[0-9]+)?(?:(?:hh|h|l|ll|z|j|t)?[dioxXuc])(?:[^%"\\]|\\.|%%)*"$'
+    - patterns:
+      - pattern: printf($FMT, (double $A))
+      - metavariable-regex:
+          metavariable: $FMT
+          regex: '^L?"(?:[^%"\\]|\\.|%%)*%[-+ #0]*[0-9]*(?:\.[0-9]+)?(?:(?:hh|h|l|ll|z|j|t)?[dioxXuc])(?:[^%"\\]|\\.|%%)*"$'
+    - patterns:
+      - pattern: wprintf($FMT, (double $A))
+      - metavariable-regex:
+          metavariable: $FMT
+          regex: '^L?"(?:[^%"\\]|\\.|%%)*%[-+ #0]*[0-9]*(?:\.[0-9]+)?(?:(?:hh|h|l|ll|z|j|t)?[dioxXuc])(?:[^%"\\]|\\.|%%)*"$'
+    - patterns:
+      - pattern: sprintf($D, $FMT, (double $A))
+      - metavariable-regex:
+          metavariable: $FMT
+          regex: '^L?"(?:[^%"\\]|\\.|%%)*%[-+ #0]*[0-9]*(?:\.[0-9]+)?(?:(?:hh|h|l|ll|z|j|t)?[dioxXuc])(?:[^%"\\]|\\.|%%)*"$'
+    - patterns:
+      - pattern: fprintf($D, $FMT, (double $A))
+      - metavariable-regex:
+          metavariable: $FMT
+          regex: '^L?"(?:[^%"\\]|\\.|%%)*%[-+ #0]*[0-9]*(?:\.[0-9]+)?(?:(?:hh|h|l|ll|z|j|t)?[dioxXuc])(?:[^%"\\]|\\.|%%)*"$'
+    - patterns:
+      - pattern: swprintf($D, $N, $FMT, (double $A))
+      - metavariable-regex:
+          metavariable: $FMT
+          regex: '^L?"(?:[^%"\\]|\\.|%%)*%[-+ #0]*[0-9]*(?:\.[0-9]+)?(?:(?:hh|h|l|ll|z|j|t)?[dioxXuc])(?:[^%"\\]|\\.|%%)*"$'
+    - patterns:
+      - pattern: snprintf($D, $N, $FMT, (double $A))
+      - metavariable-regex:
+          metavariable: $FMT
+          regex: '^L?"(?:[^%"\\]|\\.|%%)*%[-+ #0]*[0-9]*(?:\.[0-9]+)?(?:(?:hh|h|l|ll|z|j|t)?[dioxXuc])(?:[^%"\\]|\\.|%%)*"$'
+    - patterns:
+      - pattern: fwprintf($D, $FMT, (double $A))
+      - metavariable-regex:
+          metavariable: $FMT
+          regex: '^L?"(?:[^%"\\]|\\.|%%)*%[-+ #0]*[0-9]*(?:\.[0-9]+)?(?:(?:hh|h|l|ll|z|j|t)?[dioxXuc])(?:[^%"\\]|\\.|%%)*"$'
+    - patterns:
+      - pattern: printf($FMT, (float $A))
+      - metavariable-regex:
+          metavariable: $FMT
+          regex: '^L?"(?:[^%"\\]|\\.|%%)*%[-+ #0]*[0-9]*(?:\.[0-9]+)?(?:(?:hh|h|l|ll|z|j|t)?[dioxXuc])(?:[^%"\\]|\\.|%%)*"$'
+    - patterns:
+      - pattern: wprintf($FMT, (float $A))
+      - metavariable-regex:
+          metavariable: $FMT
+          regex: '^L?"(?:[^%"\\]|\\.|%%)*%[-+ #0]*[0-9]*(?:\.[0-9]+)?(?:(?:hh|h|l|ll|z|j|t)?[dioxXuc])(?:[^%"\\]|\\.|%%)*"$'
+    - patterns:
+      - pattern: sprintf($D, $FMT, (float $A))
+      - metavariable-regex:
+          metavariable: $FMT
+          regex: '^L?"(?:[^%"\\]|\\.|%%)*%[-+ #0]*[0-9]*(?:\.[0-9]+)?(?:(?:hh|h|l|ll|z|j|t)?[dioxXuc])(?:[^%"\\]|\\.|%%)*"$'
+    - patterns:
+      - pattern: fprintf($D, $FMT, (float $A))
+      - metavariable-regex:
+          metavariable: $FMT
+          regex: '^L?"(?:[^%"\\]|\\.|%%)*%[-+ #0]*[0-9]*(?:\.[0-9]+)?(?:(?:hh|h|l|ll|z|j|t)?[dioxXuc])(?:[^%"\\]|\\.|%%)*"$'
+    - patterns:
+      - pattern: swprintf($D, $N, $FMT, (float $A))
+      - metavariable-regex:
+          metavariable: $FMT
+          regex: '^L?"(?:[^%"\\]|\\.|%%)*%[-+ #0]*[0-9]*(?:\.[0-9]+)?(?:(?:hh|h|l|ll|z|j|t)?[dioxXuc])(?:[^%"\\]|\\.|%%)*"$'
+    - patterns:
+      - pattern: snprintf($D, $N, $FMT, (float $A))
+      - metavariable-regex:
+          metavariable: $FMT
+          regex: '^L?"(?:[^%"\\]|\\.|%%)*%[-+ #0]*[0-9]*(?:\.[0-9]+)?(?:(?:hh|h|l|ll|z|j|t)?[dioxXuc])(?:[^%"\\]|\\.|%%)*"$'
+    - patterns:
+      - pattern: fwprintf($D, $FMT, (float $A))
+      - metavariable-regex:
+          metavariable: $FMT
+          regex: '^L?"(?:[^%"\\]|\\.|%%)*%[-+ #0]*[0-9]*(?:\.[0-9]+)?(?:(?:hh|h|l|ll|z|j|t)?[dioxXuc])(?:[^%"\\]|\\.|%%)*"$'
+    - patterns:
+      - pattern: printf($FMT, (void * $A))
+      - metavariable-regex:
+          metavariable: $FMT
+          regex: '^L?"(?:[^%"\\]|\\.|%%)*%[-+ #0]*[0-9]*(?:\.[0-9]+)?(?:(?:hh|h|l|ll|z|j|t)?[dioxXuc])(?:[^%"\\]|\\.|%%)*"$'
+    - patterns:
+      - pattern: wprintf($FMT, (void * $A))
+      - metavariable-regex:
+          metavariable: $FMT
+          regex: '^L?"(?:[^%"\\]|\\.|%%)*%[-+ #0]*[0-9]*(?:\.[0-9]+)?(?:(?:hh|h|l|ll|z|j|t)?[dioxXuc])(?:[^%"\\]|\\.|%%)*"$'
+    - patterns:
+      - pattern: sprintf($D, $FMT, (void * $A))
+      - metavariable-regex:
+          metavariable: $FMT
+          regex: '^L?"(?:[^%"\\]|\\.|%%)*%[-+ #0]*[0-9]*(?:\.[0-9]+)?(?:(?:hh|h|l|ll|z|j|t)?[dioxXuc])(?:[^%"\\]|\\.|%%)*"$'
+    - patterns:
+      - pattern: fprintf($D, $FMT, (void * $A))
+      - metavariable-regex:
+          metavariable: $FMT
+          regex: '^L?"(?:[^%"\\]|\\.|%%)*%[-+ #0]*[0-9]*(?:\.[0-9]+)?(?:(?:hh|h|l|ll|z|j|t)?[dioxXuc])(?:[^%"\\]|\\.|%%)*"$'
+    - patterns:
+      - pattern: swprintf($D, $N, $FMT, (void * $A))
+      - metavariable-regex:
+          metavariable: $FMT
+          regex: '^L?"(?:[^%"\\]|\\.|%%)*%[-+ #0]*[0-9]*(?:\.[0-9]+)?(?:(?:hh|h|l|ll|z|j|t)?[dioxXuc])(?:[^%"\\]|\\.|%%)*"$'
+    - patterns:
+      - pattern: snprintf($D, $N, $FMT, (void * $A))
+      - metavariable-regex:
+          metavariable: $FMT
+          regex: '^L?"(?:[^%"\\]|\\.|%%)*%[-+ #0]*[0-9]*(?:\.[0-9]+)?(?:(?:hh|h|l|ll|z|j|t)?[dioxXuc])(?:[^%"\\]|\\.|%%)*"$'
+    - patterns:
+      - pattern: fwprintf($D, $FMT, (void * $A))
+      - metavariable-regex:
+          metavariable: $FMT
+          regex: '^L?"(?:[^%"\\]|\\.|%%)*%[-+ #0]*[0-9]*(?:\.[0-9]+)?(?:(?:hh|h|l|ll|z|j|t)?[dioxXuc])(?:[^%"\\]|\\.|%%)*"$'
+    - patterns:
+      - pattern: printf($FMT, (const char * $A))
+      - metavariable-regex:
+          metavariable: $FMT
+          regex: '^L?"(?:[^%"\\]|\\.|%%)*%[-+ #0]*[0-9]*(?:\.[0-9]+)?(?:(?:hh|h|l|ll|z|j|t)?[dioxXuc])(?:[^%"\\]|\\.|%%)*"$'
+    - patterns:
+      - pattern: wprintf($FMT, (const char * $A))
+      - metavariable-regex:
+          metavariable: $FMT
+          regex: '^L?"(?:[^%"\\]|\\.|%%)*%[-+ #0]*[0-9]*(?:\.[0-9]+)?(?:(?:hh|h|l|ll|z|j|t)?[dioxXuc])(?:[^%"\\]|\\.|%%)*"$'
+    - patterns:
+      - pattern: sprintf($D, $FMT, (const char * $A))
+      - metavariable-regex:
+          metavariable: $FMT
+          regex: '^L?"(?:[^%"\\]|\\.|%%)*%[-+ #0]*[0-9]*(?:\.[0-9]+)?(?:(?:hh|h|l|ll|z|j|t)?[dioxXuc])(?:[^%"\\]|\\.|%%)*"$'
+    - patterns:
+      - pattern: fprintf($D, $FMT, (const char * $A))
+      - metavariable-regex:
+          metavariable: $FMT
+          regex: '^L?"(?:[^%"\\]|\\.|%%)*%[-+ #0]*[0-9]*(?:\.[0-9]+)?(?:(?:hh|h|l|ll|z|j|t)?[dioxXuc])(?:[^%"\\]|\\.|%%)*"$'
+    - patterns:
+      - pattern: swprintf($D, $N, $FMT, (const char * $A))
+      - metavariable-regex:
+          metavariable: $FMT
+          regex: '^L?"(?:[^%"\\]|\\.|%%)*%[-+ #0]*[0-9]*(?:\.[0-9]+)?(?:(?:hh|h|l|ll|z|j|t)?[dioxXuc])(?:[^%"\\]|\\.|%%)*"$'
+    - patterns:
+      - pattern: snprintf($D, $N, $FMT, (const char * $A))
+      - metavariable-regex:
+          metavariable: $FMT
+          regex: '^L?"(?:[^%"\\]|\\.|%%)*%[-+ #0]*[0-9]*(?:\.[0-9]+)?(?:(?:hh|h|l|ll|z|j|t)?[dioxXuc])(?:[^%"\\]|\\.|%%)*"$'
+    - patterns:
+      - pattern: fwprintf($D, $FMT, (const char * $A))
+      - metavariable-regex:
+          metavariable: $FMT
+          regex: '^L?"(?:[^%"\\]|\\.|%%)*%[-+ #0]*[0-9]*(?:\.[0-9]+)?(?:(?:hh|h|l|ll|z|j|t)?[dioxXuc])(?:[^%"\\]|\\.|%%)*"$'
+    - patterns:
+      - pattern: printf($FMT, (char * $A))
+      - metavariable-regex:
+          metavariable: $FMT
+          regex: '^L?"(?:[^%"\\]|\\.|%%)*%[-+ #0]*[0-9]*(?:\.[0-9]+)?(?:L?[eEfFgGaA])(?:[^%"\\]|\\.|%%)*"$'
+    - patterns:
+      - pattern: wprintf($FMT, (char * $A))
+      - metavariable-regex:
+          metavariable: $FMT
+          regex: '^L?"(?:[^%"\\]|\\.|%%)*%[-+ #0]*[0-9]*(?:\.[0-9]+)?(?:L?[eEfFgGaA])(?:[^%"\\]|\\.|%%)*"$'
+    - patterns:
+      - pattern: sprintf($D, $FMT, (char * $A))
+      - metavariable-regex:
+          metavariable: $FMT
+          regex: '^L?"(?:[^%"\\]|\\.|%%)*%[-+ #0]*[0-9]*(?:\.[0-9]+)?(?:L?[eEfFgGaA])(?:[^%"\\]|\\.|%%)*"$'
+    - patterns:
+      - pattern: fprintf($D, $FMT, (char * $A))
+      - metavariable-regex:
+          metavariable: $FMT
+          regex: '^L?"(?:[^%"\\]|\\.|%%)*%[-+ #0]*[0-9]*(?:\.[0-9]+)?(?:L?[eEfFgGaA])(?:[^%"\\]|\\.|%%)*"$'
+    - patterns:
+      - pattern: swprintf($D, $N, $FMT, (char * $A))
+      - metavariable-regex:
+          metavariable: $FMT
+          regex: '^L?"(?:[^%"\\]|\\.|%%)*%[-+ #0]*[0-9]*(?:\.[0-9]+)?(?:L?[eEfFgGaA])(?:[^%"\\]|\\.|%%)*"$'
+    - patterns:
+      - pattern: snprintf($D, $N, $FMT, (char * $A))
+      - metavariable-regex:
+          metavariable: $FMT
+          regex: '^L?"(?:[^%"\\]|\\.|%%)*%[-+ #0]*[0-9]*(?:\.[0-9]+)?(?:L?[eEfFgGaA])(?:[^%"\\]|\\.|%%)*"$'
+    - patterns:
+      - pattern: fwprintf($D, $FMT, (char * $A))
+      - metavariable-regex:
+          metavariable: $FMT
+          regex: '^L?"(?:[^%"\\]|\\.|%%)*%[-+ #0]*[0-9]*(?:\.[0-9]+)?(?:L?[eEfFgGaA])(?:[^%"\\]|\\.|%%)*"$'
+    - patterns:
+      - pattern: printf($FMT, (wchar_t * $A))
+      - metavariable-regex:
+          metavariable: $FMT
+          regex: '^L?"(?:[^%"\\]|\\.|%%)*%[-+ #0]*[0-9]*(?:\.[0-9]+)?(?:L?[eEfFgGaA])(?:[^%"\\]|\\.|%%)*"$'
+    - patterns:
+      - pattern: wprintf($FMT, (wchar_t * $A))
+      - metavariable-regex:
+          metavariable: $FMT
+          regex: '^L?"(?:[^%"\\]|\\.|%%)*%[-+ #0]*[0-9]*(?:\.[0-9]+)?(?:L?[eEfFgGaA])(?:[^%"\\]|\\.|%%)*"$'
+    - patterns:
+      - pattern: sprintf($D, $FMT, (wchar_t * $A))
+      - metavariable-regex:
+          metavariable: $FMT
+          regex: '^L?"(?:[^%"\\]|\\.|%%)*%[-+ #0]*[0-9]*(?:\.[0-9]+)?(?:L?[eEfFgGaA])(?:[^%"\\]|\\.|%%)*"$'
+    - patterns:
+      - pattern: fprintf($D, $FMT, (wchar_t * $A))
+      - metavariable-regex:
+          metavariable: $FMT
+          regex: '^L?"(?:[^%"\\]|\\.|%%)*%[-+ #0]*[0-9]*(?:\.[0-9]+)?(?:L?[eEfFgGaA])(?:[^%"\\]|\\.|%%)*"$'
+    - patterns:
+      - pattern: swprintf($D, $N, $FMT, (wchar_t * $A))
+      - metavariable-regex:
+          metavariable: $FMT
+          regex: '^L?"(?:[^%"\\]|\\.|%%)*%[-+ #0]*[0-9]*(?:\.[0-9]+)?(?:L?[eEfFgGaA])(?:[^%"\\]|\\.|%%)*"$'
+    - patterns:
+      - pattern: snprintf($D, $N, $FMT, (wchar_t * $A))
+      - metavariable-regex:
+          metavariable: $FMT
+          regex: '^L?"(?:[^%"\\]|\\.|%%)*%[-+ #0]*[0-9]*(?:\.[0-9]+)?(?:L?[eEfFgGaA])(?:[^%"\\]|\\.|%%)*"$'
+    - patterns:
+      - pattern: fwprintf($D, $FMT, (wchar_t * $A))
+      - metavariable-regex:
+          metavariable: $FMT
+          regex: '^L?"(?:[^%"\\]|\\.|%%)*%[-+ #0]*[0-9]*(?:\.[0-9]+)?(?:L?[eEfFgGaA])(?:[^%"\\]|\\.|%%)*"$'
+    - patterns:
+      - pattern: printf($FMT, (int $A))
+      - metavariable-regex:
+          metavariable: $FMT
+          regex: '^L?"(?:[^%"\\]|\\.|%%)*%[-+ #0]*[0-9]*(?:\.[0-9]+)?(?:L?[eEfFgGaA])(?:[^%"\\]|\\.|%%)*"$'
+    - patterns:
+      - pattern: wprintf($FMT, (int $A))
+      - metavariable-regex:
+          metavariable: $FMT
+          regex: '^L?"(?:[^%"\\]|\\.|%%)*%[-+ #0]*[0-9]*(?:\.[0-9]+)?(?:L?[eEfFgGaA])(?:[^%"\\]|\\.|%%)*"$'
+    - patterns:
+      - pattern: sprintf($D, $FMT, (int $A))
+      - metavariable-regex:
+          metavariable: $FMT
+          regex: '^L?"(?:[^%"\\]|\\.|%%)*%[-+ #0]*[0-9]*(?:\.[0-9]+)?(?:L?[eEfFgGaA])(?:[^%"\\]|\\.|%%)*"$'
+    - patterns:
+      - pattern: fprintf($D, $FMT, (int $A))
+      - metavariable-regex:
+          metavariable: $FMT
+          regex: '^L?"(?:[^%"\\]|\\.|%%)*%[-+ #0]*[0-9]*(?:\.[0-9]+)?(?:L?[eEfFgGaA])(?:[^%"\\]|\\.|%%)*"$'
+    - patterns:
+      - pattern: swprintf($D, $N, $FMT, (int $A))
+      - metavariable-regex:
+          metavariable: $FMT
+          regex: '^L?"(?:[^%"\\]|\\.|%%)*%[-+ #0]*[0-9]*(?:\.[0-9]+)?(?:L?[eEfFgGaA])(?:[^%"\\]|\\.|%%)*"$'
+    - patterns:
+      - pattern: snprintf($D, $N, $FMT, (int $A))
+      - metavariable-regex:
+          metavariable: $FMT
+          regex: '^L?"(?:[^%"\\]|\\.|%%)*%[-+ #0]*[0-9]*(?:\.[0-9]+)?(?:L?[eEfFgGaA])(?:[^%"\\]|\\.|%%)*"$'
+    - patterns:
+      - pattern: fwprintf($D, $FMT, (int $A))
+      - metavariable-regex:
+          metavariable: $FMT
+          regex: '^L?"(?:[^%"\\]|\\.|%%)*%[-+ #0]*[0-9]*(?:\.[0-9]+)?(?:L?[eEfFgGaA])(?:[^%"\\]|\\.|%%)*"$'
+    - patterns:
+      - pattern: printf($FMT, (long $A))
+      - metavariable-regex:
+          metavariable: $FMT
+          regex: '^L?"(?:[^%"\\]|\\.|%%)*%[-+ #0]*[0-9]*(?:\.[0-9]+)?(?:L?[eEfFgGaA])(?:[^%"\\]|\\.|%%)*"$'
+    - patterns:
+      - pattern: wprintf($FMT, (long $A))
+      - metavariable-regex:
+          metavariable: $FMT
+          regex: '^L?"(?:[^%"\\]|\\.|%%)*%[-+ #0]*[0-9]*(?:\.[0-9]+)?(?:L?[eEfFgGaA])(?:[^%"\\]|\\.|%%)*"$'
+    - patterns:
+      - pattern: sprintf($D, $FMT, (long $A))
+      - metavariable-regex:
+          metavariable: $FMT
+          regex: '^L?"(?:[^%"\\]|\\.|%%)*%[-+ #0]*[0-9]*(?:\.[0-9]+)?(?:L?[eEfFgGaA])(?:[^%"\\]|\\.|%%)*"$'
+    - patterns:
+      - pattern: fprintf($D, $FMT, (long $A))
+      - metavariable-regex:
+          metavariable: $FMT
+          regex: '^L?"(?:[^%"\\]|\\.|%%)*%[-+ #0]*[0-9]*(?:\.[0-9]+)?(?:L?[eEfFgGaA])(?:[^%"\\]|\\.|%%)*"$'
+    - patterns:
+      - pattern: swprintf($D, $N, $FMT, (long $A))
+      - metavariable-regex:
+          metavariable: $FMT
+          regex: '^L?"(?:[^%"\\]|\\.|%%)*%[-+ #0]*[0-9]*(?:\.[0-9]+)?(?:L?[eEfFgGaA])(?:[^%"\\]|\\.|%%)*"$'
+    - patterns:
+      - pattern: snprintf($D, $N, $FMT, (long $A))
+      - metavariable-regex:
+          metavariable: $FMT
+          regex: '^L?"(?:[^%"\\]|\\.|%%)*%[-+ #0]*[0-9]*(?:\.[0-9]+)?(?:L?[eEfFgGaA])(?:[^%"\\]|\\.|%%)*"$'
+    - patterns:
+      - pattern: fwprintf($D, $FMT, (long $A))
+      - metavariable-regex:
+          metavariable: $FMT
+          regex: '^L?"(?:[^%"\\]|\\.|%%)*%[-+ #0]*[0-9]*(?:\.[0-9]+)?(?:L?[eEfFgGaA])(?:[^%"\\]|\\.|%%)*"$'
+    - patterns:
+      - pattern: printf($FMT, (void * $A))
+      - metavariable-regex:
+          metavariable: $FMT
+          regex: '^L?"(?:[^%"\\]|\\.|%%)*%[-+ #0]*[0-9]*(?:\.[0-9]+)?(?:L?[eEfFgGaA])(?:[^%"\\]|\\.|%%)*"$'
+    - patterns:
+      - pattern: wprintf($FMT, (void * $A))
+      - metavariable-regex:
+          metavariable: $FMT
+          regex: '^L?"(?:[^%"\\]|\\.|%%)*%[-+ #0]*[0-9]*(?:\.[0-9]+)?(?:L?[eEfFgGaA])(?:[^%"\\]|\\.|%%)*"$'
+    - patterns:
+      - pattern: sprintf($D, $FMT, (void * $A))
+      - metavariable-regex:
+          metavariable: $FMT
+          regex: '^L?"(?:[^%"\\]|\\.|%%)*%[-+ #0]*[0-9]*(?:\.[0-9]+)?(?:L?[eEfFgGaA])(?:[^%"\\]|\\.|%%)*"$'
+    - patterns:
+      - pattern: fprintf($D, $FMT, (void * $A))
+      - metavariable-regex:
+          metavariable: $FMT
+          regex: '^L?"(?:[^%"\\]|\\.|%%)*%[-+ #0]*[0-9]*(?:\.[0-9]+)?(?:L?[eEfFgGaA])(?:[^%"\\]|\\.|%%)*"$'
+    - patterns:
+      - pattern: swprintf($D, $N, $FMT, (void * $A))
+      - metavariable-regex:
+          metavariable: $FMT
+          regex: '^L?"(?:[^%"\\]|\\.|%%)*%[-+ #0]*[0-9]*(?:\.[0-9]+)?(?:L?[eEfFgGaA])(?:[^%"\\]|\\.|%%)*"$'
+    - patterns:
+      - pattern: snprintf($D, $N, $FMT, (void * $A))
+      - metavariable-regex:
+          metavariable: $FMT
+          regex: '^L?"(?:[^%"\\]|\\.|%%)*%[-+ #0]*[0-9]*(?:\.[0-9]+)?(?:L?[eEfFgGaA])(?:[^%"\\]|\\.|%%)*"$'
+    - patterns:
+      - pattern: fwprintf($D, $FMT, (void * $A))
+      - metavariable-regex:
+          metavariable: $FMT
+          regex: '^L?"(?:[^%"\\]|\\.|%%)*%[-+ #0]*[0-9]*(?:\.[0-9]+)?(?:L?[eEfFgGaA])(?:[^%"\\]|\\.|%%)*"$'
+    - patterns:
+      - pattern: printf($FMT, (const char * $A))
+      - metavariable-regex:
+          metavariable: $FMT
+          regex: '^L?"(?:[^%"\\]|\\.|%%)*%[-+ #0]*[0-9]*(?:\.[0-9]+)?(?:L?[eEfFgGaA])(?:[^%"\\]|\\.|%%)*"$'
+    - patterns:
+      - pattern: wprintf($FMT, (const char * $A))
+      - metavariable-regex:
+          metavariable: $FMT
+          regex: '^L?"(?:[^%"\\]|\\.|%%)*%[-+ #0]*[0-9]*(?:\.[0-9]+)?(?:L?[eEfFgGaA])(?:[^%"\\]|\\.|%%)*"$'
+    - patterns:
+      - pattern: sprintf($D, $FMT, (const char * $A))
+      - metavariable-regex:
+          metavariable: $FMT
+          regex: '^L?"(?:[^%"\\]|\\.|%%)*%[-+ #0]*[0-9]*(?:\.[0-9]+)?(?:L?[eEfFgGaA])(?:[^%"\\]|\\.|%%)*"$'
+    - patterns:
+      - pattern: fprintf($D, $FMT, (const char * $A))
+      - metavariable-regex:
+          metavariable: $FMT
+          regex: '^L?"(?:[^%"\\]|\\.|%%)*%[-+ #0]*[0-9]*(?:\.[0-9]+)?(?:L?[eEfFgGaA])(?:[^%"\\]|\\.|%%)*"$'
+    - patterns:
+      - pattern: swprintf($D, $N, $FMT, (const char * $A))
+      - metavariable-regex:
+          metavariable: $FMT
+          regex: '^L?"(?:[^%"\\]|\\.|%%)*%[-+ #0]*[0-9]*(?:\.[0-9]+)?(?:L?[eEfFgGaA])(?:[^%"\\]|\\.|%%)*"$'
+    - patterns:
+      - pattern: snprintf($D, $N, $FMT, (const char * $A))
+      - metavariable-regex:
+          metavariable: $FMT
+          regex: '^L?"(?:[^%"\\]|\\.|%%)*%[-+ #0]*[0-9]*(?:\.[0-9]+)?(?:L?[eEfFgGaA])(?:[^%"\\]|\\.|%%)*"$'
+    - patterns:
+      - pattern: fwprintf($D, $FMT, (const char * $A))
+      - metavariable-regex:
+          metavariable: $FMT
+          regex: '^L?"(?:[^%"\\]|\\.|%%)*%[-+ #0]*[0-9]*(?:\.[0-9]+)?(?:L?[eEfFgGaA])(?:[^%"\\]|\\.|%%)*"$'
+    - patterns:
+      - pattern: printf($FMT, (int $A))
+      - metavariable-regex:
+          metavariable: $FMT
+          regex: '^L?"(?:[^%"\\]|\\.|%%)*%[-+ #0]*[0-9]*(?:\.[0-9]+)?(?:ls|S)(?:[^%"\\]|\\.|%%)*"$'
+    - patterns:
+      - pattern: wprintf($FMT, (int $A))
+      - metavariable-regex:
+          metavariable: $FMT
+          regex: '^L?"(?:[^%"\\]|\\.|%%)*%[-+ #0]*[0-9]*(?:\.[0-9]+)?(?:ls|S)(?:[^%"\\]|\\.|%%)*"$'
+    - patterns:
+      - pattern: sprintf($D, $FMT, (int $A))
+      - metavariable-regex:
+          metavariable: $FMT
+          regex: '^L?"(?:[^%"\\]|\\.|%%)*%[-+ #0]*[0-9]*(?:\.[0-9]+)?(?:ls|S)(?:[^%"\\]|\\.|%%)*"$'
+    - patterns:
+      - pattern: fprintf($D, $FMT, (int $A))
+      - metavariable-regex:
+          metavariable: $FMT
+          regex: '^L?"(?:[^%"\\]|\\.|%%)*%[-+ #0]*[0-9]*(?:\.[0-9]+)?(?:ls|S)(?:[^%"\\]|\\.|%%)*"$'
+    - patterns:
+      - pattern: swprintf($D, $N, $FMT, (int $A))
+      - metavariable-regex:
+          metavariable: $FMT
+          regex: '^L?"(?:[^%"\\]|\\.|%%)*%[-+ #0]*[0-9]*(?:\.[0-9]+)?(?:ls|S)(?:[^%"\\]|\\.|%%)*"$'
+    - patterns:
+      - pattern: snprintf($D, $N, $FMT, (int $A))
+      - metavariable-regex:
+          metavariable: $FMT
+          regex: '^L?"(?:[^%"\\]|\\.|%%)*%[-+ #0]*[0-9]*(?:\.[0-9]+)?(?:ls|S)(?:[^%"\\]|\\.|%%)*"$'
+    - patterns:
+      - pattern: fwprintf($D, $FMT, (int $A))
+      - metavariable-regex:
+          metavariable: $FMT
+          regex: '^L?"(?:[^%"\\]|\\.|%%)*%[-+ #0]*[0-9]*(?:\.[0-9]+)?(?:ls|S)(?:[^%"\\]|\\.|%%)*"$'
+    - patterns:
+      - pattern: printf($FMT, (long $A))
+      - metavariable-regex:
+          metavariable: $FMT
+          regex: '^L?"(?:[^%"\\]|\\.|%%)*%[-+ #0]*[0-9]*(?:\.[0-9]+)?(?:ls|S)(?:[^%"\\]|\\.|%%)*"$'
+    - patterns:
+      - pattern: wprintf($FMT, (long $A))
+      - metavariable-regex:
+          metavariable: $FMT
+          regex: '^L?"(?:[^%"\\]|\\.|%%)*%[-+ #0]*[0-9]*(?:\.[0-9]+)?(?:ls|S)(?:[^%"\\]|\\.|%%)*"$'
+    - patterns:
+      - pattern: sprintf($D, $FMT, (long $A))
+      - metavariable-regex:
+          metavariable: $FMT
+          regex: '^L?"(?:[^%"\\]|\\.|%%)*%[-+ #0]*[0-9]*(?:\.[0-9]+)?(?:ls|S)(?:[^%"\\]|\\.|%%)*"$'
+    - patterns:
+      - pattern: fprintf($D, $FMT, (long $A))
+      - metavariable-regex:
+          metavariable: $FMT
+          regex: '^L?"(?:[^%"\\]|\\.|%%)*%[-+ #0]*[0-9]*(?:\.[0-9]+)?(?:ls|S)(?:[^%"\\]|\\.|%%)*"$'
+    - patterns:
+      - pattern: swprintf($D, $N, $FMT, (long $A))
+      - metavariable-regex:
+          metavariable: $FMT
+          regex: '^L?"(?:[^%"\\]|\\.|%%)*%[-+ #0]*[0-9]*(?:\.[0-9]+)?(?:ls|S)(?:[^%"\\]|\\.|%%)*"$'
+    - patterns:
+      - pattern: snprintf($D, $N, $FMT, (long $A))
+      - metavariable-regex:
+          metavariable: $FMT
+          regex: '^L?"(?:[^%"\\]|\\.|%%)*%[-+ #0]*[0-9]*(?:\.[0-9]+)?(?:ls|S)(?:[^%"\\]|\\.|%%)*"$'
+    - patterns:
+      - pattern: fwprintf($D, $FMT, (long $A))
+      - metavariable-regex:
+          metavariable: $FMT
+          regex: '^L?"(?:[^%"\\]|\\.|%%)*%[-+ #0]*[0-9]*(?:\.[0-9]+)?(?:ls|S)(?:[^%"\\]|\\.|%%)*"$'
+    - patterns:
+      - pattern: printf($FMT, (char * $A))
+      - metavariable-regex:
+          metavariable: $FMT
+          regex: '^L?"(?:[^%"\\]|\\.|%%)*%[-+ #0]*[0-9]*(?:\.[0-9]+)?(?:ls|S)(?:[^%"\\]|\\.|%%)*"$'
+    - patterns:
+      - pattern: wprintf($FMT, (char * $A))
+      - metavariable-regex:
+          metavariable: $FMT
+          regex: '^L?"(?:[^%"\\]|\\.|%%)*%[-+ #0]*[0-9]*(?:\.[0-9]+)?(?:ls|S)(?:[^%"\\]|\\.|%%)*"$'
+    - patterns:
+      - pattern: sprintf($D, $FMT, (char * $A))
+      - metavariable-regex:
+          metavariable: $FMT
+          regex: '^L?"(?:[^%"\\]|\\.|%%)*%[-+ #0]*[0-9]*(?:\.[0-9]+)?(?:ls|S)(?:[^%"\\]|\\.|%%)*"$'
+    - patterns:
+      - pattern: fprintf($D, $FMT, (char * $A))
+      - metavariable-regex:
+          metavariable: $FMT
+          regex: '^L?"(?:[^%"\\]|\\.|%%)*%[-+ #0]*[0-9]*(?:\.[0-9]+)?(?:ls|S)(?:[^%"\\]|\\.|%%)*"$'
+    - patterns:
+      - pattern: swprintf($D, $N, $FMT, (char * $A))
+      - metavariable-regex:
+          metavariable: $FMT
+          regex: '^L?"(?:[^%"\\]|\\.|%%)*%[-+ #0]*[0-9]*(?:\.[0-9]+)?(?:ls|S)(?:[^%"\\]|\\.|%%)*"$'
+    - patterns:
+      - pattern: snprintf($D, $N, $FMT, (char * $A))
+      - metavariable-regex:
+          metavariable: $FMT
+          regex: '^L?"(?:[^%"\\]|\\.|%%)*%[-+ #0]*[0-9]*(?:\.[0-9]+)?(?:ls|S)(?:[^%"\\]|\\.|%%)*"$'
+    - patterns:
+      - pattern: fwprintf($D, $FMT, (char * $A))
+      - metavariable-regex:
+          metavariable: $FMT
+          regex: '^L?"(?:[^%"\\]|\\.|%%)*%[-+ #0]*[0-9]*(?:\.[0-9]+)?(?:ls|S)(?:[^%"\\]|\\.|%%)*"$'
+    - patterns:
+      - pattern: printf($FMT, (const char * $A))
+      - metavariable-regex:
+          metavariable: $FMT
+          regex: '^L?"(?:[^%"\\]|\\.|%%)*%[-+ #0]*[0-9]*(?:\.[0-9]+)?(?:ls|S)(?:[^%"\\]|\\.|%%)*"$'
+    - patterns:
+      - pattern: wprintf($FMT, (const char * $A))
+      - metavariable-regex:
+          metavariable: $FMT
+          regex: '^L?"(?:[^%"\\]|\\.|%%)*%[-+ #0]*[0-9]*(?:\.[0-9]+)?(?:ls|S)(?:[^%"\\]|\\.|%%)*"$'
+    - patterns:
+      - pattern: sprintf($D, $FMT, (const char * $A))
+      - metavariable-regex:
+          metavariable: $FMT
+          regex: '^L?"(?:[^%"\\]|\\.|%%)*%[-+ #0]*[0-9]*(?:\.[0-9]+)?(?:ls|S)(?:[^%"\\]|\\.|%%)*"$'
+    - patterns:
+      - pattern: fprintf($D, $FMT, (const char * $A))
+      - metavariable-regex:
+          metavariable: $FMT
+          regex: '^L?"(?:[^%"\\]|\\.|%%)*%[-+ #0]*[0-9]*(?:\.[0-9]+)?(?:ls|S)(?:[^%"\\]|\\.|%%)*"$'
+    - patterns:
+      - pattern: swprintf($D, $N, $FMT, (const char * $A))
+      - metavariable-regex:
+          metavariable: $FMT
+          regex: '^L?"(?:[^%"\\]|\\.|%%)*%[-+ #0]*[0-9]*(?:\.[0-9]+)?(?:ls|S)(?:[^%"\\]|\\.|%%)*"$'
+    - patterns:
+      - pattern: snprintf($D, $N, $FMT, (const char * $A))
+      - metavariable-regex:
+          metavariable: $FMT
+          regex: '^L?"(?:[^%"\\]|\\.|%%)*%[-+ #0]*[0-9]*(?:\.[0-9]+)?(?:ls|S)(?:[^%"\\]|\\.|%%)*"$'
+    - patterns:
+      - pattern: fwprintf($D, $FMT, (const char * $A))
+      - metavariable-regex:
+          metavariable: $FMT
+          regex: '^L?"(?:[^%"\\]|\\.|%%)*%[-+ #0]*[0-9]*(?:\.[0-9]+)?(?:ls|S)(?:[^%"\\]|\\.|%%)*"$'
+    - patterns:
+      - pattern: printf($FMT, (double $A))
+      - metavariable-regex:
+          metavariable: $FMT
+          regex: '^L?"(?:[^%"\\]|\\.|%%)*%[-+ #0]*[0-9]*(?:\.[0-9]+)?(?:ls|S)(?:[^%"\\]|\\.|%%)*"$'
+    - patterns:
+      - pattern: wprintf($FMT, (double $A))
+      - metavariable-regex:
+          metavariable: $FMT
+          regex: '^L?"(?:[^%"\\]|\\.|%%)*%[-+ #0]*[0-9]*(?:\.[0-9]+)?(?:ls|S)(?:[^%"\\]|\\.|%%)*"$'
+    - patterns:
+      - pattern: sprintf($D, $FMT, (double $A))
+      - metavariable-regex:
+          metavariable: $FMT
+          regex: '^L?"(?:[^%"\\]|\\.|%%)*%[-+ #0]*[0-9]*(?:\.[0-9]+)?(?:ls|S)(?:[^%"\\]|\\.|%%)*"$'
+    - patterns:
+      - pattern: fprintf($D, $FMT, (double $A))
+      - metavariable-regex:
+          metavariable: $FMT
+          regex: '^L?"(?:[^%"\\]|\\.|%%)*%[-+ #0]*[0-9]*(?:\.[0-9]+)?(?:ls|S)(?:[^%"\\]|\\.|%%)*"$'
+    - patterns:
+      - pattern: swprintf($D, $N, $FMT, (double $A))
+      - metavariable-regex:
+          metavariable: $FMT
+          regex: '^L?"(?:[^%"\\]|\\.|%%)*%[-+ #0]*[0-9]*(?:\.[0-9]+)?(?:ls|S)(?:[^%"\\]|\\.|%%)*"$'
+    - patterns:
+      - pattern: snprintf($D, $N, $FMT, (double $A))
+      - metavariable-regex:
+          metavariable: $FMT
+          regex: '^L?"(?:[^%"\\]|\\.|%%)*%[-+ #0]*[0-9]*(?:\.[0-9]+)?(?:ls|S)(?:[^%"\\]|\\.|%%)*"$'
+    - patterns:
+      - pattern: fwprintf($D, $FMT, (double $A))
+      - metavariable-regex:
+          metavariable: $FMT
+          regex: '^L?"(?:[^%"\\]|\\.|%%)*%[-+ #0]*[0-9]*(?:\.[0-9]+)?(?:ls|S)(?:[^%"\\]|\\.|%%)*"$'

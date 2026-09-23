@@ -1,0 +1,125 @@
+rules:
+- id: cwe124-negative-index-write
+  languages:
+  - c
+  - cpp
+  paths:
+    include:
+    - '*.c'
+    - '*.h'
+    - '*.cpp'
+    - '*.cc'
+    - '*.cxx'
+    - '*.c++'
+    - '*.hpp'
+    - '*.hh'
+    - '*.hxx'
+    - '*.inc'
+  severity: ERROR
+  message: An array is written at an index that comes from input or a negative constant without checking
+    that the index is non-negative.
+  metadata:
+    vulnerability_class: Buffer Underwrite ('Buffer Underflow')
+    help: |
+      ## Summary
+      An array is written at an index that comes from input or a negative constant without checking that the index is non-negative.
+
+      ## Remediation
+      Check that indexes and pointer offsets are not negative and do not move before the start of the buffer before writing.
+    category: security
+    cwe:
+    - 'CWE-124: Buffer Underwrite (''Buffer Underflow'')'
+    references:
+    - https://cwe.mitre.org/data/definitions/124.html
+    confidence: MEDIUM
+    likelihood: MEDIUM
+    impact: HIGH
+    subcategory:
+    - vuln
+    technology:
+    - c
+    - cpp
+    source: Validated against NIST Juliet C/C++ Test Suite v1.3
+    remediation: Check that indexes and pointer offsets are not negative and do not move before the start
+      of the buffer before writing.
+  mode: taint
+  pattern-sources:
+  - patterns:
+    - pattern-either:
+      - patterns:
+        - pattern-inside: |
+            $RT $F(...) { ... $P = $E; ... }
+        - metavariable-pattern:
+            metavariable: $E
+            pattern-either:
+            - pattern: atoi(...)
+            - pattern: atol(...)
+            - pattern: atoll(...)
+            - pattern: strtol(...)
+            - pattern: strtoul(...)
+            - pattern: strtoll(...)
+            - pattern: rand()
+            - pattern: RAND32()
+      - pattern-inside: |
+          $RT $F(...) { ... fscanf($FP, $FMT, &$P); ... }
+      - pattern-inside: |
+          $RT $F(...) { ... scanf($FMT, &$P); ... }
+      - patterns:
+        - pattern-inside: |
+            $RT $F(...) { ... $P = $E; ... }
+        - metavariable-comparison:
+            metavariable: $E
+            comparison: $E < -1
+    - pattern: $P
+  - patterns:
+    - pattern-either:
+      - patterns:
+        - pattern-inside: |
+            $RT $F(...) { ... $P = $E; ... }
+        - metavariable-pattern:
+            metavariable: $E
+            pattern-either:
+            - pattern: atoi(...)
+            - pattern: atol(...)
+            - pattern: atoll(...)
+            - pattern: strtol(...)
+            - pattern: strtoul(...)
+            - pattern: strtoll(...)
+            - pattern: rand()
+            - pattern: RAND32()
+      - pattern-inside: |
+          $RT $F(...) { ... fscanf($FP, $FMT, &$P); ... }
+      - pattern-inside: |
+          $RT $F(...) { ... scanf($FMT, &$P); ... }
+      - patterns:
+        - pattern-inside: |
+            $RT $F(...) { ... $P = $E; ... }
+        - metavariable-comparison:
+            metavariable: $E
+            comparison: $E < -1
+    - pattern-inside: |
+        $RT $F(...) { ... *$Q1 = $P; ... }
+    - pattern-inside: |
+        $RT $F(...) { ... $T1 $Q1 = &$V; ... }
+    - pattern-inside: |
+        $RT $F(...) { ... $T2 $Q2 = &$V; ... }
+    - pattern: '*$Q2'
+  pattern-propagators:
+  - pattern: $U.$FLD = $X
+    from: $X
+    to: $U
+  pattern-sinks:
+  - patterns:
+    - pattern: $BUF[$IDX] = $V
+    - metavariable-regex:
+        metavariable: $IDX
+        regex: ^[A-Za-z_]\w*$
+    - pattern-not-inside: if (<... $IDX >= $LO ...>) { ... }
+    - pattern-not-inside: if (<... $IDX > $LO ...>) { ... }
+    - pattern-not-inside: if (<... $LO <= $IDX ...>) { ... }
+    - pattern-not-inside: if (<... $LO < $IDX ...>) { ... }
+    - pattern-not-inside: if (<... $IDX >= $LO ...>) { ... } else { ... }
+    - pattern-not-inside: if (<... $IDX > $LO ...>) { ... } else { ... }
+    - pattern-not-inside: if (<... $LO <= $IDX ...>) { ... } else { ... }
+    - pattern-not-inside: if (<... $LO < $IDX ...>) { ... } else { ... }
+    - focus-metavariable: $IDX

@@ -1,0 +1,77 @@
+rules:
+- id: cwe327-broken-cipher-key-used
+  languages:
+  - c
+  - cpp
+  paths:
+    include:
+    - '*.c'
+    - '*.h'
+    - '*.cpp'
+    - '*.cc'
+    - '*.cxx'
+    - '*.c++'
+    - '*.hpp'
+    - '*.hh'
+    - '*.hxx'
+    - '*.inc'
+  severity: ERROR
+  message: $CRYPT() uses a key created for the broken or weak cipher $ALG; use AES (CALG_AES_128/256)
+    instead.
+  metadata:
+    vulnerability_class: Use of a Broken or Risky Cryptographic Algorithm
+    help: |
+      ## Summary
+      `$CRYPT()` uses a key created for the broken or weak cipher `$ALG`; use AES (CALG_AES_128/256) instead.
+
+      ## Remediation
+      Replace broken algorithms such as DES, 3DES, RC2 and RC4 with AES-GCM or another modern authenticated cipher.
+    category: security
+    cwe:
+    - 'CWE-327: Use of a Broken or Risky Cryptographic Algorithm'
+    references:
+    - https://cwe.mitre.org/data/definitions/327.html
+    confidence: HIGH
+    likelihood: MEDIUM
+    impact: HIGH
+    subcategory:
+    - vuln
+    technology:
+    - c
+    - cpp
+    source: Validated against NIST Juliet C/C++ Test Suite v1.3
+    remediation: Replace broken algorithms such as DES, 3DES, RC2 and RC4 with AES-GCM or another modern
+      authenticated cipher.
+  patterns:
+  - pattern: $CRYPT($KEY, ...)
+  - metavariable-regex:
+      metavariable: $CRYPT
+      regex: ^(CryptEncrypt|CryptDecrypt)$
+  - pattern-either:
+    - pattern-inside: |
+        $T $FN(...) {
+          ...
+          if (<... CryptDeriveKey($P, $ALG, $H, $F, &$KEY) ...>) { ... }
+          ...
+        }
+    - pattern-inside: |
+        $T $FN(...) {
+          ...
+          CryptDeriveKey($P, $ALG, $H, $F, &$KEY);
+          ...
+        }
+    - pattern-inside: |
+        $T $FN(...) {
+          ...
+          if (<... CryptGenKey($P, $ALG, $F, &$KEY) ...>) { ... }
+          ...
+        }
+    - pattern-inside: |
+        $T $FN(...) {
+          ...
+          CryptGenKey($P, $ALG, $F, &$KEY);
+          ...
+        }
+  - metavariable-regex:
+      metavariable: $ALG
+      regex: ^(CALG_DES|CALG_3DES|CALG_3DES_112|CALG_DESX|CALG_RC2|CALG_RC4|CALG_RC5|CALG_CYLINK_MEK|CALG_SKIPJACK)$

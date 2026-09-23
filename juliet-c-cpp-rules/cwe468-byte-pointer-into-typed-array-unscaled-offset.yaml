@@ -1,0 +1,66 @@
+rules:
+- id: cwe468-byte-pointer-into-typed-array-unscaled-offset
+  languages:
+  - c
+  - cpp
+  paths:
+    include:
+    - '*.c'
+    - '*.h'
+    - '*.cpp'
+    - '*.cc'
+    - '*.cxx'
+    - '*.c++'
+    - '*.hpp'
+    - '*.hh'
+    - '*.hxx'
+    - '*.inc'
+  severity: WARNING
+  message: A char pointer aliasing an array of wider elements is advanced by a plain element count without
+    multiplying by the element size, so it points into the middle of an element.
+  metadata:
+    vulnerability_class: Incorrect Pointer Scaling
+    help: |
+      ## Summary
+      A char pointer aliasing an array of wider elements is advanced by a plain element count without multiplying by the element size, so it points into the middle of an element.
+
+      ## Remediation
+      Do not multiply by sizeof when doing pointer arithmetic; the compiler already scales offsets by the element size.
+    category: security
+    cwe:
+    - 'CWE-468: Incorrect Pointer Scaling'
+    references:
+    - https://cwe.mitre.org/data/definitions/468.html
+    confidence: MEDIUM
+    likelihood: MEDIUM
+    impact: MEDIUM
+    subcategory:
+    - vuln
+    technology:
+    - c
+    - cpp
+    source: Validated against NIST Juliet C/C++ Test Suite v1.3
+    remediation: Do not multiply by sizeof when doing pointer arithmetic; the compiler already scales
+      offsets by the element size.
+  patterns:
+  - pattern-either:
+    - pattern-inside: |
+        $ET $ARR[$SZ] = $INIT;
+        ...
+    - pattern-inside: |
+        $ET $ARR[$SZ];
+        ...
+  - metavariable-regex:
+      metavariable: $ET
+      regex: ^(?!(unsigned\s+|signed\s+)?char$|uint8_t$|int8_t$)
+  - pattern-either:
+    - pattern-inside: |
+        char * $CP = (char *) $ARR;
+        ...
+    - pattern-inside: |
+        unsigned char * $CP = (unsigned char *) $ARR;
+        ...
+  - pattern: '*($CP + $K)'
+  - metavariable-regex:
+      metavariable: $K
+      regex: ^[1-9][0-9]*$

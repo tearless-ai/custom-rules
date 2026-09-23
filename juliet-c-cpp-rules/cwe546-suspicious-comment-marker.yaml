@@ -1,0 +1,39 @@
+rules:
+- id: cwe546-suspicious-comment-marker
+  languages:
+  - regex
+  paths:
+    include:
+    - '*.c'
+    - '*.cpp'
+    - '*.cc'
+    - '*.cxx'
+    - '*.h'
+    - '*.hpp'
+  severity: INFO
+  message: This comment starts with a BUG/FIXME/HACK/TODO/XXX/LATER marker, which suggests known unfinished
+    or defective code.
+  metadata:
+    vulnerability_class: Suspicious Comment
+    help: |
+      ## Summary
+      This comment starts with a BUG/FIXME/HACK/TODO/XXX/LATER marker, which suggests known unfinished or defective code.
+
+      ## Remediation
+      Resolve or remove BUG/FIXME/HACK/TODO comments that indicate known defects before shipping.
+    category: security
+    cwe:
+    - 'CWE-546: Suspicious Comment'
+    references:
+    - https://cwe.mitre.org/data/definitions/546.html
+    confidence: MEDIUM
+    likelihood: MEDIUM
+    impact: LOW
+    subcategory:
+    - vuln
+    technology:
+    - c
+    - cpp
+    source: Validated against NIST Juliet C/C++ Test Suite v1.3
+    remediation: Resolve or remove BUG/FIXME/HACK/TODO comments that indicate known defects before shipping.
+  pattern-regex: (?:/\*+|//+)[ \t]*(?:BUG|FIXME|HACK|TODO|XXX|LATER|KLUDGE)\b[^\n]*

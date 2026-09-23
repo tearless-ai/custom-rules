@@ -1,0 +1,51 @@
+rules:
+- id: cwe758-bare-return-in-non-void-function
+  languages:
+  - c
+  - cpp
+  paths:
+    include:
+    - '*.c'
+    - '*.h'
+    - '*.cpp'
+    - '*.cc'
+    - '*.cxx'
+    - '*.c++'
+    - '*.hpp'
+    - '*.hh'
+    - '*.hxx'
+    - '*.inc'
+  severity: ERROR
+  message: Function $F returns a value of type $T, but this 'return;' supplies none; using the result
+    is undefined behavior.
+  metadata:
+    vulnerability_class: Reliance on Undefined, Unspecified, or Implementation-Defined Behavior
+    help: |
+      ## Summary
+      Function `$F` returns a value of type `$T`, but this 'return;' supplies none; using the result is undefined behavior.
+
+      ## Remediation
+      Avoid undefined behavior: do not read uninitialized memory, and always return a value from non-void functions.
+    category: correctness
+    cwe:
+    - 'CWE-758: Reliance on Undefined, Unspecified, or Implementation-Defined Behavior'
+    references:
+    - https://cwe.mitre.org/data/definitions/758.html
+    confidence: HIGH
+    likelihood: MEDIUM
+    impact: HIGH
+    subcategory:
+    - vuln
+    technology:
+    - c
+    - cpp
+    source: Validated against NIST Juliet C/C++ Test Suite v1.3
+    remediation: 'Avoid undefined behavior: do not read uninitialized memory, and always return a value
+      from non-void functions.'
+  patterns:
+  - pattern-inside: |
+      $T $F(...) { ... }
+  - metavariable-regex:
+      metavariable: $T
+      regex: ^(?!void$).+
+  - pattern: return;

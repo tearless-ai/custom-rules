@@ -1,0 +1,64 @@
+rules:
+- id: cwe252-pipe-handle-not-validated
+  languages:
+  - c
+  - cpp
+  paths:
+    include:
+    - '*.c'
+    - '*.h'
+    - '*.cpp'
+    - '*.cc'
+    - '*.cxx'
+    - '*.c++'
+    - '*.hpp'
+    - '*.hh'
+    - '*.hxx'
+    - '*.inc'
+  severity: WARNING
+  message: The handle returned by $CREATE() is used without first checking it against INVALID_HANDLE_VALUE.
+  metadata:
+    vulnerability_class: Unchecked Return Value
+    help: |
+      ## Summary
+      The handle returned by `$CREATE()` is used without first checking it against INVALID_HANDLE_VALUE.
+
+      ## Remediation
+      Check the return value of every call that can fail and handle the error before using any output of the call.
+    category: security
+    cwe:
+    - 'CWE-252: Unchecked Return Value'
+    references:
+    - https://cwe.mitre.org/data/definitions/252.html
+    confidence: MEDIUM
+    likelihood: MEDIUM
+    impact: MEDIUM
+    subcategory:
+    - vuln
+    technology:
+    - c
+    - cpp
+    source: Validated against NIST Juliet C/C++ Test Suite v1.3
+    remediation: Check the return value of every call that can fail and handle the error before using
+      any output of the call.
+  patterns:
+  - pattern: $USE(..., $H, ...)
+  - metavariable-regex:
+      metavariable: $USE
+      regex: ^(ConnectNamedPipe|ReadFile|WriteFile|ImpersonateNamedPipeClient|DisconnectNamedPipe|TransactNamedPipe|PeekNamedPipe|SetNamedPipeHandleState|GetFileSize|SetFilePointer|FlushFileBuffers)$
+  - pattern-inside: |
+      $H = $CREATE(...);
+      ...
+  - metavariable-regex:
+      metavariable: $CREATE
+      regex: ^(CreateNamedPipe|CreateNamedPipeA|CreateNamedPipeW|CreateFile|CreateFileA|CreateFileW)$
+  - pattern-not-inside: |
+      $H = $CREATE(...);
+      ...
+      if (<... $H ...>) { ... }
+      ...
+  - pattern-not-inside: |
+      $H = $CREATE(...);
+      ...
+      if (<... $H ...>) { ... } else { ... }
+      ...

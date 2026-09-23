@@ -1,0 +1,64 @@
+rules:
+- id: cwe506-local-file-sent-over-network
+  languages:
+  - c
+  - cpp
+  paths:
+    include:
+    - '*.c'
+    - '*.h'
+    - '*.cpp'
+    - '*.cc'
+    - '*.cxx'
+    - '*.c++'
+    - '*.hpp'
+    - '*.hh'
+    - '*.hxx'
+    - '*.inc'
+  severity: WARNING
+  message: Contents read from a local file are sent over a network socket, which can exfiltrate data.
+  metadata:
+    vulnerability_class: Embedded Malicious Code
+    help: |
+      ## Summary
+      Contents read from a local file are sent over a network socket, which can exfiltrate data.
+
+      ## Remediation
+      Remove hidden functionality that deletes, modifies or exfiltrates data or executes encoded commands.
+    category: security
+    cwe:
+    - 'CWE-506: Embedded Malicious Code'
+    references:
+    - https://cwe.mitre.org/data/definitions/506.html
+    confidence: LOW
+    likelihood: MEDIUM
+    impact: MEDIUM
+    subcategory:
+    - vuln
+    technology:
+    - c
+    - cpp
+    source: Validated against NIST Juliet C/C++ Test Suite v1.3
+    remediation: Remove hidden functionality that deletes, modifies or exfiltrates data or executes encoded
+      commands.
+  mode: taint
+  pattern-sources:
+  - by-side-effect: only
+    patterns:
+    - pattern-either:
+      - pattern: fgets($BUF, $N, $FP)
+      - pattern: fgetws($BUF, $N, $FP)
+      - pattern: fread($BUF, $SZ, $N, $FP)
+      - pattern: ReadFile($FP, $BUF, ...)
+    - metavariable-pattern:
+        metavariable: $FP
+        patterns:
+        - pattern-not: stdin
+    - focus-metavariable: $BUF
+  pattern-sinks:
+  - patterns:
+    - pattern-either:
+      - pattern: send($S, $BUF, ...)
+      - pattern: sendto($S, $BUF, ...)
+      - pattern: WSASend($S, $BUF, ...)
+    - focus-metavariable: $BUF

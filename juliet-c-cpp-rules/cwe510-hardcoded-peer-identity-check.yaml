@@ -1,0 +1,56 @@
+rules:
+- id: cwe510-hardcoded-peer-identity-check
+  languages:
+  - c
+  - cpp
+  paths:
+    include:
+    - '*.c'
+    - '*.h'
+    - '*.cpp'
+    - '*.cc'
+    - '*.cxx'
+    - '*.c++'
+    - '*.hpp'
+    - '*.hh'
+    - '*.hxx'
+    - '*.inc'
+  severity: WARNING
+  message: Behaviour depends on the peer matching the hard-coded host or address $LIT, which is a classic
+    trapdoor.
+  metadata:
+    vulnerability_class: Trapdoor
+    help: |
+      ## Summary
+      Behaviour depends on the peer matching the hard-coded host or address `$LIT`, which is a classic trapdoor.
+
+      ## Remediation
+      Remove hard-coded backdoor credentials and hidden network listeners; authenticate every user through the normal path.
+    category: security
+    cwe:
+    - 'CWE-510: Trapdoor'
+    references:
+    - https://cwe.mitre.org/data/definitions/510.html
+    confidence: MEDIUM
+    likelihood: MEDIUM
+    impact: MEDIUM
+    subcategory:
+    - vuln
+    technology:
+    - c
+    - cpp
+    source: Validated against NIST Juliet C/C++ Test Suite v1.3
+    remediation: Remove hard-coded backdoor credentials and hidden network listeners; authenticate every
+      user through the normal path.
+  patterns:
+  - pattern-either:
+    - pattern: $CMP($LIT, $X) == 0
+    - pattern: $CMP($X, $LIT) == 0
+    - pattern: '!$CMP($LIT, $X)'
+    - pattern: '!$CMP($X, $LIT)'
+  - metavariable-regex:
+      metavariable: $CMP
+      regex: ^(strcmp|stricmp|_stricmp|strcasecmp|wcscmp|_wcsicmp|lstrcmpA|lstrcmpiA|lstrcmpW|lstrcmpiW)$
+  - metavariable-regex:
+      metavariable: $LIT
+      regex: ^L?"(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}|([A-Za-z0-9-]+\.)+[A-Za-z]{2,})"$

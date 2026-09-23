@@ -1,0 +1,55 @@
+rules:
+- id: cwe475-memcpy-overlapping-regions
+  languages:
+  - c
+  - cpp
+  paths:
+    include:
+    - '*.c'
+    - '*.h'
+    - '*.cpp'
+    - '*.cc'
+    - '*.cxx'
+    - '*.c++'
+    - '*.hpp'
+    - '*.hh'
+    - '*.hxx'
+    - '*.inc'
+  severity: ERROR
+  message: Source and destination of this $CPY call are offsets into the same buffer $P, so the regions
+    can overlap and the behavior is undefined; use memmove instead.
+  metadata:
+    vulnerability_class: Undefined Behavior for Input to API
+    help: |
+      ## Summary
+      Source and destination of this `$CPY` call are offsets into the same buffer `$P`, so the regions can overlap and the behavior is undefined; use memmove instead.
+
+      ## Remediation
+      Pass only valid, non-overlapping arguments to APIs with undefined behavior on bad input; use memmove for overlapping regions.
+    category: correctness
+    cwe:
+    - 'CWE-475: Undefined Behavior for Input to API'
+    references:
+    - https://cwe.mitre.org/data/definitions/475.html
+    confidence: HIGH
+    likelihood: MEDIUM
+    impact: HIGH
+    subcategory:
+    - vuln
+    technology:
+    - c
+    - cpp
+    source: Validated against NIST Juliet C/C++ Test Suite v1.3
+    remediation: Pass only valid, non-overlapping arguments to APIs with undefined behavior on bad input;
+      use memmove for overlapping regions.
+  patterns:
+  - pattern-either:
+    - pattern: $CPY($P + $A, $P + $B, $N)
+    - pattern: $CPY($P, $P + $B, $N)
+    - pattern: $CPY($P + $A, $P, $N)
+    - pattern: $CPY(&$P[$A], &$P[$B], $N)
+    - pattern: $CPY($P, &$P[$B], $N)
+    - pattern: $CPY(&$P[$A], $P, $N)
+  - metavariable-regex:
+      metavariable: $CPY
+      regex: ^(memcpy|wmemcpy|strcpy|wcscpy|strncpy|wcsncpy|strcat|wcscat|CopyMemory|RtlCopyMemory)$

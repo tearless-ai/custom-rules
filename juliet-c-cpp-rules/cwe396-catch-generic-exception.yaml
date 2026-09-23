@@ -1,0 +1,38 @@
+rules:
+- id: cwe396-catch-generic-exception
+  languages:
+  - regex
+  paths:
+    include:
+    - '*.cpp'
+    - '*.cc'
+    - '*.cxx'
+    - '*.hpp'
+  severity: WARNING
+  message: This handler catches every exception (catch (...) or std::exception), which hides unexpected
+    errors that should be handled individually.
+  metadata:
+    vulnerability_class: Declaration of Catch for Generic Exception
+    help: |
+      ## Summary
+      This handler catches every exception (catch (...) or std::exception), which hides unexpected errors that should be handled individually.
+
+      ## Remediation
+      Catch specific exception types that can actually be handled instead of catch (...) or catch (std::exception&).
+    category: security
+    cwe:
+    - 'CWE-396: Declaration of Catch for Generic Exception'
+    references:
+    - https://cwe.mitre.org/data/definitions/396.html
+    confidence: MEDIUM
+    likelihood: MEDIUM
+    impact: MEDIUM
+    subcategory:
+    - vuln
+    technology:
+    - c
+    - cpp
+    source: Validated against NIST Juliet C/C++ Test Suite v1.3
+    remediation: Catch specific exception types that can actually be handled instead of catch (...) or
+      catch (std::exception&).
+  pattern-regex: \bcatch\s*\(\s*(?:\.\.\.|(?:const\s+)?(?:std\s*::\s*)?exception\s*[&*]?\s*\w*)\s*\)

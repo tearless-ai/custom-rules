@@ -1,0 +1,47 @@
+rules:
+- id: cwe253-fread-zero-check-misses-short-read
+  languages:
+  - c
+  - cpp
+  paths:
+    include:
+    - '*.c'
+    - '*.h'
+    - '*.cpp'
+    - '*.cc'
+    - '*.cxx'
+    - '*.c++'
+    - '*.hpp'
+    - '*.hh'
+    - '*.hxx'
+    - '*.inc'
+  severity: INFO
+  message: Comparing the fread() result with 0 misses short reads; compare it with the requested element
+    count instead.
+  metadata:
+    vulnerability_class: Incorrect Check of Function Return Value
+    help: |
+      ## Summary
+      Comparing the fread() result with 0 misses short reads; compare it with the requested element count instead.
+
+      ## Remediation
+      Compare return values against the function's documented error value (e.g. EOF, NULL, INVALID_HANDLE_VALUE, -1) rather than an assumed one.
+    category: security
+    cwe:
+    - 'CWE-253: Incorrect Check of Function Return Value'
+    references:
+    - https://cwe.mitre.org/data/definitions/253.html
+    confidence: LOW
+    likelihood: MEDIUM
+    impact: LOW
+    subcategory:
+    - vuln
+    technology:
+    - c
+    - cpp
+    source: Validated against NIST Juliet C/C++ Test Suite v1.3
+    remediation: Compare return values against the function's documented error value (e.g. EOF, NULL,
+      INVALID_HANDLE_VALUE, -1) rather than an assumed one.
+  pattern-either:
+  - pattern: fread(...) == 0
+  - pattern: 0 == fread(...)

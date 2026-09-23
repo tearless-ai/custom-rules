@@ -1,0 +1,58 @@
+rules:
+- id: cwe506-screen-capture-written-to-file
+  languages:
+  - c
+  - cpp
+  paths:
+    include:
+    - '*.c'
+    - '*.h'
+    - '*.cpp'
+    - '*.cc'
+    - '*.cxx'
+    - '*.c++'
+    - '*.hpp'
+    - '*.hh'
+    - '*.hxx'
+    - '*.inc'
+  severity: WARNING
+  message: A capture of the desktop window is written to a file, which is typical spyware behaviour.
+  metadata:
+    vulnerability_class: Embedded Malicious Code
+    help: |
+      ## Summary
+      A capture of the desktop window is written to a file, which is typical spyware behaviour.
+
+      ## Remediation
+      Remove hidden functionality that deletes, modifies or exfiltrates data or executes encoded commands.
+    category: security
+    cwe:
+    - 'CWE-506: Embedded Malicious Code'
+    references:
+    - https://cwe.mitre.org/data/definitions/506.html
+    confidence: LOW
+    likelihood: MEDIUM
+    impact: MEDIUM
+    subcategory:
+    - vuln
+    technology:
+    - c
+    - cpp
+    source: Validated against NIST Juliet C/C++ Test Suite v1.3
+    remediation: Remove hidden functionality that deletes, modifies or exfiltrates data or executes encoded
+      commands.
+  patterns:
+  - pattern: WriteFile(...)
+  - pattern-either:
+    - pattern-inside: |
+        $T $W = GetDesktopWindow();
+        ...
+    - pattern-inside: |
+        $W = GetDesktopWindow();
+        ...
+    - pattern-inside: |
+        $T $DC = GetDC(NULL);
+        ...
+  - pattern-inside: |
+      if (<... BitBlt(...) ...>) { ... }
+      ...

@@ -1,0 +1,49 @@
+rules:
+- id: cwe377-gettempfilename-zero-unique
+  languages:
+  - c
+  - cpp
+  paths:
+    include:
+    - '*.c'
+    - '*.h'
+    - '*.cpp'
+    - '*.cc'
+    - '*.cxx'
+    - '*.c++'
+    - '*.hpp'
+    - '*.hh'
+    - '*.hxx'
+    - '*.inc'
+  severity: WARNING
+  message: $F() with uUnique set to 0 creates and closes the file, leaving a race window before the program
+    reopens it.
+  metadata:
+    vulnerability_class: Insecure Temporary File
+    help: |
+      ## Summary
+      `$F()` with uUnique set to 0 creates and closes the file, leaving a race window before the program reopens it.
+
+      ## Remediation
+      Create temporary files atomically with mkstemp/tmpfile or open(O_CREAT | O_EXCL) instead of tmpnam/tempnam/mktemp.
+    category: security
+    cwe:
+    - 'CWE-377: Insecure Temporary File'
+    references:
+    - https://cwe.mitre.org/data/definitions/377.html
+    confidence: MEDIUM
+    likelihood: MEDIUM
+    impact: MEDIUM
+    subcategory:
+    - vuln
+    technology:
+    - c
+    - cpp
+    source: Validated against NIST Juliet C/C++ Test Suite v1.3
+    remediation: Create temporary files atomically with mkstemp/tmpfile or open(O_CREAT | O_EXCL) instead
+      of tmpnam/tempnam/mktemp.
+  patterns:
+  - pattern: $F($DIR, $PFX, 0, $OUT)
+  - metavariable-regex:
+      metavariable: $F
+      regex: ^(GetTempFileName|GetTempFileNameA|GetTempFileNameW)$

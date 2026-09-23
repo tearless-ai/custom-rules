@@ -1,0 +1,69 @@
+rules:
+- id: cwe377-temp-name-opened-without-o-excl
+  languages:
+  - c
+  - cpp
+  paths:
+    include:
+    - '*.c'
+    - '*.h'
+    - '*.cpp'
+    - '*.cc'
+    - '*.cxx'
+    - '*.c++'
+    - '*.hpp'
+    - '*.hh'
+    - '*.hxx'
+    - '*.inc'
+  severity: WARNING
+  message: A temporary file name from $TMP() is opened with O_CREAT but without O_EXCL, so an attacker
+    can pre-create or symlink the file (race condition).
+  metadata:
+    vulnerability_class: Insecure Temporary File
+    help: |
+      ## Summary
+      A temporary file name from `$TMP()` is opened with O_CREAT but without O_EXCL, so an attacker can pre-create or symlink the file (race condition).
+
+      ## Remediation
+      Create temporary files atomically with mkstemp/tmpfile or open(O_CREAT | O_EXCL) instead of tmpnam/tempnam/mktemp.
+    category: security
+    cwe:
+    - 'CWE-377: Insecure Temporary File'
+    references:
+    - https://cwe.mitre.org/data/definitions/377.html
+    confidence: HIGH
+    likelihood: MEDIUM
+    impact: MEDIUM
+    subcategory:
+    - vuln
+    technology:
+    - c
+    - cpp
+    source: Validated against NIST Juliet C/C++ Test Suite v1.3
+    remediation: Create temporary files atomically with mkstemp/tmpfile or open(O_CREAT | O_EXCL) instead
+      of tmpnam/tempnam/mktemp.
+  patterns:
+  - pattern: $OPEN($NAME, $FLAGS, ...)
+  - metavariable-regex:
+      metavariable: $OPEN
+      regex: ^(open|_open|_wopen|OPEN|open64|creat|_creat|_wcreat)$
+  - metavariable-pattern:
+      metavariable: $FLAGS
+      pattern: <... O_CREAT ...>
+  - pattern-not: $OPEN($NAME, <... O_EXCL ...>, ...)
+  - pattern-either:
+    - pattern-inside: |
+        $NAME = $TMP(...);
+        ...
+    - pattern-inside: |
+        $T $NAME = $TMP(...);
+        ...
+    - pattern-inside: |
+        $TMP($DIR, $PFX, $UNIQ, $NAME);
+        ...
+    - pattern-inside: |
+        if (<... $TMP($DIR, $PFX, $UNIQ, $NAME) ...>) { ... }
+        ...
+  - metavariable-regex:
+      metavariable: $TMP
+      regex: ^(tmpnam|_tmpnam|_wtmpnam|TMPNAM|tempnam|_tempnam|_wtempnam|TEMPNAM|mktemp|_mktemp|_wmktemp|MKTEMP|GetTempFileName|GetTempFileNameA|GetTempFileNameW)$

@@ -1,0 +1,83 @@
+rules:
+- id: cwe126-unterminated-copy-used-as-string
+  languages:
+  - c
+  - cpp
+  paths:
+    include:
+    - '*.c'
+    - '*.h'
+    - '*.cpp'
+    - '*.cc'
+    - '*.cxx'
+    - '*.c++'
+    - '*.hpp'
+    - '*.hh'
+    - '*.hxx'
+    - '*.inc'
+  severity: WARNING
+  message: A buffer filled by a bounded copy that does not add a null terminator is passed on without
+    being terminated, so readers of the string run past its end.
+  metadata:
+    vulnerability_class: Buffer Over-read
+    help: |
+      ## Summary
+      A buffer filled by a bounded copy that does not add a null terminator is passed on without being terminated, so readers of the string run past its end.
+
+      ## Remediation
+      Bound reads by the source buffer's real size, ensure strings are NUL-terminated after strncpy/memcpy, and validate indexes against the buffer length.
+    category: security
+    cwe:
+    - 'CWE-126: Buffer Over-read'
+    references:
+    - https://cwe.mitre.org/data/definitions/126.html
+    confidence: LOW
+    likelihood: MEDIUM
+    impact: MEDIUM
+    subcategory:
+    - vuln
+    technology:
+    - c
+    - cpp
+    source: Validated against NIST Juliet C/C++ Test Suite v1.3
+    remediation: Bound reads by the source buffer's real size, ensure strings are NUL-terminated after
+      strncpy/memcpy, and validate indexes against the buffer length.
+  patterns:
+  - pattern-either:
+    - pattern-inside: |
+        strncpy($D, $S, $N);
+        ...
+    - pattern-inside: |
+        wcsncpy($D, $S, $N);
+        ...
+    - pattern-inside: |
+        memcpy($D, $S, $N);
+        ...
+    - pattern-inside: |
+        memmove($D, $S, $N);
+        ...
+    - pattern-inside: |
+        wmemcpy($D, $S, $N);
+        ...
+    - pattern-inside: |
+        wmemmove($D, $S, $N);
+        ...
+    - pattern-inside: |
+        for (...) { ... $D[$I] = $S[$I]; ... }
+        ...
+    - pattern-inside: |
+        while (...) { ... $D[$I] = $S[$I]; ... }
+        ...
+  - pattern-not-inside: |
+      $D[$J] = $Z;
+      ...
+  - pattern-not-inside: |
+      *$D = $Z;
+      ...
+  - pattern: $FN(..., $D, ...)
+  - metavariable-regex:
+      metavariable: $FN
+      regex: ^(?!(mem|wmem)(set|cpy|move)$|(str|wcs)n?cpy$|sizeof$|free$|delete$)
+  - metavariable-regex:
+      metavariable: $D
+      regex: ^[A-Za-z_]\w*$

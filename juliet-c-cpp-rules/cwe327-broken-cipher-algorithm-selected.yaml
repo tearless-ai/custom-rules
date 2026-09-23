@@ -1,0 +1,58 @@
+rules:
+- id: cwe327-broken-cipher-algorithm-selected
+  languages:
+  - c
+  - cpp
+  paths:
+    include:
+    - '*.c'
+    - '*.h'
+    - '*.cpp'
+    - '*.cc'
+    - '*.cxx'
+    - '*.c++'
+    - '*.hpp'
+    - '*.hh'
+    - '*.hxx'
+    - '*.inc'
+  severity: WARNING
+  message: A broken or weak cipher (DES, 3DES, RC2, RC4 or RC5) is selected here; use AES instead.
+  metadata:
+    vulnerability_class: Use of a Broken or Risky Cryptographic Algorithm
+    help: |
+      ## Summary
+      A broken or weak cipher (DES, 3DES, RC2, RC4 or RC5) is selected here; use AES instead.
+
+      ## Remediation
+      Replace broken algorithms such as DES, 3DES, RC2 and RC4 with AES-GCM or another modern authenticated cipher.
+    category: security
+    cwe:
+    - 'CWE-327: Use of a Broken or Risky Cryptographic Algorithm'
+    references:
+    - https://cwe.mitre.org/data/definitions/327.html
+    confidence: MEDIUM
+    likelihood: MEDIUM
+    impact: MEDIUM
+    subcategory:
+    - vuln
+    technology:
+    - c
+    - cpp
+    source: Validated against NIST Juliet C/C++ Test Suite v1.3
+    remediation: Replace broken algorithms such as DES, 3DES, RC2 and RC4 with AES-GCM or another modern
+      authenticated cipher.
+  patterns:
+  - pattern-either:
+    - pattern: CryptDeriveKey($P, $ALG, ...)
+    - pattern: CryptGenKey($P, $ALG, ...)
+    - pattern: EVP_des_cbc()
+    - pattern: EVP_des_ecb()
+    - pattern: EVP_des_ede3_cbc()
+    - pattern: EVP_rc4()
+    - pattern: EVP_rc2_cbc()
+    - pattern: DES_ecb_encrypt(...)
+    - pattern: DES_ncbc_encrypt(...)
+    - pattern: RC4(...)
+  - metavariable-regex:
+      metavariable: $ALG
+      regex: ^(CALG_DES|CALG_3DES|CALG_3DES_112|CALG_DESX|CALG_RC2|CALG_RC4|CALG_RC5|CALG_CYLINK_MEK|CALG_SKIPJACK)$

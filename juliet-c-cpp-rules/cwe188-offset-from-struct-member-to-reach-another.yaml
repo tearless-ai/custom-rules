@@ -1,0 +1,52 @@
+rules:
+- id: cwe188-offset-from-struct-member-to-reach-another
+  languages:
+  - c
+  - cpp
+  paths:
+    include:
+    - '*.c'
+    - '*.h'
+    - '*.cpp'
+    - '*.cc'
+    - '*.cxx'
+    - '*.c++'
+    - '*.hpp'
+    - '*.hh'
+    - '*.hxx'
+    - '*.inc'
+  severity: WARNING
+  message: A pointer to one structure member is advanced by a computed offset and dereferenced to reach
+    another member, which relies on the compiler's field layout and padding.
+  metadata:
+    vulnerability_class: Reliance on Data/Memory Layout
+    help: |
+      ## Summary
+      A pointer to one structure member is advanced by a computed offset and dereferenced to reach another member, which relies on the compiler's field layout and padding.
+
+      ## Remediation
+      Access struct and union members by name; do not rely on member offsets, padding or layout via pointer arithmetic.
+    category: security
+    cwe:
+    - 'CWE-188: Reliance on Data/Memory Layout'
+    references:
+    - https://cwe.mitre.org/data/definitions/188.html
+    confidence: MEDIUM
+    likelihood: MEDIUM
+    impact: MEDIUM
+    subcategory:
+    - vuln
+    technology:
+    - c
+    - cpp
+    source: Validated against NIST Juliet C/C++ Test Suite v1.3
+    remediation: Access struct and union members by name; do not rely on member offsets, padding or layout
+      via pointer arithmetic.
+  patterns:
+  - pattern-inside: |
+      $P = &$S.$FLD;
+      ...
+  - pattern-either:
+    - pattern: '*($CT)($P + $OFF)'
+    - pattern: '*($P + $OFF)'
+    - pattern: $P[$OFF]

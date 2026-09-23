@@ -1,0 +1,44 @@
+rules:
+- id: cwe758-implicit-int-function
+  languages:
+  - c
+  paths:
+    include:
+    - '*.c'
+    - '*.h'
+    - '*.cpp'
+    - '*.cc'
+    - '*.cxx'
+    - '*.c++'
+    - '*.hpp'
+    - '*.hh'
+    - '*.hxx'
+    - '*.inc'
+  severity: WARNING
+  message: This function definition has no return type and relies on the obsolete implicit-int rule, which
+    is invalid since C99 and makes the returned value ill-defined.
+  metadata:
+    vulnerability_class: Reliance on Undefined, Unspecified, or Implementation-Defined Behavior
+    help: |
+      ## Summary
+      This function definition has no return type and relies on the obsolete implicit-int rule, which is invalid since C99 and makes the returned value ill-defined.
+
+      ## Remediation
+      Avoid undefined behavior: do not read uninitialized memory, and always return a value from non-void functions.
+    category: correctness
+    cwe:
+    - 'CWE-758: Reliance on Undefined, Unspecified, or Implementation-Defined Behavior'
+    references:
+    - https://cwe.mitre.org/data/definitions/758.html
+    confidence: MEDIUM
+    likelihood: MEDIUM
+    impact: MEDIUM
+    subcategory:
+    - vuln
+    technology:
+    - c
+    - cpp
+    source: Validated against NIST Juliet C/C++ Test Suite v1.3
+    remediation: 'Avoid undefined behavior: do not read uninitialized memory, and always return a value
+      from non-void functions.'
+  pattern-regex: (?m)^(?:static|extern|inline)\s+(?!(?:void|int|char|short|long|float|double|signed|unsigned|const|struct|union|enum|inline|static|extern)\b)[A-Za-z_]\w*\s*\([^;{)]*\)\s*\{[^{}]*\}

@@ -1,0 +1,77 @@
+rules:
+- id: cwe176-unchecked-widechar-conversion-overflow
+  languages:
+  - c
+  - cpp
+  paths:
+    include:
+    - '*.c'
+    - '*.h'
+    - '*.cpp'
+    - '*.cc'
+    - '*.cxx'
+    - '*.c++'
+    - '*.hpp'
+    - '*.hh'
+    - '*.hxx'
+    - '*.inc'
+  severity: ERROR
+  message: A wide string longer than the destination buffer $BUF is converted with WideCharToMultiByte
+    using the unchecked required size $N, so the multibyte output can overflow $BUF.
+  metadata:
+    vulnerability_class: Improper Handling of Unicode Encoding
+    help: |
+      ## Summary
+      A wide string longer than the destination buffer `$BUF` is converted with WideCharToMultiByte using the unchecked required size `$N`, so the multibyte output can overflow `$BUF`.
+
+      ## Remediation
+      Size destination buffers for the converted encoding and check conversion results (WideCharToMultiByte, wcstombs) for truncation or failure.
+    category: security
+    cwe:
+    - 'CWE-176: Improper Handling of Unicode Encoding'
+    references:
+    - https://cwe.mitre.org/data/definitions/176.html
+    confidence: MEDIUM
+    likelihood: MEDIUM
+    impact: HIGH
+    subcategory:
+    - vuln
+    technology:
+    - c
+    - cpp
+    source: Validated against NIST Juliet C/C++ Test Suite v1.3
+    remediation: Size destination buffers for the converted encoding and check conversion results (WideCharToMultiByte,
+      wcstombs) for truncation or failure.
+  mode: taint
+  pattern-sources:
+  - by-side-effect: true
+    patterns:
+    - pattern-either:
+      - pattern: wcscpy($D, $LIT)
+      - pattern: wcsncpy($D, $LIT, ...)
+      - pattern: wcscat($D, $LIT)
+    - metavariable-regex:
+        metavariable: $LIT
+        regex: ^L"[^"]{20,}"$
+    - focus-metavariable: $D
+  pattern-sinks:
+  - patterns:
+    - pattern-either:
+      - pattern-inside: |
+          char $BUF[$SZ] = $INIT;
+          ...
+      - pattern-inside: |
+          char $BUF[$SZ];
+          ...
+    - metavariable-regex:
+        metavariable: $SZ
+        regex: ^1?[0-9]$
+    - pattern: WideCharToMultiByte($CP, $FLAGS, $SRC, $LEN, $BUF, $N, ...)
+    - metavariable-regex:
+        metavariable: $N
+        regex: ^(?!0$)(?!sizeof).*
+    - pattern-not-inside: |
+        if (<... $N ...>) { ... }
+    - pattern-not-inside: |
+        if (<... $N ...>) { ... } else { ... }
+    - focus-metavariable: $SRC

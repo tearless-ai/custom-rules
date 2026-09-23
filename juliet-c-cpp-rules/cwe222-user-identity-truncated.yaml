@@ -1,0 +1,54 @@
+rules:
+- id: cwe222-user-identity-truncated
+  languages:
+  - c
+  - cpp
+  paths:
+    include:
+    - '*.c'
+    - '*.h'
+    - '*.cpp'
+    - '*.cc'
+    - '*.cxx'
+    - '*.c++'
+    - '*.hpp'
+    - '*.hh'
+    - '*.hxx'
+    - '*.inc'
+  severity: WARNING
+  message: The user identity $SRC is truncated to the size of $DST, so logs and authentication see a shortened,
+    ambiguous name.
+  metadata:
+    vulnerability_class: Truncation of Security-relevant Information
+    help: |
+      ## Summary
+      The user identity `$SRC` is truncated to the size of `$DST`, so logs and authentication see a shortened, ambiguous name.
+
+      ## Remediation
+      Do not truncate security-relevant data such as user names before logging or comparison; allocate enough space for the full value.
+    category: security
+    cwe:
+    - 'CWE-222: Truncation of Security-relevant Information'
+    references:
+    - https://cwe.mitre.org/data/definitions/222.html
+    confidence: LOW
+    likelihood: MEDIUM
+    impact: MEDIUM
+    subcategory:
+    - vuln
+    technology:
+    - c
+    - cpp
+    source: Validated against NIST Juliet C/C++ Test Suite v1.3
+    remediation: Do not truncate security-relevant data such as user names before logging or comparison;
+      allocate enough space for the full value.
+  patterns:
+  - pattern-either:
+    - pattern: memcpy($DST, $SRC, sizeof($DST))
+    - pattern: strncpy($DST, $SRC, sizeof($DST))
+    - pattern: strncpy($DST, $SRC, sizeof($DST) - 1)
+    - pattern: wcsncpy($DST, $SRC, sizeof($DST) / sizeof($T))
+    - pattern: snprintf($DST, sizeof($DST), "%s", $SRC)
+  - metavariable-regex:
+      metavariable: $SRC
+      regex: (?i)^.*(user|login|account|principal|uid).*$

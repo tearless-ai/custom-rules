@@ -1,0 +1,54 @@
+rules:
+- id: cwe479-non-reentrant-call-in-signal-handler
+  languages:
+  - c
+  - cpp
+  paths:
+    include:
+    - '*.c'
+    - '*.h'
+    - '*.cpp'
+    - '*.cc'
+    - '*.cxx'
+    - '*.c++'
+    - '*.hpp'
+    - '*.hh'
+    - '*.hxx'
+    - '*.inc'
+  severity: ERROR
+  message: $FN is not async-signal-safe but is called from $H, which is installed as a signal handler;
+    if the signal interrupts another call to it, heap or stdio state can be corrupted.
+  metadata:
+    vulnerability_class: Signal Handler Use of a Non-reentrant Function
+    help: |
+      ## Summary
+      `$FN` is not async-signal-safe but is called from `$H`, which is installed as a signal handler; if the signal interrupts another call to it, heap or stdio state can be corrupted.
+
+      ## Remediation
+      Call only async-signal-safe functions from signal handlers.
+    category: security
+    cwe:
+    - 'CWE-479: Signal Handler Use of a Non-reentrant Function'
+    references:
+    - https://cwe.mitre.org/data/definitions/479.html
+    confidence: HIGH
+    likelihood: MEDIUM
+    impact: HIGH
+    subcategory:
+    - vuln
+    technology:
+    - c
+    - cpp
+    source: Validated against NIST Juliet C/C++ Test Suite v1.3
+    remediation: Call only async-signal-safe functions from signal handlers.
+  patterns:
+  - pattern-inside: |
+      $R $H($T $SG) { ... }
+      ...
+      signal($SIGNUM, $H);
+  - pattern-inside: |
+      $R $H($T $SG) { ... }
+  - pattern: $FN(...)
+  - metavariable-regex:
+      metavariable: $FN
+      regex: ^(malloc|calloc|realloc|free|printf|fprintf|sprintf|snprintf|vprintf|vfprintf|puts|fputs|fputc|putc|putchar|fwrite|fread|fgets|fopen|fclose|fflush|scanf|fscanf|strtok|localtime|gmtime|asctime|ctime|getenv|setenv|syslog|exit|rand|srand|longjmp|new|delete|wprintf|fputws|perror)$

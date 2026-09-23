@@ -1,0 +1,80 @@
+rules:
+- id: cwe758-read-uninitialized-heap-memory
+  languages:
+  - c
+  - cpp
+  paths:
+    include:
+    - '*.c'
+    - '*.h'
+    - '*.cpp'
+    - '*.cc'
+    - '*.cxx'
+    - '*.c++'
+    - '*.hpp'
+    - '*.hh'
+    - '*.hxx'
+    - '*.inc'
+  severity: ERROR
+  message: The memory pointed to by $P was freshly allocated and never written, so reading *$P yields
+    an indeterminate value (undefined behavior).
+  metadata:
+    vulnerability_class: Reliance on Undefined, Unspecified, or Implementation-Defined Behavior
+    help: |
+      ## Summary
+      The memory pointed to by `$P` was freshly allocated and never written, so reading *`$P` yields an indeterminate value (undefined behavior).
+
+      ## Remediation
+      Avoid undefined behavior: do not read uninitialized memory, and always return a value from non-void functions.
+    category: correctness
+    cwe:
+    - 'CWE-758: Reliance on Undefined, Unspecified, or Implementation-Defined Behavior'
+    references:
+    - https://cwe.mitre.org/data/definitions/758.html
+    confidence: HIGH
+    likelihood: MEDIUM
+    impact: HIGH
+    subcategory:
+    - vuln
+    technology:
+    - c
+    - cpp
+    source: Validated against NIST Juliet C/C++ Test Suite v1.3
+    remediation: 'Avoid undefined behavior: do not read uninitialized memory, and always return a value
+      from non-void functions.'
+  patterns:
+  - pattern-either:
+    - pattern-inside: |
+        $T $P = ($C) malloc(...);
+        ...
+    - pattern-inside: |
+        $T $P = ($C) alloca(...);
+        ...
+    - pattern-inside: |
+        $T $P = ($C) ALLOCA(...);
+        ...
+    - pattern-inside: |
+        $T $P = ($C) realloc(NULL, ...);
+        ...
+    - pattern-inside: |
+        $T $P = new $TY;
+        ...
+  - pattern-not-inside: |
+      *$P = $V;
+      ...
+  - pattern-not-inside: |
+      $P->$F = $V;
+      ...
+  - pattern-not-inside: |
+      memset($P, ...);
+      ...
+  - pattern-not-inside: |
+      memcpy($P, ...);
+      ...
+  - pattern-not-inside: |
+      $FN(..., $P, ...);
+      ...
+  - pattern-either:
+    - pattern: $T2 $D = *$P;
+    - pattern: $D = *$P;
+    - pattern: $FN2(..., *$P, ...)

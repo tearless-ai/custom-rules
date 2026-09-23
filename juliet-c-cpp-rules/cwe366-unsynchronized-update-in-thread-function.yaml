@@ -1,0 +1,139 @@
+rules:
+- id: cwe366-unsynchronized-update-in-thread-function
+  languages:
+  - c
+  - cpp
+  paths:
+    include:
+    - '*.c'
+    - '*.h'
+    - '*.cpp'
+    - '*.cc'
+    - '*.cxx'
+    - '*.c++'
+    - '*.hpp'
+    - '*.hh'
+    - '*.hxx'
+    - '*.inc'
+  severity: ERROR
+  message: $H runs as a thread entry point and performs a non-atomic read-modify-write of shared data
+    without holding a lock, so concurrent threads can lose updates.
+  metadata:
+    vulnerability_class: Race Condition within a Thread
+    help: |
+      ## Summary
+      `$H` runs as a thread entry point and performs a non-atomic read-modify-write of shared data without holding a lock, so concurrent threads can lose updates.
+
+      ## Remediation
+      Protect shared data accessed by multiple threads with a mutex or use atomic operations.
+    category: security
+    cwe:
+    - 'CWE-366: Race Condition within a Thread'
+    references:
+    - https://cwe.mitre.org/data/definitions/366.html
+    confidence: MEDIUM
+    likelihood: MEDIUM
+    impact: HIGH
+    subcategory:
+    - vuln
+    technology:
+    - c
+    - cpp
+    source: Validated against NIST Juliet C/C++ Test Suite v1.3
+    remediation: Protect shared data accessed by multiple threads with a mutex or use atomic operations.
+  patterns:
+  - pattern-either:
+    - pattern-inside: |
+        $R $H(...) { ... }
+        ...
+        stdThreadCreate($H, ...);
+    - pattern-inside: |
+        $R $H(...) { ... }
+        ...
+        if (<... stdThreadCreate($H, ...) ...>) $S;
+    - pattern-inside: |
+        $R $H(...) { ... }
+        ...
+        $RV = stdThreadCreate($H, ...);
+    - pattern-inside: |
+        $R $H(...) { ... }
+        ...
+        pthread_create($T, $A, $H, ...);
+    - pattern-inside: |
+        $R $H(...) { ... }
+        ...
+        if (<... pthread_create($T, $A, $H, ...) ...>) $S;
+    - pattern-inside: |
+        $R $H(...) { ... }
+        ...
+        $RV = pthread_create($T, $A, $H, ...);
+    - pattern-inside: |
+        $R $H(...) { ... }
+        ...
+        CreateThread($SA, $SZ, $H, ...);
+    - pattern-inside: |
+        $R $H(...) { ... }
+        ...
+        if (<... CreateThread($SA, $SZ, $H, ...) ...>) $S;
+    - pattern-inside: |
+        $R $H(...) { ... }
+        ...
+        $RV = CreateThread($SA, $SZ, $H, ...);
+    - pattern-inside: |
+        $R $H(...) { ... }
+        ...
+        _beginthread($H, ...);
+    - pattern-inside: |
+        $R $H(...) { ... }
+        ...
+        if (<... _beginthread($H, ...) ...>) $S;
+    - pattern-inside: |
+        $R $H(...) { ... }
+        ...
+        $RV = _beginthread($H, ...);
+    - pattern-inside: |
+        $R $H(...) { ... }
+        ...
+        _beginthreadex($SA, $SZ, $H, ...);
+    - pattern-inside: |
+        $R $H(...) { ... }
+        ...
+        if (<... _beginthreadex($SA, $SZ, $H, ...) ...>) $S;
+    - pattern-inside: |
+        $R $H(...) { ... }
+        ...
+        $RV = _beginthreadex($SA, $SZ, $H, ...);
+  - pattern-inside: |
+      $R $H(...) { ... }
+  - pattern-not-inside: |
+      stdThreadLockAcquire(...);
+      ...
+  - pattern-not-inside: |
+      pthread_mutex_lock(...);
+      ...
+  - pattern-not-inside: |
+      EnterCriticalSection(...);
+      ...
+  - pattern-not-inside: |
+      WaitForSingleObject(...);
+      ...
+  - pattern-either:
+    - patterns:
+      - pattern-inside: |
+          static $GT $G = $INIT;
+          ...
+      - pattern-either:
+        - pattern: $G = $G + $X;
+        - pattern: $G = $G - $X;
+        - pattern: $G += $X;
+        - pattern: $G -= $X;
+        - pattern: $G++;
+        - pattern: ++$G;
+        - pattern: $G--;
+        - pattern: --$G;
+    - pattern: '*$P = *$P + $X;'
+    - pattern: '*$P = *$P - $X;'
+    - pattern: '*$P += $X;'
+    - pattern: '*$P -= $X;'
+    - pattern: (*$P)++;
+    - pattern: ++(*$P);

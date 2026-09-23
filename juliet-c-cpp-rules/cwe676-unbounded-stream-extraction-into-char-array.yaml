@@ -1,0 +1,60 @@
+rules:
+- id: cwe676-unbounded-stream-extraction-into-char-array
+  languages:
+  - cpp
+  paths:
+    include:
+    - '*.c'
+    - '*.h'
+    - '*.cpp'
+    - '*.cc'
+    - '*.cxx'
+    - '*.c++'
+    - '*.hpp'
+    - '*.hh'
+    - '*.hxx'
+    - '*.inc'
+  severity: WARNING
+  message: Extracting a string from $IN into the fixed-size array $BUF without setting width() first can
+    overflow the buffer.
+  metadata:
+    vulnerability_class: Use of Potentially Dangerous Function
+    help: |
+      ## Summary
+      Extracting a string from `$IN` into the fixed-size array `$BUF` without setting width() first can overflow the buffer.
+
+      ## Remediation
+      Replace potentially dangerous functions with bounded, safer alternatives and validate their inputs.
+    category: security
+    cwe:
+    - 'CWE-676: Use of Potentially Dangerous Function'
+    references:
+    - https://cwe.mitre.org/data/definitions/676.html
+    confidence: MEDIUM
+    likelihood: MEDIUM
+    impact: MEDIUM
+    subcategory:
+    - vuln
+    technology:
+    - c
+    - cpp
+    source: Validated against NIST Juliet C/C++ Test Suite v1.3
+    remediation: Replace potentially dangerous functions with bounded, safer alternatives and validate
+      their inputs.
+  patterns:
+  - pattern: $IN >> $BUF
+  - pattern-either:
+    - pattern-inside: |
+        char $BUF[$N];
+        ...
+    - pattern-inside: |
+        wchar_t $BUF[$N];
+        ...
+  - metavariable-regex:
+      metavariable: $IN
+      regex: ^(std::)?(cin|wcin)$
+  - pattern-not-inside: |
+      $IN.width($W);
+      ...
+  - pattern-not-inside: |
+      $IN >> setw($W) >> $BUF

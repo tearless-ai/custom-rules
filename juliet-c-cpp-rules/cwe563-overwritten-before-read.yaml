@@ -1,0 +1,97 @@
+rules:
+- id: cwe563-overwritten-before-read
+  languages:
+  - c
+  - cpp
+  paths:
+    include:
+    - '*.c'
+    - '*.h'
+    - '*.cpp'
+    - '*.cc'
+    - '*.cxx'
+    - '*.c++'
+    - '*.hpp'
+    - '*.hh'
+    - '*.hxx'
+    - '*.inc'
+  severity: WARNING
+  message: A value stored in local variable $X is overwritten here before it is ever read, so the earlier
+    assignment is useless.
+  metadata:
+    vulnerability_class: Assignment to Variable without Use
+    help: |
+      ## Summary
+      A value stored in local variable `$X` is overwritten here before it is ever read, so the earlier assignment is useless.
+
+      ## Remediation
+      Remove variables and assignments whose values are never used, or use them as intended.
+    category: correctness
+    cwe:
+    - 'CWE-563: Assignment to Variable without Use'
+    references:
+    - https://cwe.mitre.org/data/definitions/563.html
+    confidence: MEDIUM
+    likelihood: MEDIUM
+    impact: MEDIUM
+    subcategory:
+    - vuln
+    technology:
+    - c
+    - cpp
+    source: Validated against NIST Juliet C/C++ Test Suite v1.3
+    remediation: Remove variables and assignments whose values are never used, or use them as intended.
+  patterns:
+  - pattern-inside: |
+      $T $X;
+      ...
+  - pattern-not-inside: |
+      $T2 &$R = $X;
+      ...
+  - pattern-not-inside: |
+      $T2 *$R = &$X;
+      ...
+  - pattern-either:
+    - patterns:
+      - pattern: |
+          $S1;
+          ...
+          $X = $B;
+      - metavariable-pattern:
+          metavariable: $S1
+          patterns:
+          - pattern: $X = $A
+          - pattern-not-inside: |
+              $X = $A;
+              ...
+              $F(..., <... $X ...>, ...);
+      - pattern-not: |
+          $S1;
+          ...
+          $F(..., <... $X ...>, ...);
+          ...
+          $X = $B;
+    - patterns:
+      - pattern: |
+          $S1;
+          ...
+          $X.$FLD = $B;
+      - metavariable-pattern:
+          metavariable: $S1
+          patterns:
+          - pattern: $X.$FLD = $A
+          - pattern-not-inside: |
+              $X.$FLD = $A;
+              ...
+              $F(..., <... $X ...>, ...);
+      - pattern-not: |
+          $S1;
+          ...
+          $F(..., <... $X ...>, ...);
+          ...
+          $X.$FLD = $B;
+  - metavariable-pattern:
+      metavariable: $B
+      patterns:
+      - pattern-not: <... $X ...>
+  - focus-metavariable: $B

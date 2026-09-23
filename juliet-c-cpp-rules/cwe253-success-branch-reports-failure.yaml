@@ -1,0 +1,56 @@
+rules:
+- id: cwe253-success-branch-reports-failure
+  languages:
+  - c
+  - cpp
+  paths:
+    include:
+    - '*.c'
+    - '*.h'
+    - '*.cpp'
+    - '*.cc'
+    - '*.cxx'
+    - '*.c++'
+    - '*.hpp'
+    - '*.hh'
+    - '*.hxx'
+    - '*.inc'
+  severity: WARNING
+  message: $F() returns 0 on success, but this branch runs on success and handles it as a failure.
+  metadata:
+    vulnerability_class: Incorrect Check of Function Return Value
+    help: |
+      ## Summary
+      `$F()` returns 0 on success, but this branch runs on success and handles it as a failure.
+
+      ## Remediation
+      Compare return values against the function's documented error value (e.g. EOF, NULL, INVALID_HANDLE_VALUE, -1) rather than an assumed one.
+    category: security
+    cwe:
+    - 'CWE-253: Incorrect Check of Function Return Value'
+    references:
+    - https://cwe.mitre.org/data/definitions/253.html
+    confidence: MEDIUM
+    likelihood: MEDIUM
+    impact: MEDIUM
+    subcategory:
+    - vuln
+    technology:
+    - c
+    - cpp
+    source: Validated against NIST Juliet C/C++ Test Suite v1.3
+    remediation: Compare return values against the function's documented error value (e.g. EOF, NULL,
+      INVALID_HANDLE_VALUE, -1) rather than an assumed one.
+  patterns:
+  - pattern-either:
+    - pattern: |
+        if ($F(...) == 0) { ... $LOG(..., "$MSG", ...); ... }
+    - pattern: |
+        if (!$F(...)) { ... $LOG(..., "$MSG", ...); ... }
+  - metavariable-regex:
+      metavariable: $F
+      regex: ^(remove|_wremove|REMOVE|rename|_wrename|RENAME|unlink|rmdir|mkdir|chmod|chown)$
+  - metavariable-regex:
+      metavariable: $MSG
+      regex: (?i).*(fail|error|could not|cannot|unable)
+  - focus-metavariable: $F

@@ -1,0 +1,54 @@
+rules:
+- id: cwe561-code-after-return
+  languages:
+  - c
+  - cpp
+  paths:
+    include:
+    - '*.c'
+    - '*.h'
+    - '*.cpp'
+    - '*.cc'
+    - '*.cxx'
+    - '*.c++'
+    - '*.hpp'
+    - '*.hh'
+    - '*.hxx'
+    - '*.inc'
+  severity: WARNING
+  message: This statement follows an unconditional return in the same block and can never execute.
+  metadata:
+    vulnerability_class: Dead Code
+    help: |
+      ## Summary
+      This statement follows an unconditional return in the same block and can never execute.
+
+      ## Remediation
+      Remove dead code that can never execute.
+    category: correctness
+    cwe:
+    - 'CWE-561: Dead Code'
+    references:
+    - https://cwe.mitre.org/data/definitions/561.html
+    confidence: HIGH
+    likelihood: MEDIUM
+    impact: MEDIUM
+    subcategory:
+    - vuln
+    technology:
+    - c
+    - cpp
+    source: Validated against NIST Juliet C/C++ Test Suite v1.3
+    remediation: Remove dead code that can never execute.
+  patterns:
+  - pattern-either:
+    - pattern: |
+        return;
+        $S;
+    - pattern: |
+        return $X;
+        $S;
+  - pattern-not: |
+      return ...;
+      $L: $S2;
+  - focus-metavariable: $S

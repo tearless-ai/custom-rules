@@ -1,0 +1,97 @@
+rules:
+- id: cwe464-input-character-stored-in-string-buffer
+  languages:
+  - c
+  - cpp
+  paths:
+    include:
+    - '*.c'
+    - '*.h'
+    - '*.cpp'
+    - '*.cc'
+    - '*.cxx'
+    - '*.c++'
+    - '*.hpp'
+    - '*.hh'
+    - '*.hxx'
+    - '*.inc'
+  severity: WARNING
+  message: A character converted from external input is stored into a character buffer without checking
+    for a string terminator, so input can insert a premature data-structure sentinel.
+  metadata:
+    vulnerability_class: Addition of Data Structure Sentinel
+    help: |
+      ## Summary
+      A character converted from external input is stored into a character buffer without checking for a string terminator, so input can insert a premature data-structure sentinel.
+
+      ## Remediation
+      Do not insert sentinel values such as NUL into data structures where they can truncate or corrupt the data.
+    category: security
+    cwe:
+    - 'CWE-464: Addition of Data Structure Sentinel'
+    references:
+    - https://cwe.mitre.org/data/definitions/464.html
+    confidence: MEDIUM
+    likelihood: MEDIUM
+    impact: MEDIUM
+    subcategory:
+    - vuln
+    technology:
+    - c
+    - cpp
+    source: Validated against NIST Juliet C/C++ Test Suite v1.3
+    remediation: Do not insert sentinel values such as NUL into data structures where they can truncate
+      or corrupt the data.
+  mode: taint
+  pattern-sources:
+  - patterns:
+    - pattern-either:
+      - patterns:
+        - pattern-inside: |
+            $RT $F(...) { ... $P = $E; ... }
+        - metavariable-pattern:
+            metavariable: $E
+            pattern-either:
+            - pattern: ($CT) atoi(...)
+            - pattern: atoi(...)
+            - pattern: ($CT) getc(...)
+            - pattern: getc(...)
+            - pattern: ($CT) getchar()
+            - pattern: getchar()
+            - pattern: ($CT) fgetc(...)
+            - pattern: fgetc(...)
+            - pattern: ($CT) strtol(...)
+            - pattern: strtol(...)
+      - pattern-inside: |
+          $RT $F(...) { ... fscanf($FP, $FMT, &$P); ... }
+      - pattern-inside: |
+          $RT $F(...) { ... scanf($FMT, &$P); ... }
+    - pattern-either:
+      - pattern: $P
+      - patterns:
+        - pattern-inside: |
+            $RT $F(...) { ... *$Q1 = $P; ... }
+        - pattern-inside: |
+            $RT $F(...) { ... $T1 $Q1 = &$V; ... }
+        - pattern-inside: |
+            $RT $F(...) { ... $T2 $Q2 = &$V; ... }
+        - pattern: '*$Q2'
+  pattern-propagators:
+  - pattern: $U.$FLD = $X
+    from: $X
+    to: $U
+  pattern-sinks:
+  - patterns:
+    - pattern-either:
+      - pattern-inside: |
+          char $ARR[$SZ];
+          ...
+      - pattern-inside: |
+          wchar_t $ARR[$SZ];
+          ...
+    - pattern: $ARR[$I] = $D
+    - pattern-not-inside: if (<... $D != $Z ...>) { ... }
+    - metavariable-regex:
+        metavariable: $I
+        regex: ^\d+$
+    - focus-metavariable: $D

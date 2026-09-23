@@ -1,0 +1,51 @@
+rules:
+- id: cwe506-hidden-smtp-session
+  languages:
+  - c
+  - cpp
+  paths:
+    include:
+    - '*.c'
+    - '*.h'
+    - '*.cpp'
+    - '*.cc'
+    - '*.cxx'
+    - '*.c++'
+    - '*.hpp'
+    - '*.hh'
+    - '*.hxx'
+    - '*.inc'
+  severity: WARNING
+  message: The program opens a raw SMTP (port 25) session and exchanges data on it, which can be used
+    to send e-mail covertly.
+  metadata:
+    vulnerability_class: Embedded Malicious Code
+    help: |
+      ## Summary
+      The program opens a raw SMTP (port 25) session and exchanges data on it, which can be used to send e-mail covertly.
+
+      ## Remediation
+      Remove hidden functionality that deletes, modifies or exfiltrates data or executes encoded commands.
+    category: security
+    cwe:
+    - 'CWE-506: Embedded Malicious Code'
+    references:
+    - https://cwe.mitre.org/data/definitions/506.html
+    confidence: LOW
+    likelihood: MEDIUM
+    impact: MEDIUM
+    subcategory:
+    - vuln
+    technology:
+    - c
+    - cpp
+    source: Validated against NIST Juliet C/C++ Test Suite v1.3
+    remediation: Remove hidden functionality that deletes, modifies or exfiltrates data or executes encoded
+      commands.
+  patterns:
+  - pattern-either:
+    - pattern: recv($S, ...)
+    - pattern: send($S, ...)
+  - pattern-inside: |
+      $SVC.sin_port = htons(25);
+      ...

@@ -1,0 +1,47 @@
+rules:
+- id: cwe397-throw-generic-exception
+  languages:
+  - cpp
+  paths:
+    include:
+    - '*.c'
+    - '*.h'
+    - '*.cpp'
+    - '*.cc'
+    - '*.cxx'
+    - '*.c++'
+    - '*.hpp'
+    - '*.hh'
+    - '*.hxx'
+    - '*.inc'
+  severity: WARNING
+  message: Throwing the generic std::exception type prevents callers from handling specific error conditions.
+  metadata:
+    vulnerability_class: Declaration of Throws for Generic Exception
+    help: |
+      ## Summary
+      Throwing the generic std::exception type prevents callers from handling specific error conditions.
+
+      ## Remediation
+      Throw specific exception types that describe the error instead of generic ones such as std::exception.
+    category: security
+    cwe:
+    - 'CWE-397: Declaration of Throws for Generic Exception'
+    references:
+    - https://cwe.mitre.org/data/definitions/397.html
+    confidence: MEDIUM
+    likelihood: MEDIUM
+    impact: MEDIUM
+    subcategory:
+    - vuln
+    technology:
+    - c
+    - cpp
+    source: Validated against NIST Juliet C/C++ Test Suite v1.3
+    remediation: Throw specific exception types that describe the error instead of generic ones such as
+      std::exception.
+  pattern-either:
+  - pattern: throw exception();
+  - pattern: throw std::exception();
+  - pattern: throw exception($MSG);
+  - pattern: throw std::exception($MSG);

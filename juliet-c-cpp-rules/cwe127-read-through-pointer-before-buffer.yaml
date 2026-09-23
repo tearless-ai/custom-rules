@@ -1,0 +1,95 @@
+rules:
+- id: cwe127-read-through-pointer-before-buffer
+  languages:
+  - c
+  - cpp
+  paths:
+    include:
+    - '*.c'
+    - '*.h'
+    - '*.cpp'
+    - '*.cc'
+    - '*.cxx'
+    - '*.c++'
+    - '*.hpp'
+    - '*.hh'
+    - '*.hxx'
+    - '*.inc'
+  severity: ERROR
+  message: A pointer computed by subtracting a constant from a buffer pointer is used as a read source,
+    which reads before the start of the buffer.
+  metadata:
+    vulnerability_class: Buffer Under-read
+    help: |
+      ## Summary
+      A pointer computed by subtracting a constant from a buffer pointer is used as a read source, which reads before the start of the buffer.
+
+      ## Remediation
+      Check that indexes and pointer offsets are not negative and do not move before the start of the buffer before reading.
+    category: security
+    cwe:
+    - 'CWE-127: Buffer Under-read'
+    references:
+    - https://cwe.mitre.org/data/definitions/127.html
+    confidence: MEDIUM
+    likelihood: MEDIUM
+    impact: HIGH
+    subcategory:
+    - vuln
+    technology:
+    - c
+    - cpp
+    source: Validated against NIST Juliet C/C++ Test Suite v1.3
+    remediation: Check that indexes and pointer offsets are not negative and do not move before the start
+      of the buffer before reading.
+  mode: taint
+  pattern-sources:
+  - patterns:
+    - pattern-either:
+      - pattern: $BUF - $K
+      - patterns:
+        - pattern-inside: |
+            $RT $F(...) { ... $P = $BUF - $K; ... }
+        - pattern: $P
+      - patterns:
+        - pattern-inside: |
+            $RT $F(...) { ... $P = $BUF - $K; ... }
+        - pattern-inside: |
+            $RT $F(...) { ... *$Q1 = $P; ... }
+        - pattern-inside: |
+            $RT $F(...) { ... $T1 $Q1 = &$V; ... }
+        - pattern-inside: |
+            $RT $F(...) { ... $T2 $Q2 = &$V; ... }
+        - pattern: '*$Q2'
+    - metavariable-regex:
+        metavariable: $BUF
+        regex: ^[A-Za-z_]\w*$
+    - metavariable-regex:
+        metavariable: $K
+        regex: ^[0-9]+$
+    - metavariable-comparison:
+        metavariable: $K
+        comparison: $K > 0
+  pattern-propagators:
+  - pattern: $U.$FLD = $X
+    from: $X
+    to: $U
+  pattern-sinks:
+  - patterns:
+    - pattern-either:
+      - pattern: strcpy($D, $SRC, ...)
+      - pattern: wcscpy($D, $SRC, ...)
+      - pattern: strncpy($D, $SRC, ...)
+      - pattern: wcsncpy($D, $SRC, ...)
+      - pattern: memcpy($D, $SRC, ...)
+      - pattern: memmove($D, $SRC, ...)
+      - pattern: wmemcpy($D, $SRC, ...)
+      - pattern: wmemmove($D, $SRC, ...)
+      - pattern: strcat($D, $SRC, ...)
+      - pattern: wcscat($D, $SRC, ...)
+      - pattern: strncat($D, $SRC, ...)
+      - pattern: wcsncat($D, $SRC, ...)
+      - patterns:
+        - pattern: $SRC[$I]
+        - pattern-not-inside: $SRC[$I] = $V
+    - focus-metavariable: $SRC

@@ -1,0 +1,55 @@
+rules:
+- id: cwe510-connect-to-hardcoded-address
+  languages:
+  - c
+  - cpp
+  paths:
+    include:
+    - '*.c'
+    - '*.h'
+    - '*.cpp'
+    - '*.cc'
+    - '*.cxx'
+    - '*.c++'
+    - '*.hpp'
+    - '*.hh'
+    - '*.hxx'
+    - '*.inc'
+  severity: INFO
+  message: The program connects to a hard-coded network address, which may be a covert channel or trapdoor.
+  metadata:
+    vulnerability_class: Trapdoor
+    help: |
+      ## Summary
+      The program connects to a hard-coded network address, which may be a covert channel or trapdoor.
+
+      ## Remediation
+      Remove hard-coded backdoor credentials and hidden network listeners; authenticate every user through the normal path.
+    category: security
+    cwe:
+    - 'CWE-510: Trapdoor'
+    references:
+    - https://cwe.mitre.org/data/definitions/510.html
+    confidence: LOW
+    likelihood: MEDIUM
+    impact: LOW
+    subcategory:
+    - vuln
+    technology:
+    - c
+    - cpp
+    source: Validated against NIST Juliet C/C++ Test Suite v1.3
+    remediation: Remove hard-coded backdoor credentials and hidden network listeners; authenticate every
+      user through the normal path.
+  patterns:
+  - pattern: connect(...)
+  - pattern-either:
+    - pattern-inside: |
+        $SVC.sin_addr.s_addr = inet_addr($IP);
+        ...
+    - pattern-inside: |
+        inet_pton($FAM, $IP, $DST);
+        ...
+  - metavariable-regex:
+      metavariable: $IP
+      regex: ^(L?"\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}"|[A-Z][A-Z0-9_]*)$

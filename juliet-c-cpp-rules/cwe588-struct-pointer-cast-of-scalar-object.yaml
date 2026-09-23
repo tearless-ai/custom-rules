@@ -1,0 +1,92 @@
+rules:
+- id: cwe588-struct-pointer-cast-of-scalar-object
+  languages:
+  - c
+  - cpp
+  paths:
+    include:
+    - '*.c'
+    - '*.h'
+    - '*.cpp'
+    - '*.cc'
+    - '*.cxx'
+    - '*.c++'
+    - '*.hpp'
+    - '*.hh'
+    - '*.hxx'
+    - '*.inc'
+  severity: ERROR
+  message: A pointer that refers to a scalar object is cast to a structure or class pointer, so member
+    accesses read or write memory outside the object.
+  metadata:
+    vulnerability_class: Attempt to Access Child of a Non-structure Pointer
+    help: |
+      ## Summary
+      A pointer that refers to a scalar object is cast to a structure or class pointer, so member accesses read or write memory outside the object.
+
+      ## Remediation
+      Only cast pointers to struct types when they actually point to that struct.
+    category: security
+    cwe:
+    - 'CWE-588: Attempt to Access Child of a Non-structure Pointer'
+    references:
+    - https://cwe.mitre.org/data/definitions/588.html
+    confidence: MEDIUM
+    likelihood: MEDIUM
+    impact: HIGH
+    subcategory:
+    - vuln
+    technology:
+    - c
+    - cpp
+    source: Validated against NIST Juliet C/C++ Test Suite v1.3
+    remediation: Only cast pointers to struct types when they actually point to that struct.
+  mode: taint
+  options:
+    taint_unify_mvars: true
+  pattern-sources:
+  - patterns:
+    - pattern-either:
+      - pattern-inside: |
+          $RT $F(...) { ... $XT $X = $XI; ... }
+      - pattern-inside: |
+          $RT $F(...) { ... $XT $X; ... }
+    - pattern-either:
+      - pattern: '&$X'
+      - patterns:
+        - pattern-inside: |
+            $RT $F(...) { ... $P = &$X; ... }
+        - pattern-either:
+          - pattern: $P
+          - patterns:
+            - pattern-inside: |
+                $RT $F(...) { ... *$Q1 = $P; ... }
+            - pattern-inside: |
+                $RT $F(...) { ... $T1 $Q1 = &$V; ... }
+            - pattern-inside: |
+                $RT $F(...) { ... $T2 $Q2 = &$V; ... }
+            - pattern: '*$Q2'
+  pattern-propagators:
+  - pattern: $U.$FLD = $W
+    from: $W
+    to: $U
+  pattern-sinks:
+  - patterns:
+    - pattern-either:
+      - pattern-inside: |
+          $RT $F(...) { ... $XT $X = $XI; ... }
+      - pattern-inside: |
+          $RT $F(...) { ... $XT $X; ... }
+    - metavariable-regex:
+        metavariable: $XT
+        regex: ^((unsigned|signed)\s+)?(char|short|int|long|long\s+long|float|double|wchar_t|bool|size_t|u?int(8|16|32|64)_t)$
+    - pattern-either:
+      - pattern: ($T *) $D
+      - pattern: reinterpret_cast<$T *>($D)
+      - pattern: static_cast<$T *>($D)
+    - metavariable-regex:
+        metavariable: $T
+        regex: ^(?!((unsigned|signed)\s+)?(char|short|int|long|long\s+long|float|double|wchar_t|bool|size_t|u?int(8|16|32|64)_t)$|void$)
+    - metavariable-comparison:
+        comparison: str($T) != str($XT)
+    - focus-metavariable: $D

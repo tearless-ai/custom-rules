@@ -1,0 +1,71 @@
+rules:
+- id: cwe785-path-function-with-undersized-buffer
+  languages:
+  - c
+  - cpp
+  paths:
+    include:
+    - '*.c'
+    - '*.h'
+    - '*.cpp'
+    - '*.cc'
+    - '*.cxx'
+    - '*.c++'
+    - '*.hpp'
+    - '*.hh'
+    - '*.hxx'
+    - '*.inc'
+  severity: ERROR
+  message: A path manipulation function that assumes a MAX_PATH-sized output buffer is given a buffer
+    declared smaller than MAX_PATH, so the resulting path can overflow it.
+  metadata:
+    vulnerability_class: Use of Path Manipulation Function without Maximum-sized Buffer
+    help: |
+      ## Summary
+      A path manipulation function that assumes a MAX_PATH-sized output buffer is given a buffer declared smaller than MAX_PATH, so the resulting path can overflow it.
+
+      ## Remediation
+      Pass path-manipulation functions a buffer of at least MAX_PATH/PATH_MAX characters, or use size-aware variants.
+    category: security
+    cwe:
+    - 'CWE-785: Use of Path Manipulation Function without Maximum-sized Buffer'
+    references:
+    - https://cwe.mitre.org/data/definitions/785.html
+    confidence: MEDIUM
+    likelihood: MEDIUM
+    impact: HIGH
+    subcategory:
+    - vuln
+    technology:
+    - c
+    - cpp
+    source: Validated against NIST Juliet C/C++ Test Suite v1.3
+    remediation: Pass path-manipulation functions a buffer of at least MAX_PATH/PATH_MAX characters, or
+      use size-aware variants.
+  patterns:
+  - pattern-inside: |
+      $T $BUF[$SIZE];
+      ...
+  - pattern-either:
+    - pattern: PathAppend($BUF, ...)
+    - pattern: PathAppendA($BUF, ...)
+    - pattern: PathAppendW($BUF, ...)
+    - pattern: PathCombine($BUF, ...)
+    - pattern: PathCombineA($BUF, ...)
+    - pattern: PathCombineW($BUF, ...)
+    - pattern: PathCanonicalize($BUF, ...)
+    - pattern: PathCanonicalizeA($BUF, ...)
+    - pattern: PathCanonicalizeW($BUF, ...)
+    - pattern: PathAddExtension($BUF, ...)
+    - pattern: PathAddExtensionA($BUF, ...)
+    - pattern: PathAddExtensionW($BUF, ...)
+    - pattern: PathRenameExtension($BUF, ...)
+    - pattern: PathRenameExtensionA($BUF, ...)
+    - pattern: PathRenameExtensionW($BUF, ...)
+    - pattern: PathAddBackslash($BUF)
+    - pattern: PathAddBackslashA($BUF)
+    - pattern: PathAddBackslashW($BUF)
+    - pattern: realpath($SRC, $BUF)
+  - metavariable-regex:
+      metavariable: $SIZE
+      regex: ^(?!\(?\s*(MAX_PATH|_MAX_PATH|PATH_MAX|MAX_PATH\s*\+\s*\d+|PATH_MAX\s*\+\s*\d+)\s*\)?$)(?!(2[6-9]\d|[3-9]\d\d|\d{4,})$)

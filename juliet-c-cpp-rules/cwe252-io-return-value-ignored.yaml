@@ -1,0 +1,48 @@
+rules:
+- id: cwe252-io-return-value-ignored
+  languages:
+  - c
+  - cpp
+  paths:
+    include:
+    - '*.c'
+    - '*.h'
+    - '*.cpp'
+    - '*.cc'
+    - '*.cxx'
+    - '*.c++'
+    - '*.hpp'
+    - '*.hh'
+    - '*.hxx'
+    - '*.inc'
+  severity: WARNING
+  message: The return value of $F() is discarded, so an I/O or file system failure goes unnoticed.
+  metadata:
+    vulnerability_class: Unchecked Return Value
+    help: |
+      ## Summary
+      The return value of `$F()` is discarded, so an I/O or file system failure goes unnoticed.
+
+      ## Remediation
+      Check the return value of every call that can fail and handle the error before using any output of the call.
+    category: security
+    cwe:
+    - 'CWE-252: Unchecked Return Value'
+    references:
+    - https://cwe.mitre.org/data/definitions/252.html
+    confidence: MEDIUM
+    likelihood: MEDIUM
+    impact: MEDIUM
+    subcategory:
+    - vuln
+    technology:
+    - c
+    - cpp
+    source: Validated against NIST Juliet C/C++ Test Suite v1.3
+    remediation: Check the return value of every call that can fail and handle the error before using
+      any output of the call.
+  patterns:
+  - pattern: $F(...);
+  - metavariable-regex:
+      metavariable: $F
+      regex: ^(fgets|fgetws|fprintf|fwprintf|fputc|fputwc|fputs|fputws|fread|fwrite|fscanf|fwscanf|scanf|wscanf|sscanf|swscanf|putc|putwc|putchar|putwchar|puts|_putws|PUTS|remove|_wremove|REMOVE|rename|_wrename|RENAME|snprintf|_snprintf|_snwprintf|swprintf|SNPRINTF|ImpersonateSelf|ImpersonateNamedPipeClient|ImpersonateLoggedOnUser|RpcImpersonateClient|SetThreadToken|setuid|setgid|seteuid|setegid|chdir|chroot)$

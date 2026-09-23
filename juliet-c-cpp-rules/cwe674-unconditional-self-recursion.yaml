@@ -1,0 +1,60 @@
+rules:
+- id: cwe674-unconditional-self-recursion
+  languages:
+  - c
+  - cpp
+  paths:
+    include:
+    - '*.c'
+    - '*.h'
+    - '*.cpp'
+    - '*.cc'
+    - '*.cxx'
+    - '*.c++'
+    - '*.hpp'
+    - '*.hh'
+    - '*.hxx'
+    - '*.inc'
+  severity: ERROR
+  message: $F calls itself unconditionally with no base case, so the recursion never terminates and exhausts
+    the stack.
+  metadata:
+    vulnerability_class: Uncontrolled Recursion
+    help: |
+      ## Summary
+      `$F` calls itself unconditionally with no base case, so the recursion never terminates and exhausts the stack.
+
+      ## Remediation
+      Bound recursion depth or replace recursion with iteration.
+    category: correctness
+    cwe:
+    - 'CWE-674: Uncontrolled Recursion'
+    references:
+    - https://cwe.mitre.org/data/definitions/674.html
+    confidence: HIGH
+    likelihood: MEDIUM
+    impact: HIGH
+    subcategory:
+    - vuln
+    technology:
+    - c
+    - cpp
+    source: Validated against NIST Juliet C/C++ Test Suite v1.3
+    remediation: Bound recursion depth or replace recursion with iteration.
+  patterns:
+  - pattern-inside: |
+      $R $F(...) { ... }
+  - pattern-not-inside: |
+      $R $F(...) { ... if ($C) $S; ... }
+  - pattern-not-inside: |
+      $R $F(...) { ... return ...; ... }
+  - pattern-not-inside: |
+      $R $F(...) { ... switch ($C) $S; ... }
+  - pattern-not-inside: |
+      $R $F(...) { ... while ($C) $S; ... }
+  - pattern-not-inside: |
+      $R $F(...) { ... for (...) $S; ... }
+  - pattern-not-inside: '$C ? $A : $B'
+  - pattern-not-inside: $A && $B
+  - pattern-not-inside: $A || $B
+  - pattern: $F(...);

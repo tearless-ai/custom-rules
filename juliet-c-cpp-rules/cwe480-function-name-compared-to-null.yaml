@@ -1,0 +1,59 @@
+rules:
+- id: cwe480-function-name-compared-to-null
+  languages:
+  - c
+  - cpp
+  paths:
+    include:
+    - '*.c'
+    - '*.h'
+    - '*.cpp'
+    - '*.cc'
+    - '*.cxx'
+    - '*.c++'
+    - '*.hpp'
+    - '*.hh'
+    - '*.hxx'
+    - '*.inc'
+  severity: ERROR
+  message: The function $F itself (not its return value) is compared with NULL; the call parentheses are
+    missing, so this comparison is constant.
+  metadata:
+    vulnerability_class: Use of Incorrect Operator
+    help: |
+      ## Summary
+      The function `$F` itself (not its return value) is compared with NULL; the call parentheses are missing, so this comparison is constant.
+
+      ## Remediation
+      Use the intended operator (e.g. && vs &, == vs =) and enable compiler warnings for suspicious operators.
+    category: correctness
+    cwe:
+    - 'CWE-480: Use of Incorrect Operator'
+    references:
+    - https://cwe.mitre.org/data/definitions/480.html
+    confidence: HIGH
+    likelihood: MEDIUM
+    impact: HIGH
+    subcategory:
+    - vuln
+    technology:
+    - c
+    - cpp
+    source: Validated against NIST Juliet C/C++ Test Suite v1.3
+    remediation: Use the intended operator (e.g. && vs &, == vs =) and enable compiler warnings for suspicious
+      operators.
+  patterns:
+  - pattern-either:
+    - pattern-inside: |
+        $T $F(...) { ... }
+        ...
+    - pattern-inside: |
+        $T * $F(...) { ... }
+        ...
+  - pattern-either:
+    - pattern: $F == NULL
+    - pattern: $F != NULL
+    - pattern: NULL == $F
+    - pattern: NULL != $F
+    - pattern: $F == 0
+    - pattern: $F != 0

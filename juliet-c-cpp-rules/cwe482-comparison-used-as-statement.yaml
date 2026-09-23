@@ -1,0 +1,51 @@
+rules:
+- id: cwe482-comparison-used-as-statement
+  languages:
+  - c
+  - cpp
+  paths:
+    include:
+    - '*.c'
+    - '*.h'
+    - '*.cpp'
+    - '*.cc'
+    - '*.cxx'
+    - '*.c++'
+    - '*.hpp'
+    - '*.hh'
+    - '*.hxx'
+    - '*.inc'
+  severity: ERROR
+  message: This statement compares $E with '==' and discards the result; an assignment with '=' was probably
+    intended.
+  metadata:
+    vulnerability_class: Comparing instead of Assigning
+    help: |
+      ## Summary
+      This statement compares `$E` with '==' and discards the result; an assignment with '=' was probably intended.
+
+      ## Remediation
+      Use = for assignment; a standalone comparison statement has no effect.
+    category: correctness
+    cwe:
+    - 'CWE-482: Comparing instead of Assigning'
+    references:
+    - https://cwe.mitre.org/data/definitions/482.html
+    confidence: HIGH
+    likelihood: MEDIUM
+    impact: HIGH
+    subcategory:
+    - vuln
+    technology:
+    - c
+    - cpp
+    source: Validated against NIST Juliet C/C++ Test Suite v1.3
+    remediation: Use = for assignment; a standalone comparison statement has no effect.
+  patterns:
+  - pattern: |
+      $E;
+      ...
+  - metavariable-regex:
+      metavariable: $E
+      regex: ^[^(){};,=!<>]*==[^(){};,=]*;?$
+  - focus-metavariable: $E

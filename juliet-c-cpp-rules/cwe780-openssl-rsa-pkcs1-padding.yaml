@@ -1,0 +1,50 @@
+rules:
+- id: cwe780-openssl-rsa-pkcs1-padding
+  languages:
+  - c
+  - cpp
+  paths:
+    include:
+    - '*.c'
+    - '*.h'
+    - '*.cpp'
+    - '*.cc'
+    - '*.cxx'
+    - '*.c++'
+    - '*.hpp'
+    - '*.hh'
+    - '*.hxx'
+    - '*.inc'
+  severity: WARNING
+  message: RSA encryption uses PKCS#1 v1.5 or no padding; use RSA_PKCS1_OAEP_PADDING.
+  metadata:
+    vulnerability_class: Use of RSA Algorithm without OAEP
+    help: |
+      ## Summary
+      RSA encryption uses PKCS#1 v1.5 or no padding; use RSA_PKCS1_OAEP_PADDING.
+
+      ## Remediation
+      Use RSA with OAEP padding (e.g. CRYPT_OAEP) instead of PKCS#1 v1.5 or no padding.
+    category: security
+    cwe:
+    - 'CWE-780: Use of RSA Algorithm without OAEP'
+    references:
+    - https://cwe.mitre.org/data/definitions/780.html
+    confidence: MEDIUM
+    likelihood: MEDIUM
+    impact: MEDIUM
+    subcategory:
+    - vuln
+    technology:
+    - c
+    - cpp
+    source: Validated against NIST Juliet C/C++ Test Suite v1.3
+    remediation: Use RSA with OAEP padding (e.g. CRYPT_OAEP) instead of PKCS#1 v1.5 or no padding.
+  patterns:
+  - pattern: $F($LEN, $FROM, $TO, $RSA, $PAD)
+  - metavariable-regex:
+      metavariable: $F
+      regex: ^(RSA_public_encrypt|RSA_private_encrypt)$
+  - metavariable-regex:
+      metavariable: $PAD
+      regex: ^(RSA_PKCS1_PADDING|RSA_NO_PADDING|RSA_SSLV23_PADDING)$

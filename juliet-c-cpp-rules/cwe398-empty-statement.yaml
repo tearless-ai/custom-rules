@@ -1,0 +1,43 @@
+rules:
+- id: cwe398-empty-statement
+  languages:
+  - c
+  - cpp
+  paths:
+    include:
+    - '*.c'
+    - '*.h'
+    - '*.cpp'
+    - '*.cc'
+    - '*.cxx'
+    - '*.c++'
+    - '*.hpp'
+    - '*.hh'
+    - '*.hxx'
+    - '*.inc'
+  severity: INFO
+  message: This stray empty statement has no effect.
+  metadata:
+    vulnerability_class: 7PK - Code Quality
+    help: |
+      ## Summary
+      This stray empty statement has no effect.
+
+      ## Remediation
+      Remove empty blocks and statements with no effect, or implement the intended logic.
+    category: correctness
+    cwe:
+    - 'CWE-398: 7PK - Code Quality'
+    references:
+    - https://cwe.mitre.org/data/definitions/398.html
+    confidence: LOW
+    likelihood: MEDIUM
+    impact: LOW
+    subcategory:
+    - vuln
+    technology:
+    - c
+    - cpp
+    source: Validated against NIST Juliet C/C++ Test Suite v1.3
+    remediation: Remove empty blocks and statements with no effect, or implement the intended logic.
+  pattern: ;

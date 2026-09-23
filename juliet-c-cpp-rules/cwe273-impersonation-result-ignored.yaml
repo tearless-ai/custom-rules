@@ -1,0 +1,49 @@
+rules:
+- id: cwe273-impersonation-result-ignored
+  languages:
+  - c
+  - cpp
+  paths:
+    include:
+    - '*.c'
+    - '*.h'
+    - '*.cpp'
+    - '*.cc'
+    - '*.cxx'
+    - '*.c++'
+    - '*.hpp'
+    - '*.hh'
+    - '*.hxx'
+    - '*.inc'
+  severity: ERROR
+  message: The return value of $F() is ignored, so if the privilege change fails the code keeps running
+    with the wrong security context.
+  metadata:
+    vulnerability_class: Improper Check for Dropped Privileges
+    help: |
+      ## Summary
+      The return value of `$F()` is ignored, so if the privilege change fails the code keeps running with the wrong security context.
+
+      ## Remediation
+      Check the return value of privilege-dropping calls (setuid, RevertToSelf, ImpersonateLoggedOnUser) and abort if they fail.
+    category: security
+    cwe:
+    - 'CWE-273: Improper Check for Dropped Privileges'
+    references:
+    - https://cwe.mitre.org/data/definitions/273.html
+    confidence: HIGH
+    likelihood: MEDIUM
+    impact: HIGH
+    subcategory:
+    - vuln
+    technology:
+    - c
+    - cpp
+    source: Validated against NIST Juliet C/C++ Test Suite v1.3
+    remediation: Check the return value of privilege-dropping calls (setuid, RevertToSelf, ImpersonateLoggedOnUser)
+      and abort if they fail.
+  patterns:
+  - pattern: $F(...);
+  - metavariable-regex:
+      metavariable: $F
+      regex: ^(ImpersonateNamedPipeClient|RpcImpersonateClient|ImpersonateSelf|ImpersonateLoggedOnUser|ImpersonateAnonymousToken|SetThreadToken|RevertToSelf|RpcRevertToSelf|CoImpersonateClient|CoRevertToSelf|setuid|seteuid|setreuid|setresuid|setgid|setegid|setregid|setresgid|initgroups|setgroups)$

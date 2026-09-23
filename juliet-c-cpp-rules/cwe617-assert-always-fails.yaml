@@ -1,0 +1,47 @@
+rules:
+- id: cwe617-assert-always-fails
+  languages:
+  - c
+  - cpp
+  paths:
+    include:
+    - '*.c'
+    - '*.h'
+    - '*.cpp'
+    - '*.cc'
+    - '*.cxx'
+    - '*.c++'
+    - '*.hpp'
+    - '*.hh'
+    - '*.hxx'
+    - '*.inc'
+  severity: WARNING
+  message: This assertion has a constant false condition, so reaching it always aborts the program.
+  metadata:
+    vulnerability_class: Reachable Assertion
+    help: |
+      ## Summary
+      This assertion has a constant false condition, so reaching it always aborts the program.
+
+      ## Remediation
+      Do not assert on conditions that external input can violate; validate input and handle errors explicitly.
+    category: correctness
+    cwe:
+    - 'CWE-617: Reachable Assertion'
+    references:
+    - https://cwe.mitre.org/data/definitions/617.html
+    confidence: MEDIUM
+    likelihood: MEDIUM
+    impact: MEDIUM
+    subcategory:
+    - vuln
+    technology:
+    - c
+    - cpp
+    source: Validated against NIST Juliet C/C++ Test Suite v1.3
+    remediation: Do not assert on conditions that external input can violate; validate input and handle
+      errors explicitly.
+  pattern-either:
+  - pattern: assert(0)
+  - pattern: assert(false)
+  - pattern: assert(NULL)

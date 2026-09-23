@@ -1,0 +1,51 @@
+rules:
+- id: cwe328-weak-hash-algorithm
+  languages:
+  - c
+  - cpp
+  paths:
+    include:
+    - '*.c'
+    - '*.h'
+    - '*.cpp'
+    - '*.cc'
+    - '*.cxx'
+    - '*.c++'
+    - '*.hpp'
+    - '*.hh'
+    - '*.hxx'
+    - '*.inc'
+  severity: WARNING
+  message: $F() uses the weak hash algorithm $ALG, which is vulnerable to collision or preimage attacks;
+    use SHA-256 or stronger.
+  metadata:
+    vulnerability_class: Use of Weak Hash
+    help: |
+      ## Summary
+      `$F()` uses the weak hash algorithm `$ALG`, which is vulnerable to collision or preimage attacks; use SHA-256 or stronger.
+
+      ## Remediation
+      Replace MD5/SHA-1 for security uses with SHA-256 or stronger; use a password-hashing function such as Argon2 or bcrypt for passwords.
+    category: security
+    cwe:
+    - 'CWE-328: Use of Weak Hash'
+    references:
+    - https://cwe.mitre.org/data/definitions/328.html
+    confidence: HIGH
+    likelihood: MEDIUM
+    impact: MEDIUM
+    subcategory:
+    - vuln
+    technology:
+    - c
+    - cpp
+    source: Validated against NIST Juliet C/C++ Test Suite v1.3
+    remediation: Replace MD5/SHA-1 for security uses with SHA-256 or stronger; use a password-hashing
+      function such as Argon2 or bcrypt for passwords.
+  patterns:
+  - pattern-either:
+    - pattern: CryptCreateHash($P, $ALG, ...)
+    - pattern: BCryptOpenAlgorithmProvider($H, $ALG, ...)
+  - metavariable-regex:
+      metavariable: $ALG
+      regex: ^(CALG_MD2|CALG_MD4|CALG_MD5|CALG_SHA|CALG_SHA1|BCRYPT_MD2_ALGORITHM|BCRYPT_MD4_ALGORITHM|BCRYPT_MD5_ALGORITHM|BCRYPT_SHA1_ALGORITHM)$

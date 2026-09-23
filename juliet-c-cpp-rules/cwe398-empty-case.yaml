@@ -1,0 +1,43 @@
+rules:
+- id: cwe398-empty-case
+  languages:
+  - c
+  - cpp
+  paths:
+    include:
+    - '*.c'
+    - '*.h'
+    - '*.cpp'
+    - '*.cc'
+    - '*.cxx'
+    - '*.c++'
+    - '*.hpp'
+    - '*.hh'
+    - '*.hxx'
+    - '*.inc'
+  severity: INFO
+  message: This case label only breaks out of the switch and does nothing.
+  metadata:
+    vulnerability_class: 7PK - Code Quality
+    help: |
+      ## Summary
+      This case label only breaks out of the switch and does nothing.
+
+      ## Remediation
+      Remove empty blocks and statements with no effect, or implement the intended logic.
+    category: correctness
+    cwe:
+    - 'CWE-398: 7PK - Code Quality'
+    references:
+    - https://cwe.mitre.org/data/definitions/398.html
+    confidence: LOW
+    likelihood: MEDIUM
+    impact: LOW
+    subcategory:
+    - vuln
+    technology:
+    - c
+    - cpp
+    source: Validated against NIST Juliet C/C++ Test Suite v1.3
+    remediation: Remove empty blocks and statements with no effect, or implement the intended logic.
+  pattern-regex: \bcase\s+[^:\n]+:\s*break\s*;

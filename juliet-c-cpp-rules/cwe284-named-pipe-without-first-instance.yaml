@@ -1,0 +1,51 @@
+rules:
+- id: cwe284-named-pipe-without-first-instance
+  languages:
+  - c
+  - cpp
+  paths:
+    include:
+    - '*.c'
+    - '*.h'
+    - '*.cpp'
+    - '*.cc'
+    - '*.cxx'
+    - '*.c++'
+    - '*.hpp'
+    - '*.hh'
+    - '*.hxx'
+    - '*.inc'
+  severity: WARNING
+  message: $F() is called without FILE_FLAG_FIRST_PIPE_INSTANCE, so an attacker who created the pipe first
+    can impersonate the server.
+  metadata:
+    vulnerability_class: Improper Access Control
+    help: |
+      ## Summary
+      `$F()` is called without FILE_FLAG_FIRST_PIPE_INSTANCE, so an attacker who created the pipe first can impersonate the server.
+
+      ## Remediation
+      Request only the access rights actually needed instead of GENERIC_ALL/KEY_ALL_ACCESS, and create named pipes with FILE_FLAG_FIRST_PIPE_INSTANCE.
+    category: security
+    cwe:
+    - 'CWE-284: Improper Access Control'
+    references:
+    - https://cwe.mitre.org/data/definitions/284.html
+    confidence: LOW
+    likelihood: MEDIUM
+    impact: MEDIUM
+    subcategory:
+    - vuln
+    technology:
+    - c
+    - cpp
+    source: Validated against NIST Juliet C/C++ Test Suite v1.3
+    remediation: Request only the access rights actually needed instead of GENERIC_ALL/KEY_ALL_ACCESS,
+      and create named pipes with FILE_FLAG_FIRST_PIPE_INSTANCE.
+  patterns:
+  - pattern: $F($NAME, $MODE, ...)
+  - metavariable-regex:
+      metavariable: $F
+      regex: ^(CreateNamedPipe|CreateNamedPipeA|CreateNamedPipeW)$
+  - pattern-not: $F($NAME, <... FILE_FLAG_FIRST_PIPE_INSTANCE ...>, ...)
+  - focus-metavariable: $F

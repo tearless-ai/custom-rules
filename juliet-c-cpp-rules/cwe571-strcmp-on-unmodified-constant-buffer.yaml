@@ -1,0 +1,62 @@
+rules:
+- id: cwe571-strcmp-on-unmodified-constant-buffer
+  languages:
+  - c
+  - cpp
+  paths:
+    include:
+    - '*.c'
+    - '*.h'
+    - '*.cpp'
+    - '*.cc'
+    - '*.cxx'
+    - '*.c++'
+    - '*.hpp'
+    - '*.hh'
+    - '*.hxx'
+    - '*.inc'
+  severity: WARNING
+  message: $S is initialized from a constant string and never modified, so comparing it with $B is always
+    true.
+  metadata:
+    vulnerability_class: Expression is Always True
+    help: |
+      ## Summary
+      `$S` is initialized from a constant string and never modified, so comparing it with `$B` is always true.
+
+      ## Remediation
+      Fix conditions that are always true; they indicate a logic error or a missing check.
+    category: correctness
+    cwe:
+    - 'CWE-571: Expression is Always True'
+    references:
+    - https://cwe.mitre.org/data/definitions/571.html
+    confidence: HIGH
+    likelihood: MEDIUM
+    impact: MEDIUM
+    subcategory:
+    - vuln
+    technology:
+    - c
+    - cpp
+    source: Validated against NIST Juliet C/C++ Test Suite v1.3
+    remediation: Fix conditions that are always true; they indicate a logic error or a missing check.
+  patterns:
+  - pattern-either:
+    - pattern-inside: |
+        char $S[$N] = $A;
+        ...
+    - pattern-inside: |
+        wchar_t $S[$N] = $A;
+        ...
+  - pattern-not-inside: |
+      $F(..., $S, ...);
+      ...
+  - pattern-either:
+    - pattern: strcmp($S, $B) == 0
+    - pattern: wcscmp($S, $B) == 0
+  - metavariable-regex:
+      metavariable: $B
+      regex: ^L?".*"$
+  - metavariable-comparison:
+      comparison: str($A) == str($B)

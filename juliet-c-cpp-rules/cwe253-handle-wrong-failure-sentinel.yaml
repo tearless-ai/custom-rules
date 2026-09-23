@@ -1,0 +1,67 @@
+rules:
+- id: cwe253-handle-wrong-failure-sentinel
+  languages:
+  - c
+  - cpp
+  paths:
+    include:
+    - '*.c'
+    - '*.h'
+    - '*.cpp'
+    - '*.cc'
+    - '*.cxx'
+    - '*.c++'
+    - '*.hpp'
+    - '*.hh'
+    - '*.hxx'
+    - '*.inc'
+  severity: WARNING
+  message: $CREATE() reports failure with a different sentinel than the one checked here, so the error
+    is never detected.
+  metadata:
+    vulnerability_class: Incorrect Check of Function Return Value
+    help: |
+      ## Summary
+      `$CREATE()` reports failure with a different sentinel than the one checked here, so the error is never detected.
+
+      ## Remediation
+      Compare return values against the function's documented error value (e.g. EOF, NULL, INVALID_HANDLE_VALUE, -1) rather than an assumed one.
+    category: security
+    cwe:
+    - 'CWE-253: Incorrect Check of Function Return Value'
+    references:
+    - https://cwe.mitre.org/data/definitions/253.html
+    confidence: HIGH
+    likelihood: MEDIUM
+    impact: MEDIUM
+    subcategory:
+    - vuln
+    technology:
+    - c
+    - cpp
+    source: Validated against NIST Juliet C/C++ Test Suite v1.3
+    remediation: Compare return values against the function's documented error value (e.g. EOF, NULL,
+      INVALID_HANDLE_VALUE, -1) rather than an assumed one.
+  pattern-either:
+  - patterns:
+    - pattern-inside: |
+        $H = $CREATE(...);
+        ...
+    - pattern-either:
+      - pattern: $H == INVALID_HANDLE_VALUE
+      - pattern: $H != INVALID_HANDLE_VALUE
+    - metavariable-regex:
+        metavariable: $CREATE
+        regex: ^(CreateMutex|CreateMutexA|CreateMutexW|CreateEventA|CreateEventW|CreateSemaphoreA|CreateSemaphoreW|OpenProcess|OpenThread|CreateThread|CreateFileMappingA|CreateFileMappingW|OpenMutexA|OpenMutexW|OpenEventA|OpenEventW)$
+  - patterns:
+    - pattern-inside: |
+        $H = $CREATE(...);
+        ...
+    - pattern-either:
+      - pattern: $H == NULL
+      - pattern: $H != NULL
+      - pattern: $H == 0
+      - pattern: '!$H'
+    - metavariable-regex:
+        metavariable: $CREATE
+        regex: ^(CreateNamedPipe|CreateNamedPipeA|CreateNamedPipeW|CreateFile|CreateFileA|CreateFileW|FindFirstFileA|FindFirstFileW|CreateMailslotA|CreateMailslotW)$

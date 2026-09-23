@@ -1,0 +1,62 @@
+rules:
+- id: cwe325-hash-used-before-creation
+  languages:
+  - c
+  - cpp
+  paths:
+    include:
+    - '*.c'
+    - '*.h'
+    - '*.cpp'
+    - '*.cc'
+    - '*.cxx'
+    - '*.c++'
+    - '*.hpp'
+    - '*.hh'
+    - '*.hxx'
+    - '*.inc'
+  severity: WARNING
+  message: The hash handle $H is used by CryptHashData() but CryptCreateHash() was never called to create
+    it.
+  metadata:
+    vulnerability_class: Missing Cryptographic Step
+    help: |
+      ## Summary
+      The hash handle `$H` is used by CryptHashData() but CryptCreateHash() was never called to create it.
+
+      ## Remediation
+      Perform every required cryptographic step (e.g. hash the key material, call CryptEncrypt/CryptHashData) before using the result.
+    category: security
+    cwe:
+    - 'CWE-325: Missing Cryptographic Step'
+    references:
+    - https://cwe.mitre.org/data/definitions/325.html
+    confidence: MEDIUM
+    likelihood: MEDIUM
+    impact: MEDIUM
+    subcategory:
+    - vuln
+    technology:
+    - c
+    - cpp
+    source: Validated against NIST Juliet C/C++ Test Suite v1.3
+    remediation: Perform every required cryptographic step (e.g. hash the key material, call CryptEncrypt/CryptHashData)
+      before using the result.
+  patterns:
+  - pattern: CryptHashData($H, ...)
+  - pattern-either:
+    - pattern-inside: |
+        $T $H = ($C) NULL;
+        ...
+    - pattern-inside: |
+        $T $H = NULL;
+        ...
+    - pattern-inside: |
+        $T $H = 0;
+        ...
+  - pattern-not-inside: |
+      if (<... CryptCreateHash($P, $A, $K, $F, &$H) ...>) { ... }
+      ...
+  - pattern-not-inside: |
+      CryptCreateHash($P, $A, $K, $F, &$H);
+      ...

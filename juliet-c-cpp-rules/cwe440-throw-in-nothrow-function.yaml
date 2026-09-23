@@ -1,0 +1,44 @@
+rules:
+- id: cwe440-throw-in-nothrow-function
+  languages:
+  - cpp
+  paths:
+    include:
+    - '*.c'
+    - '*.h'
+    - '*.cpp'
+    - '*.cc'
+    - '*.cxx'
+    - '*.c++'
+    - '*.hpp'
+    - '*.hh'
+    - '*.hxx'
+    - '*.inc'
+  severity: ERROR
+  message: This function is declared with an empty exception specification (it promises not to throw)
+    but its body throws, which calls std::terminate or unexpected() at run time.
+  metadata:
+    vulnerability_class: Expected Behavior Violation
+    help: |
+      ## Summary
+      This function is declared with an empty exception specification (it promises not to throw) but its body throws, which calls std::terminate or unexpected() at run time.
+
+      ## Remediation
+      Implement overridden or interface methods so they honor the documented contract of the base definition.
+    category: correctness
+    cwe:
+    - 'CWE-440: Expected Behavior Violation'
+    references:
+    - https://cwe.mitre.org/data/definitions/440.html
+    confidence: HIGH
+    likelihood: MEDIUM
+    impact: HIGH
+    subcategory:
+    - vuln
+    technology:
+    - c
+    - cpp
+    source: Validated against NIST Juliet C/C++ Test Suite v1.3
+    remediation: Implement overridden or interface methods so they honor the documented contract of the
+      base definition.
+  pattern-regex: \)\s*(?:const\s*)?(?:throw\s*\(\s*\)|noexcept(?:\s*\(\s*true\s*\))?)\s*(?:/\*(?:[^*]|\*(?!/))*\*/\s*|//[^\n]*\n\s*)*\{(?:(?!\btry\b)[^{}])*\bthrow\b

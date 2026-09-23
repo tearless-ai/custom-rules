@@ -1,0 +1,47 @@
+rules:
+- id: cwe605-so-reuseaddr-multiple-binds
+  languages:
+  - c
+  - cpp
+  paths:
+    include:
+    - '*.c'
+    - '*.h'
+    - '*.cpp'
+    - '*.cc'
+    - '*.cxx'
+    - '*.c++'
+    - '*.hpp'
+    - '*.hh'
+    - '*.hxx'
+    - '*.inc'
+  severity: WARNING
+  message: Setting SO_REUSEADDR on this socket lets another process bind the same port and steal or spoof
+    its traffic.
+  metadata:
+    vulnerability_class: Multiple Binds to the Same Port
+    help: |
+      ## Summary
+      Setting SO_REUSEADDR on this socket lets another process bind the same port and steal or spoof its traffic.
+
+      ## Remediation
+      Do not set SO_REUSEADDR on listening sockets that must be exclusive; use SO_EXCLUSIVEADDRUSE on Windows.
+    category: security
+    cwe:
+    - 'CWE-605: Multiple Binds to the Same Port'
+    references:
+    - https://cwe.mitre.org/data/definitions/605.html
+    confidence: MEDIUM
+    likelihood: MEDIUM
+    impact: MEDIUM
+    subcategory:
+    - vuln
+    technology:
+    - c
+    - cpp
+    source: Validated against NIST Juliet C/C++ Test Suite v1.3
+    remediation: Do not set SO_REUSEADDR on listening sockets that must be exclusive; use SO_EXCLUSIVEADDRUSE
+      on Windows.
+  pattern-either:
+  - pattern: setsockopt($S, SOL_SOCKET, SO_REUSEADDR, ...)
+  - pattern: setsockopt($S, SOL_SOCKET, SO_REUSEPORT, ...)

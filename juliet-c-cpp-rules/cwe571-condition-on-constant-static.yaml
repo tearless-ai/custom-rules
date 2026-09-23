@@ -1,0 +1,132 @@
+rules:
+- id: cwe571-condition-on-constant-static
+  languages:
+  - c
+  - cpp
+  paths:
+    include:
+    - '*.c'
+    - '*.h'
+    - '*.cpp'
+    - '*.cc'
+    - '*.cxx'
+    - '*.c++'
+    - '*.hpp'
+    - '*.hh'
+    - '*.hxx'
+    - '*.inc'
+  severity: WARNING
+  message: $V is a file-local static that is initialized to $K and never modified, so this condition is
+    always true.
+  metadata:
+    vulnerability_class: Expression is Always True
+    help: |
+      ## Summary
+      `$V` is a file-local static that is initialized to `$K` and never modified, so this condition is always true.
+
+      ## Remediation
+      Fix conditions that are always true; they indicate a logic error or a missing check.
+    category: correctness
+    cwe:
+    - 'CWE-571: Expression is Always True'
+    references:
+    - https://cwe.mitre.org/data/definitions/571.html
+    confidence: HIGH
+    likelihood: MEDIUM
+    impact: MEDIUM
+    subcategory:
+    - vuln
+    technology:
+    - c
+    - cpp
+    source: Validated against NIST Juliet C/C++ Test Suite v1.3
+    remediation: Fix conditions that are always true; they indicate a logic error or a missing check.
+  patterns:
+  - pattern-not-inside: |
+      $R $FN(...) {
+        ...
+        $V = $X;
+        ...
+      }
+  - metavariable-regex:
+      metavariable: $K
+      regex: ^-?[0-9]+$
+  - pattern-either:
+    - patterns:
+      - pattern-either:
+        - pattern-inside: |
+            static $T $V = $K;
+            ...
+        - pattern-inside: |
+            static const $T $V = $K;
+            ...
+      - pattern: if ($V) $S;
+      - metavariable-comparison:
+          comparison: $K != 0
+    - patterns:
+      - pattern-either:
+        - pattern-inside: |
+            static $T $V = $K;
+            ...
+        - pattern-inside: |
+            static const $T $V = $K;
+            ...
+      - pattern: if ($V == $L) $S;
+      - metavariable-comparison:
+          comparison: ($K == $L)
+    - patterns:
+      - pattern-either:
+        - pattern-inside: |
+            static $T $V = $K;
+            ...
+        - pattern-inside: |
+            static const $T $V = $K;
+            ...
+      - pattern: if ($V != $L) $S;
+      - metavariable-comparison:
+          comparison: ($K != $L)
+    - patterns:
+      - pattern-either:
+        - pattern-inside: |
+            static $T $V = $K;
+            ...
+        - pattern-inside: |
+            static const $T $V = $K;
+            ...
+      - pattern: if ($V < $L) $S;
+      - metavariable-comparison:
+          comparison: ($K < $L)
+    - patterns:
+      - pattern-either:
+        - pattern-inside: |
+            static $T $V = $K;
+            ...
+        - pattern-inside: |
+            static const $T $V = $K;
+            ...
+      - pattern: if ($V <= $L) $S;
+      - metavariable-comparison:
+          comparison: ($K <= $L)
+    - patterns:
+      - pattern-either:
+        - pattern-inside: |
+            static $T $V = $K;
+            ...
+        - pattern-inside: |
+            static const $T $V = $K;
+            ...
+      - pattern: if ($V > $L) $S;
+      - metavariable-comparison:
+          comparison: ($K > $L)
+    - patterns:
+      - pattern-either:
+        - pattern-inside: |
+            static $T $V = $K;
+            ...
+        - pattern-inside: |
+            static const $T $V = $K;
+            ...
+      - pattern: if ($V >= $L) $S;
+      - metavariable-comparison:
+          comparison: ($K >= $L)
+  - focus-metavariable: $V

@@ -1,0 +1,47 @@
+rules:
+- id: cwe571-compare-against-type-limit
+  languages:
+  - c
+  - cpp
+  paths:
+    include:
+    - '*.c'
+    - '*.h'
+    - '*.cpp'
+    - '*.cc'
+    - '*.cxx'
+    - '*.c++'
+    - '*.hpp'
+    - '*.hh'
+    - '*.hxx'
+    - '*.inc'
+  severity: WARNING
+  message: Comparing a value against the limit of its own type like this is always true.
+  metadata:
+    vulnerability_class: Expression is Always True
+    help: |
+      ## Summary
+      Comparing a value against the limit of its own type like this is always true.
+
+      ## Remediation
+      Fix conditions that are always true; they indicate a logic error or a missing check.
+    category: correctness
+    cwe:
+    - 'CWE-571: Expression is Always True'
+    references:
+    - https://cwe.mitre.org/data/definitions/571.html
+    confidence: HIGH
+    likelihood: MEDIUM
+    impact: MEDIUM
+    subcategory:
+    - vuln
+    technology:
+    - c
+    - cpp
+    source: Validated against NIST Juliet C/C++ Test Suite v1.3
+    remediation: Fix conditions that are always true; they indicate a logic error or a missing check.
+  pattern-either:
+  - pattern: (int $X) <= INT_MAX
+  - pattern: (int $X) >= INT_MIN
+  - pattern: (long $X) <= LONG_MAX
+  - pattern: (long $X) >= LONG_MIN

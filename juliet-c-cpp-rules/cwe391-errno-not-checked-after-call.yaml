@@ -1,0 +1,62 @@
+rules:
+- id: cwe391-errno-not-checked-after-call
+  languages:
+  - c
+  - cpp
+  paths:
+    include:
+    - '*.c'
+    - '*.h'
+    - '*.cpp'
+    - '*.cc'
+    - '*.cxx'
+    - '*.c++'
+    - '*.hpp'
+    - '*.hh'
+    - '*.hxx'
+    - '*.inc'
+  severity: WARNING
+  message: $F() reports failure only through errno, but errno is neither cleared before the call nor checked
+    before the result is used.
+  metadata:
+    vulnerability_class: Unchecked Error Condition
+    help: |
+      ## Summary
+      `$F()` reports failure only through errno, but errno is neither cleared before the call nor checked before the result is used.
+
+      ## Remediation
+      Check error indicators (return values, errno) after calls that can fail and handle the failure.
+    category: security
+    cwe:
+    - 'CWE-391: Unchecked Error Condition'
+    references:
+    - https://cwe.mitre.org/data/definitions/391.html
+    confidence: MEDIUM
+    likelihood: MEDIUM
+    impact: MEDIUM
+    subcategory:
+    - vuln
+    technology:
+    - c
+    - cpp
+    source: Validated against NIST Juliet C/C++ Test Suite v1.3
+    remediation: Check error indicators (return values, errno) after calls that can fail and handle the
+      failure.
+  patterns:
+  - pattern-either:
+    - pattern: |
+        $R = $F(...);
+        $NEXT;
+    - pattern: |
+        $R = ($T) $F(...);
+        $NEXT;
+  - metavariable-regex:
+      metavariable: $F
+      regex: ^(sqrt|sqrtf|sqrtl|log|log10|pow|acos|asin|exp|strtol|strtoul|strtoll|strtoull|strtod|strtof|wcstol|wcstoul|wcstod|wcstombs|mbstowcs|wcrtomb|mbrtowc)$
+  - metavariable-pattern:
+      metavariable: $NEXT
+      patterns:
+      - pattern-not: <... errno ...>
+  - pattern-not-inside: |
+      errno = 0;
+      ...

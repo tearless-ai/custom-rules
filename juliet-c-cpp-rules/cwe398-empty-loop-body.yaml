@@ -1,0 +1,45 @@
+rules:
+- id: cwe398-empty-loop-body
+  languages:
+  - c
+  - cpp
+  paths:
+    include:
+    - '*.c'
+    - '*.h'
+    - '*.cpp'
+    - '*.cc'
+    - '*.cxx'
+    - '*.c++'
+    - '*.hpp'
+    - '*.hh'
+    - '*.hxx'
+    - '*.inc'
+  severity: WARNING
+  message: This loop has an empty body.
+  metadata:
+    vulnerability_class: 7PK - Code Quality
+    help: |
+      ## Summary
+      This loop has an empty body.
+
+      ## Remediation
+      Remove empty blocks and statements with no effect, or implement the intended logic.
+    category: correctness
+    cwe:
+    - 'CWE-398: 7PK - Code Quality'
+    references:
+    - https://cwe.mitre.org/data/definitions/398.html
+    confidence: MEDIUM
+    likelihood: MEDIUM
+    impact: MEDIUM
+    subcategory:
+    - vuln
+    technology:
+    - c
+    - cpp
+    source: Validated against NIST Juliet C/C++ Test Suite v1.3
+    remediation: Remove empty blocks and statements with no effect, or implement the intended logic.
+  pattern-either:
+  - pattern: for ($I; $C; $N) {}
+  - pattern: while ($C) {}

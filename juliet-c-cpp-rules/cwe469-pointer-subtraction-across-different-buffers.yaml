@@ -1,0 +1,60 @@
+rules:
+- id: cwe469-pointer-subtraction-across-different-buffers
+  languages:
+  - c
+  - cpp
+  paths:
+    include:
+    - '*.c'
+    - '*.h'
+    - '*.cpp'
+    - '*.cc'
+    - '*.cxx'
+    - '*.c++'
+    - '*.hpp'
+    - '*.hh'
+    - '*.hxx'
+    - '*.inc'
+  severity: ERROR
+  message: A pointer found inside one buffer is subtracted from the start of a different buffer, so the
+    resulting size or index is meaningless.
+  metadata:
+    vulnerability_class: Use of Pointer Subtraction to Determine Size
+    help: |
+      ## Summary
+      A pointer found inside one buffer is subtracted from the start of a different buffer, so the resulting size or index is meaningless.
+
+      ## Remediation
+      Only subtract pointers that point into the same buffer; track sizes explicitly instead.
+    category: security
+    cwe:
+    - 'CWE-469: Use of Pointer Subtraction to Determine Size'
+    references:
+    - https://cwe.mitre.org/data/definitions/469.html
+    confidence: MEDIUM
+    likelihood: MEDIUM
+    impact: HIGH
+    subcategory:
+    - vuln
+    technology:
+    - c
+    - cpp
+    source: Validated against NIST Juliet C/C++ Test Suite v1.3
+    remediation: Only subtract pointers that point into the same buffer; track sizes explicitly instead.
+  patterns:
+  - pattern-either:
+    - pattern-inside: |
+        $P = $FN($S1, ...);
+        ...
+    - pattern-inside: |
+        $T * $P = $FN($S1, ...);
+        ...
+  - metavariable-regex:
+      metavariable: $FN
+      regex: ^(strchr|strrchr|strstr|strpbrk|memchr|wcschr|wcsrchr|wcsstr|wcspbrk|wmemchr)$
+  - pattern: $P - $S2
+  - metavariable-regex:
+      metavariable: $S2
+      regex: ^[A-Za-z_]\w*$
+  - metavariable-comparison:
+      comparison: str($S1) != str($S2)

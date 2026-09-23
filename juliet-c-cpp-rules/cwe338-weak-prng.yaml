@@ -1,0 +1,49 @@
+rules:
+- id: cwe338-weak-prng
+  languages:
+  - c
+  - cpp
+  paths:
+    include:
+    - '*.c'
+    - '*.h'
+    - '*.cpp'
+    - '*.cc'
+    - '*.cxx'
+    - '*.c++'
+    - '*.hpp'
+    - '*.hh'
+    - '*.hxx'
+    - '*.inc'
+  severity: WARNING
+  message: $F() is not a cryptographically secure PRNG; use CryptGenRandom/BCryptGenRandom, getrandom()
+    or /dev/urandom for security-sensitive values.
+  metadata:
+    vulnerability_class: Use of Cryptographically Weak Pseudo-Random Number Generator (PRNG)
+    help: |
+      ## Summary
+      `$F()` is not a cryptographically secure PRNG; use CryptGenRandom/BCryptGenRandom, getrandom() or /dev/urandom for security-sensitive values.
+
+      ## Remediation
+      Use a cryptographically secure generator (getrandom, BCryptGenRandom/CryptGenRandom, RAND_bytes) instead of rand()/random().
+    category: security
+    cwe:
+    - 'CWE-338: Use of Cryptographically Weak Pseudo-Random Number Generator (PRNG)'
+    references:
+    - https://cwe.mitre.org/data/definitions/338.html
+    confidence: MEDIUM
+    likelihood: MEDIUM
+    impact: MEDIUM
+    subcategory:
+    - vuln
+    technology:
+    - c
+    - cpp
+    source: Validated against NIST Juliet C/C++ Test Suite v1.3
+    remediation: Use a cryptographically secure generator (getrandom, BCryptGenRandom/CryptGenRandom,
+      RAND_bytes) instead of rand()/random().
+  patterns:
+  - pattern: $F(...)
+  - metavariable-regex:
+      metavariable: $F
+      regex: ^(rand|random|drand48|erand48|lrand48|nrand48|mrand48|jrand48|rand_r)$

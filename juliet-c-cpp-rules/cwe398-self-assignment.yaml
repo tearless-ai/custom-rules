@@ -1,0 +1,43 @@
+rules:
+- id: cwe398-self-assignment
+  languages:
+  - c
+  - cpp
+  paths:
+    include:
+    - '*.c'
+    - '*.h'
+    - '*.cpp'
+    - '*.cc'
+    - '*.cxx'
+    - '*.c++'
+    - '*.hpp'
+    - '*.hh'
+    - '*.hxx'
+    - '*.inc'
+  severity: WARNING
+  message: $X is assigned to itself, which has no effect.
+  metadata:
+    vulnerability_class: 7PK - Code Quality
+    help: |
+      ## Summary
+      `$X` is assigned to itself, which has no effect.
+
+      ## Remediation
+      Remove empty blocks and statements with no effect, or implement the intended logic.
+    category: correctness
+    cwe:
+    - 'CWE-398: 7PK - Code Quality'
+    references:
+    - https://cwe.mitre.org/data/definitions/398.html
+    confidence: HIGH
+    likelihood: MEDIUM
+    impact: MEDIUM
+    subcategory:
+    - vuln
+    technology:
+    - c
+    - cpp
+    source: Validated against NIST Juliet C/C++ Test Suite v1.3
+    remediation: Remove empty blocks and statements with no effect, or implement the intended logic.
+  pattern: $X = $X;

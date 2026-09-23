@@ -1,0 +1,65 @@
+rules:
+- id: cwe223-login-event-logged-without-identity
+  languages:
+  - c
+  - cpp
+  paths:
+    include:
+    - '*.c'
+    - '*.h'
+    - '*.cpp'
+    - '*.cc'
+    - '*.cxx'
+    - '*.c++'
+    - '*.hpp'
+    - '*.hh'
+    - '*.hxx'
+    - '*.inc'
+  severity: WARNING
+  message: This login attempt is logged without recording which user attempted it, which makes the audit
+    trail useless.
+  metadata:
+    vulnerability_class: Omission of Security-relevant Information
+    help: |
+      ## Summary
+      This login attempt is logged without recording which user attempted it, which makes the audit trail useless.
+
+      ## Remediation
+      Include all security-relevant details (who, what, when, outcome) in audit and log records.
+    category: security
+    cwe:
+    - 'CWE-223: Omission of Security-relevant Information'
+    references:
+    - https://cwe.mitre.org/data/definitions/223.html
+    confidence: LOW
+    likelihood: MEDIUM
+    impact: MEDIUM
+    subcategory:
+    - vuln
+    technology:
+    - c
+    - cpp
+    source: Validated against NIST Juliet C/C++ Test Suite v1.3
+    remediation: Include all security-relevant details (who, what, when, outcome) in audit and log records.
+  patterns:
+  - pattern-either:
+    - pattern: $LOG($STREAM, "$MSG")
+    - pattern: syslog($PRIO, "$MSG")
+  - metavariable-regex:
+      metavariable: $LOG
+      regex: ^(fprintf|fwprintf|fputs|fputws)$
+  - metavariable-regex:
+      metavariable: $MSG
+      regex: (?i)^.*(log ?in|logon|sign ?in|authenticat).*$
+  - pattern-either:
+    - pattern-inside: |
+        $LOG($STREAM, "$MSG");
+        ...
+        if (<... $LOGON($USER, ...) ...>) { ... } else { ... }
+    - pattern-inside: |
+        $LOG($STREAM, "$MSG");
+        ...
+        if (<... $LOGON($USER, ...) ...>) { ... }
+  - metavariable-regex:
+      metavariable: $LOGON
+      regex: ^(LogonUser|LogonUserA|LogonUserW|LogonUserExA|LogonUserExW|pam_authenticate)$

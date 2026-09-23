@@ -1,0 +1,60 @@
+rules:
+- id: cwe674-recursion-depth-bounded-only-by-argument
+  languages:
+  - c
+  - cpp
+  paths:
+    include:
+    - '*.c'
+    - '*.h'
+    - '*.cpp'
+    - '*.cc'
+    - '*.cxx'
+    - '*.c++'
+    - '*.hpp'
+    - '*.hh'
+    - '*.hxx'
+    - '*.inc'
+  severity: WARNING
+  message: The only base case of recursive function $F is '$P == 0' and there is no upper limit on $P,
+    yet $F is called with a huge depth, so recursion depth is effectively unbounded.
+  metadata:
+    vulnerability_class: Uncontrolled Recursion
+    help: |
+      ## Summary
+      The only base case of recursive function `$F` is '`$P` == 0' and there is no upper limit on `$P`, yet `$F` is called with a huge depth, so recursion depth is effectively unbounded.
+
+      ## Remediation
+      Bound recursion depth or replace recursion with iteration.
+    category: correctness
+    cwe:
+    - 'CWE-674: Uncontrolled Recursion'
+    references:
+    - https://cwe.mitre.org/data/definitions/674.html
+    confidence: MEDIUM
+    likelihood: MEDIUM
+    impact: MEDIUM
+    subcategory:
+    - vuln
+    technology:
+    - c
+    - cpp
+    source: Validated against NIST Juliet C/C++ Test Suite v1.3
+    remediation: Bound recursion depth or replace recursion with iteration.
+  patterns:
+  - pattern-inside: |
+      $R $F($T $P) { ... }
+      ...
+      $F($BIG);
+  - metavariable-regex:
+      metavariable: $BIG
+      regex: ^(UINT_MAX|ULONG_MAX|ULLONG_MAX|SIZE_MAX|INT_MAX|LONG_MAX|LLONG_MAX|0x[fF]{6,}[uUlL]*|[0-9]{7,}[uUlL]*)$
+  - pattern-inside: |
+      $R $F($T $P) { ... $F($P - 1); ... }
+  - pattern-not-inside: |
+      $R $F($T $P) { ... if ($P > $MAX) $S; ... }
+  - pattern-not-inside: |
+      $R $F($T $P) { ... if ($P >= $MAX) $S; ... }
+  - pattern-not-inside: |
+      $R $F($T $P) { ... if ($MAX < $P) $S; ... }
+  - pattern: if ($P == 0) $S;

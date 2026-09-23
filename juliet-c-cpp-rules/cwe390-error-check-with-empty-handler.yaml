@@ -1,0 +1,63 @@
+rules:
+- id: cwe390-error-check-with-empty-handler
+  languages:
+  - c
+  - cpp
+  paths:
+    include:
+    - '*.c'
+    - '*.h'
+    - '*.cpp'
+    - '*.cc'
+    - '*.cxx'
+    - '*.c++'
+    - '*.hpp'
+    - '*.hh'
+    - '*.hxx'
+    - '*.inc'
+  severity: WARNING
+  message: This error condition is detected but the handler is empty, so the failure is silently ignored.
+  metadata:
+    vulnerability_class: Detection of Error Condition Without Action
+    help: |
+      ## Summary
+      This error condition is detected but the handler is empty, so the failure is silently ignored.
+
+      ## Remediation
+      Handle detected errors: report, recover or abort instead of leaving the error branch empty.
+    category: security
+    cwe:
+    - 'CWE-390: Detection of Error Condition Without Action'
+    references:
+    - https://cwe.mitre.org/data/definitions/390.html
+    confidence: MEDIUM
+    likelihood: MEDIUM
+    impact: MEDIUM
+    subcategory:
+    - vuln
+    technology:
+    - c
+    - cpp
+    source: Validated against NIST Juliet C/C++ Test Suite v1.3
+    remediation: 'Handle detected errors: report, recover or abort instead of leaving the error branch
+      empty.'
+  patterns:
+  - pattern: if ($COND) {}
+  - pattern-not: if ($COND) {} else {...}
+  - metavariable-pattern:
+      metavariable: $COND
+      pattern-either:
+      - pattern: $X == NULL
+      - pattern: NULL == $X
+      - pattern: '!$X'
+      - pattern: $X == EOF
+      - pattern: $X == WEOF
+      - pattern: $X < 0
+      - pattern: $X == -1
+      - pattern: $X != 0
+      - pattern: $X == INVALID_HANDLE_VALUE
+      - pattern: $X == SOCKET_ERROR
+      - pattern: errno == $E
+      - pattern: errno != 0
+      - pattern: errno
+      - pattern: ferror($F)
