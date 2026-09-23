@@ -16,8 +16,7 @@ rules:
     - '*.hxx'
     - '*.inc'
   severity: ERROR
-  message: A short or char value from an untrusted source or a negative constant is passed as a size_t
-    length without a lower-bound check; a negative value is sign-extended into a huge size.
+  message: A short or char value from an untrusted source or a negative constant is passed as a size_t length without a lower-bound check; a negative value is sign-extended into a huge size.
   metadata:
     vulnerability_class: Unexpected Sign Extension
     help: |
@@ -40,8 +39,7 @@ rules:
     - c
     - cpp
     source: Validated against NIST Juliet C/C++ Test Suite v1.3
-    remediation: Validate that values are non-negative and in range before widening signed values to larger
-      or unsigned types.
+    remediation: Validate that values are non-negative and in range before widening signed values to larger or unsigned types.
   mode: taint
   options:
     constant_propagation: false

@@ -15,8 +15,7 @@ rules:
     - '*.hxx'
     - '*.inc'
   severity: ERROR
-  message: A helper initializes fewer buffer elements than a later loop reads, so the tail elements are
-    read uninitialized.
+  message: A helper initializes fewer buffer elements than a later loop reads, so the tail elements are read uninitialized.
   metadata:
     vulnerability_class: Use of Uninitialized Variable
     help: |

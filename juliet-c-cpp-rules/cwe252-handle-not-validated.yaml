@@ -39,8 +39,7 @@ rules:
     - c
     - cpp
     source: Validated against NIST Juliet C/C++ Test Suite v1.3
-    remediation: Check the return value of every call that can fail and handle the error before using
-      any output of the call.
+    remediation: Check the return value of every call that can fail and handle the error before using any output of the call.
   patterns:
   - pattern: $H = $CREATE(...);
   - metavariable-regex:

@@ -39,8 +39,7 @@ rules:
     - c
     - cpp
     source: Validated against NIST Juliet C/C++ Test Suite v1.3
-    remediation: Check that the divisor is non-zero (and not near zero for floating point) before dividing
-      or taking a modulus.
+    remediation: Check that the divisor is non-zero (and not near zero for floating point) before dividing or taking a modulus.
   patterns:
   - pattern-either:
     - pattern: $Y / $X

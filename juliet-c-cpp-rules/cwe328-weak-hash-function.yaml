@@ -39,8 +39,7 @@ rules:
     - c
     - cpp
     source: Validated against NIST Juliet C/C++ Test Suite v1.3
-    remediation: Replace MD5/SHA-1 for security uses with SHA-256 or stronger; use a password-hashing
-      function such as Argon2 or bcrypt for passwords.
+    remediation: Replace MD5/SHA-1 for security uses with SHA-256 or stronger; use a password-hashing function such as Argon2 or bcrypt for passwords.
   patterns:
   - pattern: $F(...)
   - metavariable-regex:

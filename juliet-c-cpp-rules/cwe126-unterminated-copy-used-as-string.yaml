@@ -16,8 +16,7 @@ rules:
     - '*.hxx'
     - '*.inc'
   severity: WARNING
-  message: A buffer filled by a bounded copy that does not add a null terminator is passed on without
-    being terminated, so readers of the string run past its end.
+  message: A buffer filled by a bounded copy that does not add a null terminator is passed on without being terminated, so readers of the string run past its end.
   metadata:
     vulnerability_class: Buffer Over-read
     help: |
@@ -40,8 +39,7 @@ rules:
     - c
     - cpp
     source: Validated against NIST Juliet C/C++ Test Suite v1.3
-    remediation: Bound reads by the source buffer's real size, ensure strings are NUL-terminated after
-      strncpy/memcpy, and validate indexes against the buffer length.
+    remediation: Bound reads by the source buffer's real size, ensure strings are NUL-terminated after strncpy/memcpy, and validate indexes against the buffer length.
   patterns:
   - pattern-either:
     - pattern-inside: |

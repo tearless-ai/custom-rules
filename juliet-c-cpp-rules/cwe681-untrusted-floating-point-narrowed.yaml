@@ -16,8 +16,7 @@ rules:
     - '*.hxx'
     - '*.inc'
   severity: ERROR
-  message: A floating-point value from untrusted input is converted to an integer or a narrower floating
-    type (directly or after sqrt) without a range / sign check, producing an undefined or wrong result.
+  message: A floating-point value from untrusted input is converted to an integer or a narrower floating type (directly or after sqrt) without a range / sign check, producing an undefined or wrong result.
   metadata:
     vulnerability_class: Incorrect Conversion between Numeric Types
     help: |

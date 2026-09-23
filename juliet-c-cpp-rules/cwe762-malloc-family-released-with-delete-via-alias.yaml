@@ -15,9 +15,7 @@ rules:
     - '*.hxx'
     - '*.inc'
   severity: ERROR
-  message: Memory obtained from malloc()/calloc()/realloc()/strdup() is released with delete or delete[];
-    it must be released with free(). The pointer reaches the release through a pointer, reference or union
-    alias.
+  message: Memory obtained from malloc()/calloc()/realloc()/strdup() is released with delete or delete[]; it must be released with free(). The pointer reaches the release through a pointer, reference or union alias.
   metadata:
     vulnerability_class: Mismatched Memory Management Routines
     help: |

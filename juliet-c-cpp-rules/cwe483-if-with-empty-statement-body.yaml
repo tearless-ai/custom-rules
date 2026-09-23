@@ -16,8 +16,7 @@ rules:
     - '*.hxx'
     - '*.inc'
   severity: ERROR
-  message: A stray semicolon right after the if condition makes the if body empty, so the following block
-    always executes.
+  message: A stray semicolon right after the if condition makes the if body empty, so the following block always executes.
   metadata:
     vulnerability_class: Incorrect Block Delimitation
     help: |
@@ -41,5 +40,4 @@ rules:
     - cpp
     source: Validated against NIST Juliet C/C++ Test Suite v1.3
     remediation: Always use braces for multi-statement if/else/loop bodies.
-  pattern-regex: (?m)^[ \t]*(?:else[ \t]+)?(?:if|while|for)[ \t]*\((?:[^()\n]|\((?:[^()\n]|\([^()\n]*\))*\))*\)[
-    \t]*;
+  pattern-regex: (?m)^[ \t]*(?:else[ \t]+)?(?:if|while|for)[ \t]*\((?:[^()\n]|\((?:[^()\n]|\([^()\n]*\))*\))*\)[ \t]*;

@@ -16,8 +16,7 @@ rules:
     - '*.hxx'
     - '*.inc'
   severity: WARNING
-  message: Behaviour depends on the peer matching the hard-coded host or address $LIT, which is a classic
-    trapdoor.
+  message: Behaviour depends on the peer matching the hard-coded host or address $LIT, which is a classic trapdoor.
   metadata:
     vulnerability_class: Trapdoor
     help: |
@@ -40,8 +39,7 @@ rules:
     - c
     - cpp
     source: Validated against NIST Juliet C/C++ Test Suite v1.3
-    remediation: Remove hard-coded backdoor credentials and hidden network listeners; authenticate every
-      user through the normal path.
+    remediation: Remove hard-coded backdoor credentials and hidden network listeners; authenticate every user through the normal path.
   patterns:
   - pattern-either:
     - pattern: $CMP($LIT, $X) == 0

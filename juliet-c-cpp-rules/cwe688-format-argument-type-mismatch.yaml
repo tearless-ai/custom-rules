@@ -16,8 +16,7 @@ rules:
     - '*.hxx'
     - '*.inc'
   severity: ERROR
-  message: The argument $A has type an incompatible type, which does not match the conversion specifier
-    in the format string; this is undefined behavior.
+  message: The argument $A has type an incompatible type, which does not match the conversion specifier in the format string; this is undefined behavior.
   metadata:
     vulnerability_class: Function Call With Incorrect Variable or Reference as Argument
     help: |
@@ -40,8 +39,7 @@ rules:
     - c
     - cpp
     source: Validated against NIST Juliet C/C++ Test Suite v1.3
-    remediation: Pass the intended variable to each argument, matching the types the format string or
-      API expects.
+    remediation: Pass the intended variable to each argument, matching the types the format string or API expects.
   patterns:
   - pattern-either:
     - patterns:

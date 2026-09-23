@@ -16,8 +16,7 @@ rules:
     - '*.hxx'
     - '*.inc'
   severity: ERROR
-  message: The number of conversion specifiers in the format string does not match the number of arguments
-    passed, which is undefined behavior.
+  message: The number of conversion specifiers in the format string does not match the number of arguments passed, which is undefined behavior.
   metadata:
     vulnerability_class: Function Call With Incorrect Number of Arguments
     help: |

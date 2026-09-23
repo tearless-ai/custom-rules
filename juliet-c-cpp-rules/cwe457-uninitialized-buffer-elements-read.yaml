@@ -16,8 +16,7 @@ rules:
     - '*.hxx'
     - '*.inc'
   severity: ERROR
-  message: Elements of a heap, stack or alloca buffer are read, but no element of the buffer is ever written
-    in the function, so uninitialized memory is used.
+  message: Elements of a heap, stack or alloca buffer are read, but no element of the buffer is ever written in the function, so uninitialized memory is used.
   metadata:
     vulnerability_class: Use of Uninitialized Variable
     help: |

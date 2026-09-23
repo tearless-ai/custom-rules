@@ -16,8 +16,7 @@ rules:
     - '*.hxx'
     - '*.inc'
   severity: ERROR
-  message: The string literal in $P is base64-decoded at run time and then executed, which hides the real
-    command from reviewers.
+  message: The string literal in $P is base64-decoded at run time and then executed, which hides the real command from reviewers.
   metadata:
     vulnerability_class: Embedded Malicious Code
     help: |
@@ -40,8 +39,7 @@ rules:
     - c
     - cpp
     source: Validated against NIST Juliet C/C++ Test Suite v1.3
-    remediation: Remove hidden functionality that deletes, modifies or exfiltrates data or executes encoded
-      commands.
+    remediation: Remove hidden functionality that deletes, modifies or exfiltrates data or executes encoded commands.
   patterns:
   - pattern: $T $P = $LIT;
   - metavariable-regex:

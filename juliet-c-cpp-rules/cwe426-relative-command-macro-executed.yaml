@@ -16,8 +16,7 @@ rules:
     - '*.hxx'
     - '*.inc'
   severity: WARNING
-  message: A command macro whose value has no absolute path is copied into a buffer and executed with
-    $EXEC(), so the program that actually runs is chosen through the search path.
+  message: A command macro whose value has no absolute path is copied into a buffer and executed with $EXEC(), so the program that actually runs is chosen through the search path.
   metadata:
     vulnerability_class: Untrusted Search Path
     help: |

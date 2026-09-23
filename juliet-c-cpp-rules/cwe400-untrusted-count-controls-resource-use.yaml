@@ -16,8 +16,7 @@ rules:
     - '*.hxx'
     - '*.inc'
   severity: ERROR
-  message: A count from an untrusted source controls a sleep duration or a loop without an upper bound,
-    allowing resource exhaustion.
+  message: A count from an untrusted source controls a sleep duration or a loop without an upper bound, allowing resource exhaustion.
   metadata:
     vulnerability_class: Uncontrolled Resource Consumption
     help: |
@@ -40,8 +39,7 @@ rules:
     - c
     - cpp
     source: Validated against NIST Juliet C/C++ Test Suite v1.3
-    remediation: Bound resource usage driven by external input (loop counts, sleep durations, allocation
-      sizes) with explicit limits.
+    remediation: Bound resource usage driven by external input (loop counts, sleep durations, allocation sizes) with explicit limits.
   mode: taint
   options:
     constant_propagation: false

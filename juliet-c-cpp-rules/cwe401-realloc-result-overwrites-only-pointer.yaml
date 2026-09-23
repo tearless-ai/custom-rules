@@ -16,8 +16,7 @@ rules:
     - '*.hxx'
     - '*.inc'
   severity: ERROR
-  message: If realloc() fails it returns NULL and the original block pointed to by $X is leaked; assign
-    the result to a temporary first.
+  message: If realloc() fails it returns NULL and the original block pointed to by $X is leaked; assign the result to a temporary first.
   metadata:
     vulnerability_class: Missing Release of Memory after Effective Lifetime
     help: |
@@ -40,8 +39,7 @@ rules:
     - c
     - cpp
     source: Validated against NIST Juliet C/C++ Test Suite v1.3
-    remediation: Free every allocation on every path once it is no longer needed, or use RAII (smart pointers,
-      containers) in C++.
+    remediation: Free every allocation on every path once it is no longer needed, or use RAII (smart pointers, containers) in C++.
   patterns:
   - pattern-either:
     - pattern: $X = realloc($X, $SZ);

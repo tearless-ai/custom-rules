@@ -16,8 +16,7 @@ rules:
     - '*.hxx'
     - '*.inc'
   severity: WARNING
-  message: This assertion depends on a value that comes from an external or random source, so an attacker
-    or bad input can trigger it and abort the program.
+  message: This assertion depends on a value that comes from an external or random source, so an attacker or bad input can trigger it and abort the program.
   metadata:
     vulnerability_class: Reachable Assertion
     help: |
@@ -40,8 +39,7 @@ rules:
     - c
     - cpp
     source: Validated against NIST Juliet C/C++ Test Suite v1.3
-    remediation: Do not assert on conditions that external input can violate; validate input and handle
-      errors explicitly.
+    remediation: Do not assert on conditions that external input can violate; validate input and handle errors explicitly.
   mode: taint
   pattern-sources:
   - pattern: rand()

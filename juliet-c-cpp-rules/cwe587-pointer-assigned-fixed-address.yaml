@@ -16,8 +16,7 @@ rules:
     - '*.hxx'
     - '*.inc'
   severity: WARNING
-  message: A pointer is assigned a hard-coded non-null numeric address, which is not portable and may
-    point at unmapped or attacker-controlled memory.
+  message: A pointer is assigned a hard-coded non-null numeric address, which is not portable and may point at unmapped or attacker-controlled memory.
   metadata:
     vulnerability_class: Assignment of a Fixed Address to a Pointer
     help: |
@@ -40,8 +39,7 @@ rules:
     - c
     - cpp
     source: Validated against NIST Juliet C/C++ Test Suite v1.3
-    remediation: Do not assign fixed numeric addresses to pointers; obtain addresses from allocations
-      or objects.
+    remediation: Do not assign fixed numeric addresses to pointers; obtain addresses from allocations or objects.
   patterns:
   - pattern-either:
     - pattern: $T * $P = ($CT) $ADDR;

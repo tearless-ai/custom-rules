@@ -16,8 +16,7 @@ rules:
     - '*.hxx'
     - '*.inc'
   severity: ERROR
-  message: A pointer returned by an allocation or file-open function, which can be NULL, is dereferenced
-    without first being checked for NULL.
+  message: A pointer returned by an allocation or file-open function, which can be NULL, is dereferenced without first being checked for NULL.
   metadata:
     vulnerability_class: Unchecked Return Value to NULL Pointer Dereference
     help: |
@@ -40,8 +39,7 @@ rules:
     - c
     - cpp
     source: Validated against NIST Juliet C/C++ Test Suite v1.3
-    remediation: Check the return value of allocation and lookup functions for NULL before dereferencing
-      it.
+    remediation: Check the return value of allocation and lookup functions for NULL before dereferencing it.
   mode: taint
   pattern-sources:
   - patterns:

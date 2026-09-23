@@ -15,8 +15,7 @@ rules:
     - '*.hxx'
     - '*.inc'
   severity: ERROR
-  message: A newly allocated buffer is passed to a helper that never writes its elements, and the elements
-    are then read uninitialized.
+  message: A newly allocated buffer is passed to a helper that never writes its elements, and the elements are then read uninitialized.
   metadata:
     vulnerability_class: Use of Uninitialized Variable
     help: |

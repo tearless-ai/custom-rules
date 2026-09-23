@@ -16,8 +16,7 @@ rules:
     - '*.hxx'
     - '*.inc'
   severity: WARNING
-  message: A character converted from external input is stored into a character buffer without checking
-    for a string terminator, so input can insert a premature data-structure sentinel.
+  message: A character converted from external input is stored into a character buffer without checking for a string terminator, so input can insert a premature data-structure sentinel.
   metadata:
     vulnerability_class: Addition of Data Structure Sentinel
     help: |
@@ -40,8 +39,7 @@ rules:
     - c
     - cpp
     source: Validated against NIST Juliet C/C++ Test Suite v1.3
-    remediation: Do not insert sentinel values such as NUL into data structures where they can truncate
-      or corrupt the data.
+    remediation: Do not insert sentinel values such as NUL into data structures where they can truncate or corrupt the data.
   mode: taint
   pattern-sources:
   - patterns:

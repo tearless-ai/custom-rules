@@ -16,8 +16,7 @@ rules:
     - '*.hxx'
     - '*.inc'
   severity: ERROR
-  message: A path manipulation function that assumes a MAX_PATH-sized output buffer is given a buffer
-    declared smaller than MAX_PATH, so the resulting path can overflow it.
+  message: A path manipulation function that assumes a MAX_PATH-sized output buffer is given a buffer declared smaller than MAX_PATH, so the resulting path can overflow it.
   metadata:
     vulnerability_class: Use of Path Manipulation Function without Maximum-sized Buffer
     help: |
@@ -40,8 +39,7 @@ rules:
     - c
     - cpp
     source: Validated against NIST Juliet C/C++ Test Suite v1.3
-    remediation: Pass path-manipulation functions a buffer of at least MAX_PATH/PATH_MAX characters, or
-      use size-aware variants.
+    remediation: Pass path-manipulation functions a buffer of at least MAX_PATH/PATH_MAX characters, or use size-aware variants.
   patterns:
   - pattern-inside: |
       $T $BUF[$SIZE];

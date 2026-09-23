@@ -15,8 +15,7 @@ rules:
     - '*.hxx'
     - '*.inc'
   severity: ERROR
-  message: This function receives freshly allocated heap memory from its caller in this file but never
-    releases or hands it off.
+  message: This function receives freshly allocated heap memory from its caller in this file but never releases or hands it off.
   metadata:
     vulnerability_class: Missing Release of Memory after Effective Lifetime
     help: |
@@ -39,8 +38,7 @@ rules:
     - c
     - cpp
     source: Validated against NIST Juliet C/C++ Test Suite v1.3
-    remediation: Free every allocation on every path once it is no longer needed, or use RAII (smart pointers,
-      containers) in C++.
+    remediation: Free every allocation on every path once it is no longer needed, or use RAII (smart pointers, containers) in C++.
   options:
     constant_propagation: false
   patterns:

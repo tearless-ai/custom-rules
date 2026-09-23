@@ -16,8 +16,7 @@ rules:
     - '*.hxx'
     - '*.inc'
   severity: ERROR
-  message: An unsigned integer that is always zero at this point is decremented or has a value subtracted
-    from it, which wraps around to a huge value.
+  message: An unsigned integer that is always zero at this point is decremented or has a value subtracted from it, which wraps around to a huge value.
   metadata:
     vulnerability_class: Integer Underflow (Wrap or Wraparound)
     help: |
@@ -40,8 +39,7 @@ rules:
     - c
     - cpp
     source: Validated against NIST Juliet C/C++ Test Suite v1.3
-    remediation: Check operands against the type's minimum before subtraction or decrement, or use checked-arithmetic
-      builtins such as __builtin_sub_overflow.
+    remediation: Check operands against the type's minimum before subtraction or decrement, or use checked-arithmetic builtins such as __builtin_sub_overflow.
   patterns:
   - pattern-either:
     - pattern: $X - $Y

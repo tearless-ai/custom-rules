@@ -16,8 +16,7 @@ rules:
     - '*.hxx'
     - '*.inc'
   severity: WARNING
-  message: A scalar stored in a union is modified through an overlapping structure of smaller fields,
-    which depends on byte order and layout.
+  message: A scalar stored in a union is modified through an overlapping structure of smaller fields, which depends on byte order and layout.
   metadata:
     vulnerability_class: Reliance on Data/Memory Layout
     help: |
@@ -40,8 +39,7 @@ rules:
     - c
     - cpp
     source: Validated against NIST Juliet C/C++ Test Suite v1.3
-    remediation: Access struct and union members by name; do not rely on member offsets, padding or layout
-      via pointer arithmetic.
+    remediation: Access struct and union members by name; do not rely on member offsets, padding or layout via pointer arithmetic.
   patterns:
   - pattern-inside: |
       $U.$SCALAR = $V;

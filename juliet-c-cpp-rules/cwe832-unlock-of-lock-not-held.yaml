@@ -16,8 +16,7 @@ rules:
     - '*.hxx'
     - '*.inc'
   severity: ERROR
-  message: A lock is released on a path where it was never acquired (or was already released), which is
-    undefined behavior for most mutex implementations.
+  message: A lock is released on a path where it was never acquired (or was already released), which is undefined behavior for most mutex implementations.
   metadata:
     vulnerability_class: Unlock of a Resource that is not Locked
     help: |

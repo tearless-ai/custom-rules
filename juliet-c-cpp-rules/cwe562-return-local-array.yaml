@@ -16,8 +16,7 @@ rules:
     - '*.hxx'
     - '*.inc'
   severity: ERROR
-  message: The function returns the address of a local (stack) array, which is invalid as soon as the
-    function returns.
+  message: The function returns the address of a local (stack) array, which is invalid as soon as the function returns.
   metadata:
     vulnerability_class: Return of Stack Variable Address
     help: |
@@ -40,8 +39,7 @@ rules:
     - c
     - cpp
     source: Validated against NIST Juliet C/C++ Test Suite v1.3
-    remediation: Never return the address of a local (stack) variable; return a value, a heap allocation
-      or use a caller-supplied buffer.
+    remediation: Never return the address of a local (stack) variable; return a value, a heap allocation or use a caller-supplied buffer.
   patterns:
   - pattern-either:
     - pattern-inside: |

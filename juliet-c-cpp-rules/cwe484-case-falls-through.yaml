@@ -16,8 +16,7 @@ rules:
     - '*.hxx'
     - '*.inc'
   severity: WARNING
-  message: This case label executes statements and then falls through into the next case without a break,
-    return, or other jump.
+  message: This case label executes statements and then falls through into the next case without a break, return, or other jump.
   metadata:
     vulnerability_class: Omitted Break Statement in Switch
     help: |
@@ -40,7 +39,5 @@ rules:
     - c
     - cpp
     source: Validated against NIST Juliet C/C++ Test Suite v1.3
-    remediation: End every case with break (or an explicit fallthrough annotation) to avoid unintended
-      fall-through.
-  pattern-regex: (?m)^[ \t]*case\b[^:\n]*:[ \t]*\r?\n(?:(?![ \t]*(?:break|return|goto|continue|throw|exit|abort|case\b|default\b|[{}]|/\*.*fall|//.*fall))[^\n]*\n){1,20}?(?=[
-    \t]*(?:case\b[^:\n]*|default[ \t]*):)
+    remediation: End every case with break (or an explicit fallthrough annotation) to avoid unintended fall-through.
+  pattern-regex: (?m)^[ \t]*case\b[^:\n]*:[ \t]*\r?\n(?:(?![ \t]*(?:break|return|goto|continue|throw|exit|abort|case\b|default\b|[{}]|/\*.*fall|//.*fall))[^\n]*\n){1,20}?(?=[ \t]*(?:case\b[^:\n]*|default[ \t]*):)

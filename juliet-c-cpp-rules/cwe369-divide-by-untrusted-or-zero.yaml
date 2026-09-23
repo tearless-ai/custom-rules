@@ -16,8 +16,7 @@ rules:
     - '*.hxx'
     - '*.inc'
   severity: ERROR
-  message: A divisor that comes from an untrusted source or is zero is used in a division or modulo without
-    a check that it is non-zero.
+  message: A divisor that comes from an untrusted source or is zero is used in a division or modulo without a check that it is non-zero.
   metadata:
     vulnerability_class: Divide By Zero
     help: |
@@ -40,8 +39,7 @@ rules:
     - c
     - cpp
     source: Validated against NIST Juliet C/C++ Test Suite v1.3
-    remediation: Check that the divisor is non-zero (and not near zero for floating point) before dividing
-      or taking a modulus.
+    remediation: Check that the divisor is non-zero (and not near zero for floating point) before dividing or taking a modulus.
   mode: taint
   options:
     constant_propagation: false

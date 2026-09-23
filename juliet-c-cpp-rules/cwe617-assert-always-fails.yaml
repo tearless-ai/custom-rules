@@ -39,8 +39,7 @@ rules:
     - c
     - cpp
     source: Validated against NIST Juliet C/C++ Test Suite v1.3
-    remediation: Do not assert on conditions that external input can violate; validate input and handle
-      errors explicitly.
+    remediation: Do not assert on conditions that external input can violate; validate input and handle errors explicitly.
   pattern-either:
   - pattern: assert(0)
   - pattern: assert(false)

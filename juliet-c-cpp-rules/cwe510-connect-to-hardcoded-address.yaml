@@ -39,8 +39,7 @@ rules:
     - c
     - cpp
     source: Validated against NIST Juliet C/C++ Test Suite v1.3
-    remediation: Remove hard-coded backdoor credentials and hidden network listeners; authenticate every
-      user through the normal path.
+    remediation: Remove hard-coded backdoor credentials and hidden network listeners; authenticate every user through the normal path.
   patterns:
   - pattern: connect(...)
   - pattern-either:

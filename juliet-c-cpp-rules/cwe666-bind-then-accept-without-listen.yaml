@@ -16,8 +16,7 @@ rules:
     - '*.hxx'
     - '*.inc'
   severity: ERROR
-  message: The socket is bound and then passed to accept() without calling listen() in between, so the
-    accept() fails.
+  message: The socket is bound and then passed to accept() without calling listen() in between, so the accept() fails.
   metadata:
     vulnerability_class: Operation on Resource in Wrong Phase of Lifetime
     help: |
@@ -40,8 +39,7 @@ rules:
     - c
     - cpp
     source: Validated against NIST Juliet C/C++ Test Suite v1.3
-    remediation: Only operate on resources that are in the correct lifecycle state (e.g. do not use a
-      handle before it is opened).
+    remediation: Only operate on resources that are in the correct lifecycle state (e.g. do not use a handle before it is opened).
   patterns:
   - pattern-either:
     - pattern: |

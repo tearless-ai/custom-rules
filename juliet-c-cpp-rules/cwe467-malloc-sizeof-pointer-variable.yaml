@@ -16,8 +16,7 @@ rules:
     - '*.hxx'
     - '*.inc'
   severity: ERROR
-  message: The allocation size is sizeof() of the pointer variable that receives the allocation rather
-    than of the pointed-to type, so only pointer-size bytes are allocated.
+  message: The allocation size is sizeof() of the pointer variable that receives the allocation rather than of the pointed-to type, so only pointer-size bytes are allocated.
   metadata:
     vulnerability_class: Use of sizeof() on a Pointer Type
     help: |

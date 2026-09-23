@@ -16,8 +16,7 @@ rules:
     - '*.hxx'
     - '*.inc'
   severity: ERROR
-  message: $DEL() destroys data only when a date, random-number or counter trigger fires, which is the
-    signature of a logic bomb.
+  message: $DEL() destroys data only when a date, random-number or counter trigger fires, which is the signature of a logic bomb.
   metadata:
     vulnerability_class: Logic/Time Bomb
     help: |

@@ -16,8 +16,7 @@ rules:
     - '*.hxx'
     - '*.inc'
   severity: ERROR
-  message: Data is copied out of a buffer using the length of a larger destination buffer, which reads
-    past the end of the smaller source buffer.
+  message: Data is copied out of a buffer using the length of a larger destination buffer, which reads past the end of the smaller source buffer.
   metadata:
     vulnerability_class: Buffer Over-read
     help: |
@@ -40,8 +39,7 @@ rules:
     - c
     - cpp
     source: Validated against NIST Juliet C/C++ Test Suite v1.3
-    remediation: Bound reads by the source buffer's real size, ensure strings are NUL-terminated after
-      strncpy/memcpy, and validate indexes against the buffer length.
+    remediation: Bound reads by the source buffer's real size, ensure strings are NUL-terminated after strncpy/memcpy, and validate indexes against the buffer length.
   mode: taint
   options:
     taint_unify_mvars: true

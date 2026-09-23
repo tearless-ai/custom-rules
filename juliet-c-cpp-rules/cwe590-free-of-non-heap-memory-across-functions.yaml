@@ -16,9 +16,7 @@ rules:
     - '*.hxx'
     - '*.inc'
   severity: ERROR
-  message: A pointer to stack, static or alloca() memory is released with free(); only memory obtained
-    from the matching heap allocator may be released. The non-heap memory is created in a different function
-    of the same file.
+  message: A pointer to stack, static or alloca() memory is released with free(); only memory obtained from the matching heap allocator may be released. The non-heap memory is created in a different function of the same file.
   metadata:
     vulnerability_class: Free of Memory not on the Heap
     help: |
@@ -41,8 +39,7 @@ rules:
     - c
     - cpp
     source: Validated against NIST Juliet C/C++ Test Suite v1.3
-    remediation: Only free memory that was allocated on the heap; never free stack arrays, static data
-      or string literals.
+    remediation: Only free memory that was allocated on the heap; never free stack arrays, static data or string literals.
   pattern-either:
   - patterns:
     - pattern-inside: |

@@ -15,8 +15,7 @@ rules:
     - '*.hxx'
     - '*.inc'
   severity: ERROR
-  message: Memory obtained from new[] is released with scalar delete or free(); it must be released with
-    delete[].
+  message: Memory obtained from new[] is released with scalar delete or free(); it must be released with delete[].
   metadata:
     vulnerability_class: Mismatched Memory Management Routines
     help: |

@@ -16,8 +16,7 @@ rules:
     - '*.hxx'
     - '*.inc'
   severity: ERROR
-  message: Memory is allocated with a size derived from an untrusted source without an upper bound, allowing
-    excessive allocation.
+  message: Memory is allocated with a size derived from an untrusted source without an upper bound, allowing excessive allocation.
   metadata:
     vulnerability_class: Memory Allocation with Excessive Size Value
     help: |

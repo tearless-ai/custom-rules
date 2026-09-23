@@ -16,8 +16,7 @@ rules:
     - '*.hxx'
     - '*.inc'
   severity: WARNING
-  message: CryptEncrypt() is used with an RSA key but without the CRYPT_OAEP flag, so PKCS#1 v1.5 padding
-    is used.
+  message: CryptEncrypt() is used with an RSA key but without the CRYPT_OAEP flag, so PKCS#1 v1.5 padding is used.
   metadata:
     vulnerability_class: Use of RSA Algorithm without OAEP
     help: |

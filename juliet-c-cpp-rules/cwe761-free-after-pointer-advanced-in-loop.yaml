@@ -16,8 +16,7 @@ rules:
     - '*.hxx'
     - '*.inc'
   severity: ERROR
-  message: Pointer $P is advanced by this loop and later passed to free() without being reset, so free()
-    does not receive the start of the allocated block.
+  message: Pointer $P is advanced by this loop and later passed to free() without being reset, so free() does not receive the start of the allocated block.
   metadata:
     vulnerability_class: Free of Pointer not at Start of Buffer
     help: |
@@ -40,8 +39,7 @@ rules:
     - c
     - cpp
     source: Validated against NIST Juliet C/C++ Test Suite v1.3
-    remediation: Free only the original pointer returned by the allocator; keep a separate pointer for
-      iteration.
+    remediation: Free only the original pointer returned by the allocator; keep a separate pointer for iteration.
   patterns:
   - pattern-either:
     - pattern-inside: |

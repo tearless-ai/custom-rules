@@ -16,8 +16,7 @@ rules:
     - '*.hxx'
     - '*.inc'
   severity: ERROR
-  message: The condition assigns the constant $V to $X instead of comparing with it; this was almost certainly
-    meant to be '=='.
+  message: The condition assigns the constant $V to $X instead of comparing with it; this was almost certainly meant to be '=='.
   metadata:
     vulnerability_class: Assigning instead of Comparing
     help: |

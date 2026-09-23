@@ -16,8 +16,7 @@ rules:
     - '*.hxx'
     - '*.inc'
   severity: ERROR
-  message: $F() cannot limit the amount of input it reads and always risks a buffer overflow; use fgets()
-    instead.
+  message: $F() cannot limit the amount of input it reads and always risks a buffer overflow; use fgets() instead.
   metadata:
     vulnerability_class: Use of Inherently Dangerous Function
     help: |
@@ -40,8 +39,7 @@ rules:
     - c
     - cpp
     source: Validated against NIST Juliet C/C++ Test Suite v1.3
-    remediation: Replace inherently dangerous functions such as gets() with bounded alternatives such
-      as fgets().
+    remediation: Replace inherently dangerous functions such as gets() with bounded alternatives such as fgets().
   patterns:
   - pattern: $F(...)
   - metavariable-regex:

@@ -16,8 +16,7 @@ rules:
     - '*.hxx'
     - '*.inc'
   severity: WARNING
-  message: This expression statement computes a value that is discarded and has no side effect, so it
-    does nothing.
+  message: This expression statement computes a value that is discarded and has no side effect, so it does nothing.
   metadata:
     vulnerability_class: 7PK - Code Quality
     help: |

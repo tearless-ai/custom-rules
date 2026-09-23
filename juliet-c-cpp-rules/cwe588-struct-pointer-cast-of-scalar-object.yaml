@@ -16,8 +16,7 @@ rules:
     - '*.hxx'
     - '*.inc'
   severity: ERROR
-  message: A pointer that refers to a scalar object is cast to a structure or class pointer, so member
-    accesses read or write memory outside the object.
+  message: A pointer that refers to a scalar object is cast to a structure or class pointer, so member accesses read or write memory outside the object.
   metadata:
     vulnerability_class: Attempt to Access Child of a Non-structure Pointer
     help: |

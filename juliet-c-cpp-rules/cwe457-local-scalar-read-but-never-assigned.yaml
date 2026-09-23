@@ -15,8 +15,7 @@ rules:
     - '*.hxx'
     - '*.inc'
   severity: ERROR
-  message: A local variable declared without an initializer is read, but it is never assigned anywhere
-    in the function, so its indeterminate value is used.
+  message: A local variable declared without an initializer is read, but it is never assigned anywhere in the function, so its indeterminate value is used.
   metadata:
     vulnerability_class: Use of Uninitialized Variable
     help: |

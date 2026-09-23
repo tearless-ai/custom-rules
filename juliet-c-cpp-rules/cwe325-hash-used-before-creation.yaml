@@ -16,8 +16,7 @@ rules:
     - '*.hxx'
     - '*.inc'
   severity: WARNING
-  message: The hash handle $H is used by CryptHashData() but CryptCreateHash() was never called to create
-    it.
+  message: The hash handle $H is used by CryptHashData() but CryptCreateHash() was never called to create it.
   metadata:
     vulnerability_class: Missing Cryptographic Step
     help: |
@@ -40,8 +39,7 @@ rules:
     - c
     - cpp
     source: Validated against NIST Juliet C/C++ Test Suite v1.3
-    remediation: Perform every required cryptographic step (e.g. hash the key material, call CryptEncrypt/CryptHashData)
-      before using the result.
+    remediation: Perform every required cryptographic step (e.g. hash the key material, call CryptEncrypt/CryptHashData) before using the result.
   patterns:
   - pattern: CryptHashData($H, ...)
   - pattern-either:

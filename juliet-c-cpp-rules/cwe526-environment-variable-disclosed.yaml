@@ -16,8 +16,7 @@ rules:
     - '*.hxx'
     - '*.inc'
   severity: WARNING
-  message: The value of an environment variable is written straight to output by $OUT(), which can disclose
-    system configuration.
+  message: The value of an environment variable is written straight to output by $OUT(), which can disclose system configuration.
   metadata:
     vulnerability_class: Exposure of Sensitive Information Through Environmental Variables
     help: |
@@ -40,8 +39,7 @@ rules:
     - c
     - cpp
     source: Validated against NIST Juliet C/C++ Test Suite v1.3
-    remediation: Do not expose environment variables in output or logs; they can contain secrets and configuration
-      details.
+    remediation: Do not expose environment variables in output or logs; they can contain secrets and configuration details.
   patterns:
   - pattern-either:
     - pattern: $OUT(..., getenv($V), ...)

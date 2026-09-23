@@ -16,8 +16,7 @@ rules:
     - '*.hxx'
     - '*.inc'
   severity: WARNING
-  message: $EXEC() runs a command given without an absolute path, so the program that actually runs is
-    chosen through the search path, which an attacker may control.
+  message: $EXEC() runs a command given without an absolute path, so the program that actually runs is chosen through the search path, which an attacker may control.
   metadata:
     vulnerability_class: Untrusted Search Path
     help: |

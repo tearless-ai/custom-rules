@@ -16,8 +16,7 @@ rules:
     - '*.hxx'
     - '*.inc'
   severity: WARNING
-  message: This switch statement ends without a default case, so values not covered by the case labels
-    are silently ignored.
+  message: This switch statement ends without a default case, so values not covered by the case labels are silently ignored.
   metadata:
     vulnerability_class: Missing Default Case in Multiple Condition Expression
     help: |

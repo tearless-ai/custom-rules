@@ -16,8 +16,7 @@ rules:
     - '*.hxx'
     - '*.inc'
   severity: ERROR
-  message: An integer from an untrusted or unbounded source (input, socket, file, rand, or a type minimum)
-    is decremented, subtracted from, or multiplied without a lower-bound check, which can underflow.
+  message: An integer from an untrusted or unbounded source (input, socket, file, rand, or a type minimum) is decremented, subtracted from, or multiplied without a lower-bound check, which can underflow.
   metadata:
     vulnerability_class: Integer Underflow (Wrap or Wraparound)
     help: |
@@ -40,8 +39,7 @@ rules:
     - c
     - cpp
     source: Validated against NIST Juliet C/C++ Test Suite v1.3
-    remediation: Check operands against the type's minimum before subtraction or decrement, or use checked-arithmetic
-      builtins such as __builtin_sub_overflow.
+    remediation: Check operands against the type's minimum before subtraction or decrement, or use checked-arithmetic builtins such as __builtin_sub_overflow.
   mode: taint
   options:
     constant_propagation: false

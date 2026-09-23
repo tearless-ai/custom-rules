@@ -16,8 +16,7 @@ rules:
     - '*.hxx'
     - '*.inc'
   severity: ERROR
-  message: This loop condition is always true and the loop body contains no break, return, goto, or exit,
-    so the loop never terminates.
+  message: This loop condition is always true and the loop body contains no break, return, goto, or exit, so the loop never terminates.
   metadata:
     vulnerability_class: Loop with Unreachable Exit Condition ('Infinite Loop')
     help: |

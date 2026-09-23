@@ -16,8 +16,7 @@ rules:
     - '*.hxx'
     - '*.inc'
   severity: ERROR
-  message: A loop bound parsed from untrusted input (console, file, socket, or environment) is used without
-    an upper-bound check.
+  message: A loop bound parsed from untrusted input (console, file, socket, or environment) is used without an upper-bound check.
   metadata:
     vulnerability_class: Unchecked Input for Loop Condition
     help: |
@@ -165,13 +164,11 @@ rules:
     - pattern: $SRCF(..., $A, ...)
     - focus-metavariable: $A
   - patterns:
-    - pattern-inside: $R $F(...) { ... $T &$REF = $V; ... if (<... fgets(<... $V ...>, ...) ...>) { ...
-        } ... }
+    - pattern-inside: $R $F(...) { ... $T &$REF = $V; ... if (<... fgets(<... $V ...>, ...) ...>) { ... } ... }
     - pattern: $REF
   - patterns:
     - pattern-inside: $R $F(...) { ... $T *$P2 = &$D; ... }
-    - pattern-inside: $R $F(...) { ... $T *$P1 = &$D; ... if (<... fgets(<... $V ...>, ...) ...>) { ...
-        } ... *$P1 = $V; ... }
+    - pattern-inside: $R $F(...) { ... $T *$P1 = &$D; ... if (<... fgets(<... $V ...>, ...) ...>) { ... } ... *$P1 = $V; ... }
     - metavariable-comparison:
         comparison: str($P1) != str($P2)
     - pattern: '*$P2'
@@ -247,13 +244,11 @@ rules:
     - pattern: $SRCF(..., $A, ...)
     - focus-metavariable: $A
   - patterns:
-    - pattern-inside: $R $F(...) { ... $T &$REF = $V; ... if (<... fgetws(<... $V ...>, ...) ...>) { ...
-        } ... }
+    - pattern-inside: $R $F(...) { ... $T &$REF = $V; ... if (<... fgetws(<... $V ...>, ...) ...>) { ... } ... }
     - pattern: $REF
   - patterns:
     - pattern-inside: $R $F(...) { ... $T *$P2 = &$D; ... }
-    - pattern-inside: $R $F(...) { ... $T *$P1 = &$D; ... if (<... fgetws(<... $V ...>, ...) ...>) { ...
-        } ... *$P1 = $V; ... }
+    - pattern-inside: $R $F(...) { ... $T *$P1 = &$D; ... if (<... fgetws(<... $V ...>, ...) ...>) { ... } ... *$P1 = $V; ... }
     - metavariable-comparison:
         comparison: str($P1) != str($P2)
     - pattern: '*$P2'
@@ -333,8 +328,7 @@ rules:
     - pattern: $REF
   - patterns:
     - pattern-inside: $R $F(...) { ... $T *$P2 = &$D; ... }
-    - pattern-inside: $R $F(...) { ... $T *$P1 = &$D; ... $RR = recv($SOCK, <... $V ...>, ...); ... *$P1
-        = $V; ... }
+    - pattern-inside: $R $F(...) { ... $T *$P1 = &$D; ... $RR = recv($SOCK, <... $V ...>, ...); ... *$P1 = $V; ... }
     - metavariable-comparison:
         comparison: str($P1) != str($P2)
     - pattern: '*$P2'
@@ -410,13 +404,11 @@ rules:
     - pattern: $SRCF(..., $A, ...)
     - focus-metavariable: $A
   - patterns:
-    - pattern-inside: $R $F(...) { ... $T &$REF = $V; ... $RR = recvfrom($SOCK, <... $V ...>, ...); ...
-        }
+    - pattern-inside: $R $F(...) { ... $T &$REF = $V; ... $RR = recvfrom($SOCK, <... $V ...>, ...); ... }
     - pattern: $REF
   - patterns:
     - pattern-inside: $R $F(...) { ... $T *$P2 = &$D; ... }
-    - pattern-inside: $R $F(...) { ... $T *$P1 = &$D; ... $RR = recvfrom($SOCK, <... $V ...>, ...); ...
-        *$P1 = $V; ... }
+    - pattern-inside: $R $F(...) { ... $T *$P1 = &$D; ... $RR = recvfrom($SOCK, <... $V ...>, ...); ... *$P1 = $V; ... }
     - metavariable-comparison:
         comparison: str($P1) != str($P2)
     - pattern: '*$P2'
@@ -516,16 +508,14 @@ rules:
     - pattern: $SRCF(..., $A, ...)
     - focus-metavariable: $A
   - patterns:
-    - pattern-inside: $R $F(...) { ... $T &$REF = $V; ... $ET $ENV = $GE(...); ... $CAT(<... $V ...>,
-        $ENV, ...); ... }
+    - pattern-inside: $R $F(...) { ... $T &$REF = $V; ... $ET $ENV = $GE(...); ... $CAT(<... $V ...>, $ENV, ...); ... }
     - metavariable-regex:
         metavariable: $GE
         regex: ^(getenv|_wgetenv|GETENV|secure_getenv)$
     - pattern: $REF
   - patterns:
     - pattern-inside: $R $F(...) { ... $T *$P2 = &$D; ... }
-    - pattern-inside: $R $F(...) { ... $T *$P1 = &$D; ... $ET $ENV = $GE(...); ... $CAT(<... $V ...>,
-        $ENV, ...); ... *$P1 = $V; ... }
+    - pattern-inside: $R $F(...) { ... $T *$P1 = &$D; ... $ET $ENV = $GE(...); ... $CAT(<... $V ...>, $ENV, ...); ... *$P1 = $V; ... }
     - metavariable-regex:
         metavariable: $GE
         regex: ^(getenv|_wgetenv|GETENV|secure_getenv)$

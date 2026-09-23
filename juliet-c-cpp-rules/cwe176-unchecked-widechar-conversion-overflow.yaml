@@ -16,8 +16,7 @@ rules:
     - '*.hxx'
     - '*.inc'
   severity: ERROR
-  message: A wide string longer than the destination buffer $BUF is converted with WideCharToMultiByte
-    using the unchecked required size $N, so the multibyte output can overflow $BUF.
+  message: A wide string longer than the destination buffer $BUF is converted with WideCharToMultiByte using the unchecked required size $N, so the multibyte output can overflow $BUF.
   metadata:
     vulnerability_class: Improper Handling of Unicode Encoding
     help: |
@@ -40,8 +39,7 @@ rules:
     - c
     - cpp
     source: Validated against NIST Juliet C/C++ Test Suite v1.3
-    remediation: Size destination buffers for the converted encoding and check conversion results (WideCharToMultiByte,
-      wcstombs) for truncation or failure.
+    remediation: Size destination buffers for the converted encoding and check conversion results (WideCharToMultiByte, wcstombs) for truncation or failure.
   mode: taint
   pattern-sources:
   - by-side-effect: true

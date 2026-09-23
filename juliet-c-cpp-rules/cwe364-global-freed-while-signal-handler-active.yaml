@@ -16,8 +16,7 @@ rules:
     - '*.hxx'
     - '*.inc'
   severity: ERROR
-  message: $G is checked and freed while signal handler $H, which also dereferences $G, is still installed;
-    a signal arriving between the check and the free causes a race (use after free or double free).
+  message: $G is checked and freed while signal handler $H, which also dereferences $G, is still installed; a signal arriving between the check and the free causes a race (use after free or double free).
   metadata:
     vulnerability_class: Signal Handler Race Condition
     help: |
@@ -40,8 +39,7 @@ rules:
     - c
     - cpp
     source: Validated against NIST Juliet C/C++ Test Suite v1.3
-    remediation: 'Make signal handlers async-signal-safe: only set a volatile sig_atomic_t flag and do
-      the real work outside the handler.'
+    remediation: 'Make signal handlers async-signal-safe: only set a volatile sig_atomic_t flag and do the real work outside the handler.'
   patterns:
   - pattern-inside: |
       $R $H($T $SG) { ... }

@@ -16,8 +16,7 @@ rules:
     - '*.hxx'
     - '*.inc'
   severity: WARNING
-  message: $F() opens a key under HKEY_LOCAL_MACHINE for writing, which requires administrative rights;
-    per-user data belongs under HKEY_CURRENT_USER.
+  message: $F() opens a key under HKEY_LOCAL_MACHINE for writing, which requires administrative rights; per-user data belongs under HKEY_CURRENT_USER.
   metadata:
     vulnerability_class: Least Privilege Violation
     help: |
@@ -40,8 +39,7 @@ rules:
     - c
     - cpp
     source: Validated against NIST Juliet C/C++ Test Suite v1.3
-    remediation: 'Request the least privilege needed: write per-user registry keys instead of HKLM, and
-      quote executable paths passed to process-creation APIs.'
+    remediation: 'Request the least privilege needed: write per-user registry keys instead of HKLM, and quote executable paths passed to process-creation APIs.'
   patterns:
   - pattern-either:
     - patterns:

@@ -16,8 +16,7 @@ rules:
     - '*.hxx'
     - '*.inc'
   severity: WARNING
-  message: A value stored in local variable $X is overwritten here before it is ever read, so the earlier
-    assignment is useless.
+  message: A value stored in local variable $X is overwritten here before it is ever read, so the earlier assignment is useless.
   metadata:
     vulnerability_class: Assignment to Variable without Use
     help: |

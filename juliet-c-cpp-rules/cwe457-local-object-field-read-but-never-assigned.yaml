@@ -15,9 +15,7 @@ rules:
     - '*.hxx'
     - '*.inc'
   severity: ERROR
-  message: A field of a local object that has no initializer is read, but neither the object nor the field
-    is ever assigned in the function, so the field value is indeterminate unless the type has a constructor
-    that sets it.
+  message: A field of a local object that has no initializer is read, but neither the object nor the field is ever assigned in the function, so the field value is indeterminate unless the type has a constructor that sets it.
   metadata:
     vulnerability_class: Use of Uninitialized Variable
     help: |

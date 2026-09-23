@@ -16,8 +16,7 @@ rules:
     - '*.hxx'
     - '*.inc'
   severity: ERROR
-  message: The function $F itself (not its return value) is compared with NULL; the call parentheses are
-    missing, so this comparison is constant.
+  message: The function $F itself (not its return value) is compared with NULL; the call parentheses are missing, so this comparison is constant.
   metadata:
     vulnerability_class: Use of Incorrect Operator
     help: |
@@ -40,8 +39,7 @@ rules:
     - c
     - cpp
     source: Validated against NIST Juliet C/C++ Test Suite v1.3
-    remediation: Use the intended operator (e.g. && vs &, == vs =) and enable compiler warnings for suspicious
-      operators.
+    remediation: Use the intended operator (e.g. && vs &, == vs =) and enable compiler warnings for suspicious operators.
   patterns:
   - pattern-either:
     - pattern-inside: |

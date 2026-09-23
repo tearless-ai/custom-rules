@@ -16,8 +16,7 @@ rules:
     - '*.hxx'
     - '*.inc'
   severity: ERROR
-  message: Function $F returns a value of type $T, but this 'return;' supplies none; using the result
-    is undefined behavior.
+  message: Function $F returns a value of type $T, but this 'return;' supplies none; using the result is undefined behavior.
   metadata:
     vulnerability_class: Reliance on Undefined, Unspecified, or Implementation-Defined Behavior
     help: |
@@ -40,8 +39,7 @@ rules:
     - c
     - cpp
     source: Validated against NIST Juliet C/C++ Test Suite v1.3
-    remediation: 'Avoid undefined behavior: do not read uninitialized memory, and always return a value
-      from non-void functions.'
+    remediation: 'Avoid undefined behavior: do not read uninitialized memory, and always return a value from non-void functions.'
   patterns:
   - pattern-inside: |
       $T $F(...) { ... }

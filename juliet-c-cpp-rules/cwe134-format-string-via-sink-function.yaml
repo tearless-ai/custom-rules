@@ -16,8 +16,7 @@ rules:
     - '*.hxx'
     - '*.inc'
   severity: ERROR
-  message: printf-family call with a non-literal format string in a function that is invoked with data
-    from a caller which reads untrusted input (console, file, socket or environment).
+  message: printf-family call with a non-literal format string in a function that is invoked with data from a caller which reads untrusted input (console, file, socket or environment).
   metadata:
     vulnerability_class: Use of Externally-Controlled Format String
     help: |
@@ -40,8 +39,7 @@ rules:
     - c
     - cpp
     source: Validated against NIST Juliet C/C++ Test Suite v1.3
-    remediation: Always pass a string literal as the format argument, e.g. printf("%s", data) instead
-      of printf(data).
+    remediation: Always pass a string literal as the format argument, e.g. printf("%s", data) instead of printf(data).
   patterns:
   - pattern-either:
     - patterns:

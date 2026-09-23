@@ -16,8 +16,7 @@ rules:
     - '*.hxx'
     - '*.inc'
   severity: ERROR
-  message: LDAP search whose filter is built from external data after calling a helper that fills the
-    data from untrusted input (console, file, socket or environment).
+  message: LDAP search whose filter is built from external data after calling a helper that fills the data from untrusted input (console, file, socket or environment).
   metadata:
     vulnerability_class: Improper Neutralization of Special Elements used in an LDAP Query ('LDAP Injection')
     help: |
@@ -40,8 +39,7 @@ rules:
     - c
     - cpp
     source: Validated against NIST Juliet C/C++ Test Suite v1.3
-    remediation: Escape LDAP filter metacharacters in untrusted input (RFC 4515) or build filters from
-      an allow-list of values.
+    remediation: Escape LDAP filter metacharacters in untrusted input (RFC 4515) or build filters from an allow-list of values.
   patterns:
   - pattern: $LDAPFN($LD, $BASE, $SCOPE, $FILTER, ...)
   - metavariable-regex:

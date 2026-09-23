@@ -16,8 +16,7 @@ rules:
     - '*.hxx'
     - '*.inc'
   severity: WARNING
-  message: A pointer is checked for NULL after it has already been dereferenced, so either the check is
-    dead or the earlier dereference can crash.
+  message: A pointer is checked for NULL after it has already been dereferenced, so either the check is dead or the earlier dereference can crash.
   metadata:
     vulnerability_class: NULL Pointer Dereference
     help: |

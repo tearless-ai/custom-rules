@@ -16,8 +16,7 @@ rules:
     - '*.hxx'
     - '*.inc'
   severity: WARNING
-  message: A temporary file name from $TMP() is opened with O_CREAT but without O_EXCL, so an attacker
-    can pre-create or symlink the file (race condition).
+  message: A temporary file name from $TMP() is opened with O_CREAT but without O_EXCL, so an attacker can pre-create or symlink the file (race condition).
   metadata:
     vulnerability_class: Insecure Temporary File
     help: |
@@ -40,8 +39,7 @@ rules:
     - c
     - cpp
     source: Validated against NIST Juliet C/C++ Test Suite v1.3
-    remediation: Create temporary files atomically with mkstemp/tmpfile or open(O_CREAT | O_EXCL) instead
-      of tmpnam/tempnam/mktemp.
+    remediation: Create temporary files atomically with mkstemp/tmpfile or open(O_CREAT | O_EXCL) instead of tmpnam/tempnam/mktemp.
   patterns:
   - pattern: $OPEN($NAME, $FLAGS, ...)
   - metavariable-regex:

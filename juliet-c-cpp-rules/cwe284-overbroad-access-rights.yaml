@@ -39,8 +39,7 @@ rules:
     - c
     - cpp
     source: Validated against NIST Juliet C/C++ Test Suite v1.3
-    remediation: Request only the access rights actually needed instead of GENERIC_ALL/KEY_ALL_ACCESS,
-      and create named pipes with FILE_FLAG_FIRST_PIPE_INSTANCE.
+    remediation: Request only the access rights actually needed instead of GENERIC_ALL/KEY_ALL_ACCESS, and create named pipes with FILE_FLAG_FIRST_PIPE_INSTANCE.
   patterns:
   - pattern-either:
     - patterns:

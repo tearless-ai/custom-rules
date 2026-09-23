@@ -16,8 +16,7 @@ rules:
     - '*.hxx'
     - '*.inc'
   severity: WARNING
-  message: $V is a file-local static that is initialized to $K and never modified, so this condition is
-    always false.
+  message: $V is a file-local static that is initialized to $K and never modified, so this condition is always false.
   metadata:
     vulnerability_class: Expression is Always False
     help: |

@@ -16,8 +16,7 @@ rules:
     - '*.hxx'
     - '*.inc'
   severity: ERROR
-  message: The copy length is the size of the whole structure but the destination is only its member '$FLD';
-    the copy overruns the member.
+  message: The copy length is the size of the whole structure but the destination is only its member '$FLD'; the copy overruns the member.
   metadata:
     vulnerability_class: Stack-based Buffer Overflow
     help: |
@@ -40,8 +39,7 @@ rules:
     - c
     - cpp
     source: Validated against NIST Juliet C/C++ Test Suite v1.3
-    remediation: Bound every copy and index by the destination's size (sizeof the array), use size-checked
-      APIs such as snprintf, and validate lengths and indexes from input before use.
+    remediation: Bound every copy and index by the destination's size (sizeof the array), use size-checked APIs such as snprintf, and validate lengths and indexes from input before use.
   patterns:
   - pattern-either:
     - pattern: memcpy($S.$FLD, $X, sizeof($S))

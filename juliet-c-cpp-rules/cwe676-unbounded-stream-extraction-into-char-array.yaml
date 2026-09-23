@@ -15,8 +15,7 @@ rules:
     - '*.hxx'
     - '*.inc'
   severity: WARNING
-  message: Extracting a string from $IN into the fixed-size array $BUF without setting width() first can
-    overflow the buffer.
+  message: Extracting a string from $IN into the fixed-size array $BUF without setting width() first can overflow the buffer.
   metadata:
     vulnerability_class: Use of Potentially Dangerous Function
     help: |
@@ -39,8 +38,7 @@ rules:
     - c
     - cpp
     source: Validated against NIST Juliet C/C++ Test Suite v1.3
-    remediation: Replace potentially dangerous functions with bounded, safer alternatives and validate
-      their inputs.
+    remediation: Replace potentially dangerous functions with bounded, safer alternatives and validate their inputs.
   patterns:
   - pattern: $IN >> $BUF
   - pattern-either:

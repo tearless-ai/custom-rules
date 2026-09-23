@@ -16,8 +16,7 @@ rules:
     - '*.hxx'
     - '*.inc'
   severity: ERROR
-  message: $F calls itself unconditionally with no base case, so the recursion never terminates and exhausts
-    the stack.
+  message: $F calls itself unconditionally with no base case, so the recursion never terminates and exhausts the stack.
   metadata:
     vulnerability_class: Uncontrolled Recursion
     help: |

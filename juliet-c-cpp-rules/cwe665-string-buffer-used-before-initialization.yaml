@@ -16,8 +16,7 @@ rules:
     - '*.hxx'
     - '*.inc'
   severity: ERROR
-  message: A pointer is set to an uninitialized character buffer, and the buffer is later used as a string
-    (for example as the destination of strcat()) without ever being initialized or null-terminated.
+  message: A pointer is set to an uninitialized character buffer, and the buffer is later used as a string (for example as the destination of strcat()) without ever being initialized or null-terminated.
   metadata:
     vulnerability_class: Improper Initialization
     help: |

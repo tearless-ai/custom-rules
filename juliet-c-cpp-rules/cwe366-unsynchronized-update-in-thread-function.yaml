@@ -16,8 +16,7 @@ rules:
     - '*.hxx'
     - '*.inc'
   severity: ERROR
-  message: $H runs as a thread entry point and performs a non-atomic read-modify-write of shared data
-    without holding a lock, so concurrent threads can lose updates.
+  message: $H runs as a thread entry point and performs a non-atomic read-modify-write of shared data without holding a lock, so concurrent threads can lose updates.
   metadata:
     vulnerability_class: Race Condition within a Thread
     help: |

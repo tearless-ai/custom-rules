@@ -16,8 +16,7 @@ rules:
     - '*.hxx'
     - '*.inc'
   severity: ERROR
-  message: An integer from an untrusted or unbounded source (input, socket, file, rand, or a type maximum)
-    is incremented, added to, or multiplied without an upper-bound check, which can overflow.
+  message: An integer from an untrusted or unbounded source (input, socket, file, rand, or a type maximum) is incremented, added to, or multiplied without an upper-bound check, which can overflow.
   metadata:
     vulnerability_class: Integer Overflow or Wraparound
     help: |
@@ -40,8 +39,7 @@ rules:
     - c
     - cpp
     source: Validated against NIST Juliet C/C++ Test Suite v1.3
-    remediation: Check operands against the type's limits before arithmetic (e.g. if (x < INT_MAX) x +
-      1), or use checked-arithmetic builtins such as __builtin_add_overflow.
+    remediation: Check operands against the type's limits before arithmetic (e.g. if (x < INT_MAX) x + 1), or use checked-arithmetic builtins such as __builtin_add_overflow.
   mode: taint
   options:
     constant_propagation: false

@@ -16,8 +16,7 @@ rules:
     - '*.hxx'
     - '*.inc'
   severity: INFO
-  message: Comparing the fread() result with 0 misses short reads; compare it with the requested element
-    count instead.
+  message: Comparing the fread() result with 0 misses short reads; compare it with the requested element count instead.
   metadata:
     vulnerability_class: Incorrect Check of Function Return Value
     help: |
@@ -40,8 +39,7 @@ rules:
     - c
     - cpp
     source: Validated against NIST Juliet C/C++ Test Suite v1.3
-    remediation: Compare return values against the function's documented error value (e.g. EOF, NULL,
-      INVALID_HANDLE_VALUE, -1) rather than an assumed one.
+    remediation: Compare return values against the function's documented error value (e.g. EOF, NULL, INVALID_HANDLE_VALUE, -1) rather than an assumed one.
   pattern-either:
   - pattern: fread(...) == 0
   - pattern: 0 == fread(...)

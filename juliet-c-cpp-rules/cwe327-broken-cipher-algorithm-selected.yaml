@@ -39,8 +39,7 @@ rules:
     - c
     - cpp
     source: Validated against NIST Juliet C/C++ Test Suite v1.3
-    remediation: Replace broken algorithms such as DES, 3DES, RC2 and RC4 with AES-GCM or another modern
-      authenticated cipher.
+    remediation: Replace broken algorithms such as DES, 3DES, RC2 and RC4 with AES-GCM or another modern authenticated cipher.
   patterns:
   - pattern-either:
     - pattern: CryptDeriveKey($P, $ALG, ...)

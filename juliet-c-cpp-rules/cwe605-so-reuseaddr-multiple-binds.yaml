@@ -16,8 +16,7 @@ rules:
     - '*.hxx'
     - '*.inc'
   severity: WARNING
-  message: Setting SO_REUSEADDR on this socket lets another process bind the same port and steal or spoof
-    its traffic.
+  message: Setting SO_REUSEADDR on this socket lets another process bind the same port and steal or spoof its traffic.
   metadata:
     vulnerability_class: Multiple Binds to the Same Port
     help: |
@@ -40,8 +39,7 @@ rules:
     - c
     - cpp
     source: Validated against NIST Juliet C/C++ Test Suite v1.3
-    remediation: Do not set SO_REUSEADDR on listening sockets that must be exclusive; use SO_EXCLUSIVEADDRUSE
-      on Windows.
+    remediation: Do not set SO_REUSEADDR on listening sockets that must be exclusive; use SO_EXCLUSIVEADDRUSE on Windows.
   pattern-either:
   - pattern: setsockopt($S, SOL_SOCKET, SO_REUSEADDR, ...)
   - pattern: setsockopt($S, SOL_SOCKET, SO_REUSEPORT, ...)

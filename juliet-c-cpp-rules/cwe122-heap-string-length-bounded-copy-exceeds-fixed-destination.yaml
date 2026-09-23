@@ -16,8 +16,7 @@ rules:
     - '*.hxx'
     - '*.inc'
   severity: ERROR
-  message: The heap string '$SRC' is filled to a length that does not fit in the fixed-size array '$DST';
-    copying it bounded only by the source length overflows the destination.
+  message: The heap string '$SRC' is filled to a length that does not fit in the fixed-size array '$DST'; copying it bounded only by the source length overflows the destination.
   metadata:
     vulnerability_class: Heap-based Buffer Overflow
     help: |
@@ -40,8 +39,7 @@ rules:
     - c
     - cpp
     source: Validated against NIST Juliet C/C++ Test Suite v1.3
-    remediation: Allocate enough room for the data including the terminator, bound every copy and index
-      by the allocation size, and validate lengths and indexes from input before use.
+    remediation: Allocate enough room for the data including the terminator, bound every copy and index by the allocation size, and validate lengths and indexes from input before use.
   patterns:
   - pattern-either:
     - pattern: strncpy($DST, $SRC, strlen($SRC))

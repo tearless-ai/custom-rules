@@ -16,8 +16,7 @@ rules:
     - '*.hxx'
     - '*.inc'
   severity: WARNING
-  message: A pointer to one structure member is advanced by a computed offset and dereferenced to reach
-    another member, which relies on the compiler's field layout and padding.
+  message: A pointer to one structure member is advanced by a computed offset and dereferenced to reach another member, which relies on the compiler's field layout and padding.
   metadata:
     vulnerability_class: Reliance on Data/Memory Layout
     help: |
@@ -40,8 +39,7 @@ rules:
     - c
     - cpp
     source: Validated against NIST Juliet C/C++ Test Suite v1.3
-    remediation: Access struct and union members by name; do not rely on member offsets, padding or layout
-      via pointer arithmetic.
+    remediation: Access struct and union members by name; do not rely on member offsets, padding or layout via pointer arithmetic.
   patterns:
   - pattern-inside: |
       $P = &$S.$FLD;

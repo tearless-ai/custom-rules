@@ -16,8 +16,7 @@ rules:
     - '*.hxx'
     - '*.inc'
   severity: WARNING
-  message: $F() is not a cryptographically secure PRNG; use CryptGenRandom/BCryptGenRandom, getrandom()
-    or /dev/urandom for security-sensitive values.
+  message: $F() is not a cryptographically secure PRNG; use CryptGenRandom/BCryptGenRandom, getrandom() or /dev/urandom for security-sensitive values.
   metadata:
     vulnerability_class: Use of Cryptographically Weak Pseudo-Random Number Generator (PRNG)
     help: |
@@ -40,8 +39,7 @@ rules:
     - c
     - cpp
     source: Validated against NIST Juliet C/C++ Test Suite v1.3
-    remediation: Use a cryptographically secure generator (getrandom, BCryptGenRandom/CryptGenRandom,
-      RAND_bytes) instead of rand()/random().
+    remediation: Use a cryptographically secure generator (getrandom, BCryptGenRandom/CryptGenRandom, RAND_bytes) instead of rand()/random().
   patterns:
   - pattern: $F(...)
   - metavariable-regex:

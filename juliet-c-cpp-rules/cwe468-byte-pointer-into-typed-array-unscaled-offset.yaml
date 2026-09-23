@@ -16,8 +16,7 @@ rules:
     - '*.hxx'
     - '*.inc'
   severity: WARNING
-  message: A char pointer aliasing an array of wider elements is advanced by a plain element count without
-    multiplying by the element size, so it points into the middle of an element.
+  message: A char pointer aliasing an array of wider elements is advanced by a plain element count without multiplying by the element size, so it points into the middle of an element.
   metadata:
     vulnerability_class: Incorrect Pointer Scaling
     help: |
@@ -40,8 +39,7 @@ rules:
     - c
     - cpp
     source: Validated against NIST Juliet C/C++ Test Suite v1.3
-    remediation: Do not multiply by sizeof when doing pointer arithmetic; the compiler already scales
-      offsets by the element size.
+    remediation: Do not multiply by sizeof when doing pointer arithmetic; the compiler already scales offsets by the element size.
   patterns:
   - pattern-either:
     - pattern-inside: |

@@ -16,8 +16,7 @@ rules:
     - '*.hxx'
     - '*.inc'
   severity: ERROR
-  message: A value from an untrusted source or a constant above the target type's range is cast to a narrower
-    integer type without a range check, silently truncating it.
+  message: A value from an untrusted source or a constant above the target type's range is cast to a narrower integer type without a range check, silently truncating it.
   metadata:
     vulnerability_class: Numeric Truncation Error
     help: |

@@ -16,8 +16,7 @@ rules:
     - '*.hxx'
     - '*.inc'
   severity: ERROR
-  message: A pointer found inside one buffer is subtracted from the start of a different buffer, so the
-    resulting size or index is meaningless.
+  message: A pointer found inside one buffer is subtracted from the start of a different buffer, so the resulting size or index is meaningless.
   metadata:
     vulnerability_class: Use of Pointer Subtraction to Determine Size
     help: |

@@ -16,8 +16,7 @@ rules:
     - '*.hxx'
     - '*.inc'
   severity: ERROR
-  message: $FN is not async-signal-safe but is called from $H, which is installed as a signal handler;
-    if the signal interrupts another call to it, heap or stdio state can be corrupted.
+  message: $FN is not async-signal-safe but is called from $H, which is installed as a signal handler; if the signal interrupts another call to it, heap or stdio state can be corrupted.
   metadata:
     vulnerability_class: Signal Handler Use of a Non-reentrant Function
     help: |

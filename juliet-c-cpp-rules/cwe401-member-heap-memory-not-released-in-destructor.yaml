@@ -38,8 +38,7 @@ rules:
     - c
     - cpp
     source: Validated against NIST Juliet C/C++ Test Suite v1.3
-    remediation: Free every allocation on every path once it is no longer needed, or use RAII (smart pointers,
-      containers) in C++.
+    remediation: Free every allocation on every path once it is no longer needed, or use RAII (smart pointers, containers) in C++.
   options:
     constant_propagation: false
   patterns:

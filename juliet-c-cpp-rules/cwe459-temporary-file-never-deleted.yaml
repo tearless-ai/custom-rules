@@ -16,8 +16,7 @@ rules:
     - '*.hxx'
     - '*.inc'
   severity: WARNING
-  message: A temporary file is created here from a name template, but the function never deletes it (unlink/remove)
-    or returns its name, so the temporary file is left behind.
+  message: A temporary file is created here from a name template, but the function never deletes it (unlink/remove) or returns its name, so the temporary file is left behind.
   metadata:
     vulnerability_class: Incomplete Cleanup
     help: |

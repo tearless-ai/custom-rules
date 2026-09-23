@@ -16,8 +16,7 @@ rules:
     - '*.hxx'
     - '*.inc'
   severity: ERROR
-  message: A signed int from an untrusted source is passed as a size_t length without a lower-bound check;
-    a negative value converts to a huge unsigned size.
+  message: A signed int from an untrusted source is passed as a size_t length without a lower-bound check; a negative value converts to a huge unsigned size.
   metadata:
     vulnerability_class: Signed to Unsigned Conversion Error
     help: |

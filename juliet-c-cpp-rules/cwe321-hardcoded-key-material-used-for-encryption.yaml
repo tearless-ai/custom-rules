@@ -16,8 +16,7 @@ rules:
     - '*.hxx'
     - '*.inc'
   severity: ERROR
-  message: This function derives its encryption key from a hard-coded string, so anyone with the binary
-    can recover the key.
+  message: This function derives its encryption key from a hard-coded string, so anyone with the binary can recover the key.
   metadata:
     vulnerability_class: Use of Hard-coded Cryptographic Key
     help: |
@@ -40,8 +39,7 @@ rules:
     - c
     - cpp
     source: Validated against NIST Juliet C/C++ Test Suite v1.3
-    remediation: Remove hard-coded cryptographic keys; derive keys from protected secrets or load them
-      from a key store.
+    remediation: Remove hard-coded cryptographic keys; derive keys from protected secrets or load them from a key store.
   options:
     constant_propagation: false
   patterns:

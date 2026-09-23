@@ -16,8 +16,7 @@ rules:
     - '*.hxx'
     - '*.inc'
   severity: ERROR
-  message: An array is read at an index that comes from input or a negative constant without checking
-    that the index is non-negative.
+  message: An array is read at an index that comes from input or a negative constant without checking that the index is non-negative.
   metadata:
     vulnerability_class: Buffer Under-read
     help: |
@@ -40,8 +39,7 @@ rules:
     - c
     - cpp
     source: Validated against NIST Juliet C/C++ Test Suite v1.3
-    remediation: Check that indexes and pointer offsets are not negative and do not move before the start
-      of the buffer before reading.
+    remediation: Check that indexes and pointer offsets are not negative and do not move before the start of the buffer before reading.
   mode: taint
   pattern-sources:
   - patterns:

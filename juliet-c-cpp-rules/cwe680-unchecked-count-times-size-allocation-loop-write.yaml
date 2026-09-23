@@ -16,9 +16,7 @@ rules:
     - '*.hxx'
     - '*.inc'
   severity: ERROR
-  message: A buffer is allocated with an element count from input or a huge constant multiplied by the
-    element size without an overflow check, and a loop then writes that many elements, overflowing the
-    undersized allocation.
+  message: A buffer is allocated with an element count from input or a huge constant multiplied by the element size without an overflow check, and a loop then writes that many elements, overflowing the undersized allocation.
   metadata:
     vulnerability_class: Integer Overflow to Buffer Overflow
     help: |
@@ -41,8 +39,7 @@ rules:
     - c
     - cpp
     source: Validated against NIST Juliet C/C++ Test Suite v1.3
-    remediation: Check that count * element_size cannot overflow before allocating (use calloc or a checked
-      multiply), and validate counts from input.
+    remediation: Check that count * element_size cannot overflow before allocating (use calloc or a checked multiply), and validate counts from input.
   mode: taint
   pattern-sources:
   - patterns:

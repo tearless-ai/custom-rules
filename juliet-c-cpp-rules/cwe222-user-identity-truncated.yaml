@@ -16,8 +16,7 @@ rules:
     - '*.hxx'
     - '*.inc'
   severity: WARNING
-  message: The user identity $SRC is truncated to the size of $DST, so logs and authentication see a shortened,
-    ambiguous name.
+  message: The user identity $SRC is truncated to the size of $DST, so logs and authentication see a shortened, ambiguous name.
   metadata:
     vulnerability_class: Truncation of Security-relevant Information
     help: |
@@ -40,8 +39,7 @@ rules:
     - c
     - cpp
     source: Validated against NIST Juliet C/C++ Test Suite v1.3
-    remediation: Do not truncate security-relevant data such as user names before logging or comparison;
-      allocate enough space for the full value.
+    remediation: Do not truncate security-relevant data such as user names before logging or comparison; allocate enough space for the full value.
   patterns:
   - pattern-either:
     - pattern: memcpy($DST, $SRC, sizeof($DST))

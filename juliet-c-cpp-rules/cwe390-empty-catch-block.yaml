@@ -32,6 +32,5 @@ rules:
     - c
     - cpp
     source: Validated against NIST Juliet C/C++ Test Suite v1.3
-    remediation: 'Handle detected errors: report, recover or abort instead of leaving the error branch
-      empty.'
+    remediation: 'Handle detected errors: report, recover or abort instead of leaving the error branch empty.'
   pattern-regex: \}\s*catch\s*\([^()]*\)\s*\{(?:\s|/\*(?:[^*]|\*(?!/))*\*/|//[^\n]*)*\}

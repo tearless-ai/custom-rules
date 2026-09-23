@@ -15,8 +15,7 @@ rules:
     - '*.hxx'
     - '*.inc'
   severity: WARNING
-  message: This public static data member is not const, so any code can modify this shared class-wide
-    state.
+  message: This public static data member is not const, so any code can modify this shared class-wide state.
   metadata:
     vulnerability_class: Public Static Field Not Marked Final
     help: |
@@ -40,5 +39,4 @@ rules:
     - cpp
     source: Validated against NIST Juliet C/C++ Test Suite v1.3
     remediation: Make public static fields const or private with accessors.
-  pattern-regex: (?m)\bpublic\s*:(?:(?!\b(?:private|protected)\s*:)[^{}])*?^[ \t]*\Kstatic[ \t]+(?!const\b|constexpr\b|inline\b|volatile\s+const\b)[A-Za-z_][\w:<>]*(?:[
-    \t]*[*&])*[ \t]+[*&]*[A-Za-z_]\w*[ \t]*(?:\[[^\]]*\])?[ \t]*;
+  pattern-regex: (?m)\bpublic\s*:(?:(?!\b(?:private|protected)\s*:)[^{}])*?^[ \t]*\Kstatic[ \t]+(?!const\b|constexpr\b|inline\b|volatile\s+const\b)[A-Za-z_][\w:<>]*(?:[ \t]*[*&])*[ \t]+[*&]*[A-Za-z_]\w*[ \t]*(?:\[[^\]]*\])?[ \t]*;

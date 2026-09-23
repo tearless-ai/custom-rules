@@ -16,8 +16,7 @@ rules:
     - '*.hxx'
     - '*.inc'
   severity: ERROR
-  message: A pointer that refers to an object of one primitive type is cast to a pointer to a different
-    primitive type and dereferenced, accessing the object with an incompatible type.
+  message: A pointer that refers to an object of one primitive type is cast to a pointer to a different primitive type and dereferenced, accessing the object with an incompatible type.
   metadata:
     vulnerability_class: Access of Resource Using Incompatible Type ('Type Confusion')
     help: |
@@ -40,8 +39,7 @@ rules:
     - c
     - cpp
     source: Validated against NIST Juliet C/C++ Test Suite v1.3
-    remediation: Access memory only through the type it was created with; do not reinterpret objects via
-      incompatible pointer casts.
+    remediation: Access memory only through the type it was created with; do not reinterpret objects via incompatible pointer casts.
   mode: taint
   options:
     taint_unify_mvars: true

@@ -16,8 +16,7 @@ rules:
     - '*.hxx'
     - '*.inc'
   severity: ERROR
-  message: $I is only ever updated modulo $M starting from a non-negative value, so the loop condition
-    '$I >= 0' is always true and the loop has no other exit.
+  message: $I is only ever updated modulo $M starting from a non-negative value, so the loop condition '$I >= 0' is always true and the loop has no other exit.
   metadata:
     vulnerability_class: Loop with Unreachable Exit Condition ('Infinite Loop')
     help: |

@@ -16,8 +16,7 @@ rules:
     - '*.hxx'
     - '*.inc'
   severity: ERROR
-  message: A resource is released with a function meant for a different resource type (the argument's
-    declared type does not match the release function), so it is not properly released.
+  message: A resource is released with a function meant for a different resource type (the argument's declared type does not match the release function), so it is not properly released.
   metadata:
     vulnerability_class: Improper Resource Shutdown or Release
     help: |
@@ -40,8 +39,7 @@ rules:
     - c
     - cpp
     source: Validated against NIST Juliet C/C++ Test Suite v1.3
-    remediation: Release each resource with the matching function (fclose for fopen, close for open, CloseHandle
-      for CreateFile) and on every path.
+    remediation: Release each resource with the matching function (fclose for fopen, close for open, CloseHandle for CreateFile) and on every path.
   pattern-either:
   - pattern: fclose((FILE *)(int $X))
   - pattern: fclose((int $X))

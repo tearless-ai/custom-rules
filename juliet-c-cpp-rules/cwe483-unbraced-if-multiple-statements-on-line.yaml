@@ -16,8 +16,7 @@ rules:
     - '*.hxx'
     - '*.inc'
   severity: WARNING
-  message: Only the first statement after this unbraced if on the same line is conditional; the following
-    statement on the line always executes.
+  message: Only the first statement after this unbraced if on the same line is conditional; the following statement on the line always executes.
   metadata:
     vulnerability_class: Incorrect Block Delimitation
     help: |
@@ -41,5 +40,4 @@ rules:
     - cpp
     source: Validated against NIST Juliet C/C++ Test Suite v1.3
     remediation: Always use braces for multi-statement if/else/loop bodies.
-  pattern-regex: (?m)^[ \t]*(?:if|while|for)[ \t]*\((?:[^()\n]|\((?:[^()\n]|\([^()\n]*\))*\))*\)[ \t]*[^\s{;/][^;\n{}]*;[
-    \t]*(?!else\b)[A-Za-z_*(][^\n]*;
+  pattern-regex: (?m)^[ \t]*(?:if|while|for)[ \t]*\((?:[^()\n]|\((?:[^()\n]|\([^()\n]*\))*\))*\)[ \t]*[^\s{;/][^;\n{}]*;[ \t]*(?!else\b)[A-Za-z_*(][^\n]*;

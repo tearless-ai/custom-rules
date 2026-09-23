@@ -16,8 +16,7 @@ rules:
     - '*.hxx'
     - '*.inc'
   severity: WARNING
-  message: $F() is called without FILE_FLAG_FIRST_PIPE_INSTANCE, so an attacker who created the pipe first
-    can impersonate the server.
+  message: $F() is called without FILE_FLAG_FIRST_PIPE_INSTANCE, so an attacker who created the pipe first can impersonate the server.
   metadata:
     vulnerability_class: Improper Access Control
     help: |
@@ -40,8 +39,7 @@ rules:
     - c
     - cpp
     source: Validated against NIST Juliet C/C++ Test Suite v1.3
-    remediation: Request only the access rights actually needed instead of GENERIC_ALL/KEY_ALL_ACCESS,
-      and create named pipes with FILE_FLAG_FIRST_PIPE_INSTANCE.
+    remediation: Request only the access rights actually needed instead of GENERIC_ALL/KEY_ALL_ACCESS, and create named pipes with FILE_FLAG_FIRST_PIPE_INSTANCE.
   patterns:
   - pattern: $F($NAME, $MODE, ...)
   - metavariable-regex:

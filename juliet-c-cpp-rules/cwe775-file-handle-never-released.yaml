@@ -16,8 +16,7 @@ rules:
     - '*.hxx'
     - '*.inc'
   severity: ERROR
-  message: A file descriptor or handle is opened here but is never closed, returned or handed off before
-    the function ends, so it leaks.
+  message: A file descriptor or handle is opened here but is never closed, returned or handed off before the function ends, so it leaks.
   metadata:
     vulnerability_class: Missing Release of File Descriptor or Handle after Effective Lifetime
     help: |

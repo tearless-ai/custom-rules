@@ -16,8 +16,7 @@ rules:
     - '*.hxx'
     - '*.inc'
   severity: ERROR
-  message: A file descriptor or handle that has already been closed is closed again, which can close an
-    unrelated resource that reused the descriptor or corrupt state.
+  message: A file descriptor or handle that has already been closed is closed again, which can close an unrelated resource that reused the descriptor or corrupt state.
   metadata:
     vulnerability_class: Multiple Operations on Resource in Single-Operation Context
     help: |

@@ -16,8 +16,7 @@ rules:
     - '*.hxx'
     - '*.inc'
   severity: ERROR
-  message: This function receives a caller's uninitialized character buffer and hands it back without
-    initializing it, and the caller then uses it as a string.
+  message: This function receives a caller's uninitialized character buffer and hands it back without initializing it, and the caller then uses it as a string.
   metadata:
     vulnerability_class: Improper Initialization
     help: |

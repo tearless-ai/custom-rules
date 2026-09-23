@@ -39,8 +39,7 @@ rules:
     - c
     - cpp
     source: Validated against NIST Juliet C/C++ Test Suite v1.3
-    remediation: Remove hidden functionality that deletes, modifies or exfiltrates data or executes encoded
-      commands.
+    remediation: Remove hidden functionality that deletes, modifies or exfiltrates data or executes encoded commands.
   mode: taint
   pattern-sources:
   - by-side-effect: only

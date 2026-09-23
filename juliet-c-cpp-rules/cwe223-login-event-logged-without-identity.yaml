@@ -16,8 +16,7 @@ rules:
     - '*.hxx'
     - '*.inc'
   severity: WARNING
-  message: This login attempt is logged without recording which user attempted it, which makes the audit
-    trail useless.
+  message: This login attempt is logged without recording which user attempted it, which makes the audit trail useless.
   metadata:
     vulnerability_class: Omission of Security-relevant Information
     help: |

@@ -38,8 +38,7 @@ rules:
     - c
     - cpp
     source: Validated against NIST Juliet C/C++ Test Suite v1.3
-    remediation: Do not use memory after it has been freed; set pointers to NULL after free and restructure
-      ownership so no stale references remain.
+    remediation: Do not use memory after it has been freed; set pointers to NULL after free and restructure ownership so no stale references remain.
   mode: taint
   pattern-sources:
   - by-side-effect: only

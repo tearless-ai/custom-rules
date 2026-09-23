@@ -16,8 +16,7 @@ rules:
     - '*.hxx'
     - '*.inc'
   severity: ERROR
-  message: An unsigned value from an untrusted or unbounded source is assigned to a signed int without
-    checking that it fits (<= INT_MAX); large values become negative.
+  message: An unsigned value from an untrusted or unbounded source is assigned to a signed int without checking that it fits (<= INT_MAX); large values become negative.
   metadata:
     vulnerability_class: Unsigned to Signed Conversion Error
     help: |

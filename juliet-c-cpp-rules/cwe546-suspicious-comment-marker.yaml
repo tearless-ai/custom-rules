@@ -11,8 +11,7 @@ rules:
     - '*.h'
     - '*.hpp'
   severity: INFO
-  message: This comment starts with a BUG/FIXME/HACK/TODO/XXX/LATER marker, which suggests known unfinished
-    or defective code.
+  message: This comment starts with a BUG/FIXME/HACK/TODO/XXX/LATER marker, which suggests known unfinished or defective code.
   metadata:
     vulnerability_class: Suspicious Comment
     help: |

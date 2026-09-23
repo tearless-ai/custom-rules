@@ -16,8 +16,7 @@ rules:
     - '*.hxx'
     - '*.inc'
   severity: WARNING
-  message: $S is initialized from a constant string and never modified, so comparing it with $B is always
-    true.
+  message: $S is initialized from a constant string and never modified, so comparing it with $B is always true.
   metadata:
     vulnerability_class: Expression is Always True
     help: |

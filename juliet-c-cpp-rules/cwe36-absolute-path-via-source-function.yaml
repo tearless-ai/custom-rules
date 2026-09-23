@@ -16,8 +16,7 @@ rules:
     - '*.hxx'
     - '*.inc'
   severity: ERROR
-  message: File opened with a path taken entirely from external data after calling a helper that fills
-    the data from untrusted input (console, file, socket or environment).
+  message: File opened with a path taken entirely from external data after calling a helper that fills the data from untrusted input (console, file, socket or environment).
   metadata:
     vulnerability_class: Absolute Path Traversal
     help: |
@@ -40,8 +39,7 @@ rules:
     - c
     - cpp
     source: Validated against NIST Juliet C/C++ Test Suite v1.3
-    remediation: Never open a path taken directly from input; map input to an allow-list of known files
-      or join it to a fixed base directory and re-check the canonical result.
+    remediation: Never open a path taken directly from input; map input to an allow-list of known files or join it to a fixed base directory and re-check the canonical result.
   patterns:
   - pattern-either:
     - patterns:

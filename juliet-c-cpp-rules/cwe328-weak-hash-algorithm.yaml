@@ -16,8 +16,7 @@ rules:
     - '*.hxx'
     - '*.inc'
   severity: WARNING
-  message: $F() uses the weak hash algorithm $ALG, which is vulnerable to collision or preimage attacks;
-    use SHA-256 or stronger.
+  message: $F() uses the weak hash algorithm $ALG, which is vulnerable to collision or preimage attacks; use SHA-256 or stronger.
   metadata:
     vulnerability_class: Use of Weak Hash
     help: |
@@ -40,8 +39,7 @@ rules:
     - c
     - cpp
     source: Validated against NIST Juliet C/C++ Test Suite v1.3
-    remediation: Replace MD5/SHA-1 for security uses with SHA-256 or stronger; use a password-hashing
-      function such as Argon2 or bcrypt for passwords.
+    remediation: Replace MD5/SHA-1 for security uses with SHA-256 or stronger; use a password-hashing function such as Argon2 or bcrypt for passwords.
   patterns:
   - pattern-either:
     - pattern: CryptCreateHash($P, $ALG, ...)

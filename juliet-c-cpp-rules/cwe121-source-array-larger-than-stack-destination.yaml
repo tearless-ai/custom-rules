@@ -16,8 +16,7 @@ rules:
     - '*.hxx'
     - '*.inc'
   severity: ERROR
-  message: The source array '$SRC' can hold more elements than the stack destination '$DST', and this
-    copy is bounded only by the source length, so it can overflow the destination.
+  message: The source array '$SRC' can hold more elements than the stack destination '$DST', and this copy is bounded only by the source length, so it can overflow the destination.
   metadata:
     vulnerability_class: Stack-based Buffer Overflow
     help: |
@@ -40,8 +39,7 @@ rules:
     - c
     - cpp
     source: Validated against NIST Juliet C/C++ Test Suite v1.3
-    remediation: Bound every copy and index by the destination's size (sizeof the array), use size-checked
-      APIs such as snprintf, and validate lengths and indexes from input before use.
+    remediation: Bound every copy and index by the destination's size (sizeof the array), use size-checked APIs such as snprintf, and validate lengths and indexes from input before use.
   patterns:
   - pattern-either:
     - pattern: strcpy($DST, $SRC)

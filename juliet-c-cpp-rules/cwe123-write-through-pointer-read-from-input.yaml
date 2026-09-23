@@ -16,8 +16,7 @@ rules:
     - '*.hxx'
     - '*.inc'
   severity: ERROR
-  message: A pointer loaded from a structure whose raw bytes were filled from external input is dereferenced
-    for a write, giving the attacker a write-what-where primitive.
+  message: A pointer loaded from a structure whose raw bytes were filled from external input is dereferenced for a write, giving the attacker a write-what-where primitive.
   metadata:
     vulnerability_class: Write-what-where Condition
     help: |
@@ -40,8 +39,7 @@ rules:
     - c
     - cpp
     source: Validated against NIST Juliet C/C++ Test Suite v1.3
-    remediation: Never write through a pointer or to an address derived from untrusted data; validate
-      the target against known-good objects before any write.
+    remediation: Never write through a pointer or to an address derived from untrusted data; validate the target against known-good objects before any write.
   mode: taint
   pattern-sources:
   - patterns:

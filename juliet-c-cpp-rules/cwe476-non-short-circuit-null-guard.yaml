@@ -16,8 +16,7 @@ rules:
     - '*.hxx'
     - '*.inc'
   severity: ERROR
-  message: A NULL check is combined with a dereference of the same pointer using the non-short-circuit
-    '&' operator, so the dereference is evaluated even when the pointer is NULL.
+  message: A NULL check is combined with a dereference of the same pointer using the non-short-circuit '&' operator, so the dereference is evaluated even when the pointer is NULL.
   metadata:
     vulnerability_class: NULL Pointer Dereference
     help: |

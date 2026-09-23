@@ -16,8 +16,7 @@ rules:
     - '*.hxx'
     - '*.inc'
   severity: WARNING
-  message: $CREATE() reports failure with a different sentinel than the one checked here, so the error
-    is never detected.
+  message: $CREATE() reports failure with a different sentinel than the one checked here, so the error is never detected.
   metadata:
     vulnerability_class: Incorrect Check of Function Return Value
     help: |
@@ -40,8 +39,7 @@ rules:
     - c
     - cpp
     source: Validated against NIST Juliet C/C++ Test Suite v1.3
-    remediation: Compare return values against the function's documented error value (e.g. EOF, NULL,
-      INVALID_HANDLE_VALUE, -1) rather than an assumed one.
+    remediation: Compare return values against the function's documented error value (e.g. EOF, NULL, INVALID_HANDLE_VALUE, -1) rather than an assumed one.
   pattern-either:
   - patterns:
     - pattern-inside: |

@@ -16,8 +16,7 @@ rules:
     - '*.hxx'
     - '*.inc'
   severity: ERROR
-  message: listen() is called on a socket before it has been bound with bind(), so the socket listens
-    on an arbitrary port or the later bind() fails.
+  message: listen() is called on a socket before it has been bound with bind(), so the socket listens on an arbitrary port or the later bind() fails.
   metadata:
     vulnerability_class: Operation on Resource in Wrong Phase of Lifetime
     help: |
@@ -40,8 +39,7 @@ rules:
     - c
     - cpp
     source: Validated against NIST Juliet C/C++ Test Suite v1.3
-    remediation: Only operate on resources that are in the correct lifecycle state (e.g. do not use a
-      handle before it is opened).
+    remediation: Only operate on resources that are in the correct lifecycle state (e.g. do not use a handle before it is opened).
   patterns:
   - pattern-either:
     - pattern: |
