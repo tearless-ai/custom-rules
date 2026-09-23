@@ -1,0 +1,48 @@
+rules:
+- id: cwe476-non-short-circuit-null-guard
+  languages:
+  - c
+  - cpp
+  paths:
+    include:
+    - '*.c'
+    - '*.h'
+    - '*.cpp'
+    - '*.cc'
+    - '*.cxx'
+    - '*.c++'
+    - '*.hpp'
+    - '*.hh'
+    - '*.hxx'
+    - '*.inc'
+  severity: ERROR
+  message: A NULL check is combined with a dereference of the same pointer using the non-short-circuit
+    '&' operator, so the dereference is evaluated even when the pointer is NULL.
+  metadata:
+    vulnerability_class: NULL Pointer Dereference
+    help: |
+      ## Summary
+      A NULL check is combined with a dereference of the same pointer using the non-short-circuit '&' operator, so the dereference is evaluated even when the pointer is NULL.
+
+      ## Remediation
+      Check pointers for NULL before dereferencing them.
+    category: security
+    cwe:
+    - 'CWE-476: NULL Pointer Dereference'
+    references:
+    - https://cwe.mitre.org/data/definitions/476.html
+    confidence: HIGH
+    likelihood: MEDIUM
+    impact: HIGH
+    subcategory:
+    - vuln
+    technology:
+    - c
+    - cpp
+    source: Validated against NIST Juliet C/C++ Test Suite v1.3
+    remediation: Check pointers for NULL before dereferencing them.
+  pattern-either:
+  - pattern: ($P != NULL) & <... $P->$F ...>
+  - pattern: ($P != NULL) & <... *$P ...>
+  - pattern: ($P != NULL) & <... $P[$I] ...>
+  - pattern: ($P) & <... $P->$F ...>

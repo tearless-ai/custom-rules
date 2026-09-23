@@ -1,0 +1,117 @@
+rules:
+- id: cwe762-malloc-family-released-with-delete-via-alias
+  languages:
+  - cpp
+  paths:
+    include:
+    - '*.c'
+    - '*.h'
+    - '*.cpp'
+    - '*.cc'
+    - '*.cxx'
+    - '*.c++'
+    - '*.hpp'
+    - '*.hh'
+    - '*.hxx'
+    - '*.inc'
+  severity: ERROR
+  message: Memory obtained from malloc()/calloc()/realloc()/strdup() is released with delete or delete[];
+    it must be released with free(). The pointer reaches the release through a pointer, reference or union
+    alias.
+  metadata:
+    vulnerability_class: Mismatched Memory Management Routines
+    help: |
+      ## Summary
+      Memory obtained from malloc()/calloc()/realloc()/strdup() is released with delete or delete[]; it must be released with free(). The pointer reaches the release through a pointer, reference or union alias.
+
+      ## Remediation
+      Pair allocation and release functions correctly: malloc/free, new/delete, new[]/delete[].
+    category: security
+    cwe:
+    - 'CWE-762: Mismatched Memory Management Routines'
+    references:
+    - https://cwe.mitre.org/data/definitions/762.html
+    confidence: HIGH
+    likelihood: MEDIUM
+    impact: HIGH
+    subcategory:
+    - vuln
+    technology:
+    - c
+    - cpp
+    source: Validated against NIST Juliet C/C++ Test Suite v1.3
+    remediation: 'Pair allocation and release functions correctly: malloc/free, new/delete, new[]/delete[].'
+  pattern-either:
+  - patterns:
+    - pattern-inside: |
+        $RT $FN(...) {
+          ...
+          $PT1 $P1 = &$V;
+          ...
+          $PT2 $P2 = &$V;
+          ...
+          $X = $SRC;
+          ...
+          *$P1 = $X;
+          ...
+          $TY $Y = *$P2;
+          ...
+        }
+    - pattern-either:
+      - pattern: delete $Y;
+      - pattern: delete [] $Y;
+    - metavariable-pattern:
+        metavariable: $SRC
+        patterns:
+        - pattern-either:
+          - pattern: $AF(...)
+          - pattern: ($ACT) $AF(...)
+        - metavariable-regex:
+            metavariable: $AF
+            regex: ^(malloc|calloc|realloc|strdup|wcsdup|_strdup|_wcsdup|strndup|wcsndup)$
+  - patterns:
+    - pattern-inside: |
+        $RT $FN(...) {
+          ...
+          $TR & $RF = $X;
+          ...
+          $X = $SRC;
+          ...
+          $TY $Y = $RF;
+          ...
+        }
+    - pattern-either:
+      - pattern: delete $Y;
+      - pattern: delete [] $Y;
+    - metavariable-pattern:
+        metavariable: $SRC
+        patterns:
+        - pattern-either:
+          - pattern: $AF(...)
+          - pattern: ($ACT) $AF(...)
+        - metavariable-regex:
+            metavariable: $AF
+            regex: ^(malloc|calloc|realloc|strdup|wcsdup|_strdup|_wcsdup|strndup|wcsndup)$
+  - patterns:
+    - pattern-inside: |
+        $RT $FN(...) {
+          ...
+          $X = $SRC;
+          ...
+          $U.$UF1 = $X;
+          ...
+          $TY $Y = $U.$UF2;
+          ...
+        }
+    - pattern-either:
+      - pattern: delete $Y;
+      - pattern: delete [] $Y;
+    - metavariable-pattern:
+        metavariable: $SRC
+        patterns:
+        - pattern-either:
+          - pattern: $AF(...)
+          - pattern: ($ACT) $AF(...)
+        - metavariable-regex:
+            metavariable: $AF
+            regex: ^(malloc|calloc|realloc|strdup|wcsdup|_strdup|_wcsdup|strndup|wcsndup)$

@@ -1,0 +1,88 @@
+rules:
+- id: cwe114-library-path-from-input-via-source-function
+  languages:
+  - c
+  - cpp
+  paths:
+    include:
+    - '*.c'
+    - '*.h'
+    - '*.cpp'
+    - '*.cc'
+    - '*.cxx'
+    - '*.c++'
+    - '*.hpp'
+    - '*.hh'
+    - '*.hxx'
+    - '*.inc'
+  severity: ERROR
+  message: Dynamic library loaded from a path that comes from external data after calling a helper that
+    fills the data from untrusted input (console, file, socket or environment).
+  metadata:
+    vulnerability_class: Process Control
+    help: |
+      ## Summary
+      Dynamic library loaded from a path that comes from external data after calling a helper that fills the data from untrusted input (console, file, socket or environment).
+
+      ## Remediation
+      Load libraries and programs only from fixed absolute paths; never let external input choose the module or command to load.
+    category: security
+    cwe:
+    - 'CWE-114: Process Control'
+    references:
+    - https://cwe.mitre.org/data/definitions/114.html
+    confidence: MEDIUM
+    likelihood: MEDIUM
+    impact: HIGH
+    subcategory:
+    - vuln
+    technology:
+    - c
+    - cpp
+    source: Validated against NIST Juliet C/C++ Test Suite v1.3
+    remediation: Load libraries and programs only from fixed absolute paths; never let external input
+      choose the module or command to load.
+  patterns:
+  - pattern: $LOADLIB($LIB, ...)
+  - metavariable-regex:
+      metavariable: $LOADLIB
+      regex: ^(LoadLibrary|LoadLibraryA|LoadLibraryW|LoadLibraryEx|LoadLibraryExA|LoadLibraryExW|dlopen|g_module_open)$
+  - metavariable-regex:
+      metavariable: $LIB
+      regex: ^(?!\s*(L|u8|u|U)?\")(?!\s*[A-Z][A-Z0-9_]*\s*$)
+  - pattern-either:
+    - pattern-inside: |
+        $T_SRCFN $SRCFN(...) {
+          ...
+          <... $SRC(...) ...>;
+          ...
+        }
+        ...
+        $T_F $F(...) {
+          ...
+          <... $SRCFN(...) ...>;
+          ...
+        }
+    - pattern-inside: |
+        $T_F $F(...) {
+          ...
+          <... $SRCFN(...) ...>;
+          ...
+        }
+        ...
+        $T_SRCFN $SRCFN(...) {
+          ...
+          <... $SRC(...) ...>;
+          ...
+        }
+  - pattern-inside: |
+      $T_F $F(...) {
+        ...
+      }
+  - pattern-inside: |
+      <... $SRCFN(...) ...>;
+      ...
+  - metavariable-regex:
+      metavariable: $SRC
+      regex: ^(?:std::)?(fgets|fgetws|gets|_getws|getline|getdelim|scanf|wscanf|fscanf|fwscanf|read|_read|recv|recvfrom|recvmsg|WSARecv|WSARecvFrom|getenv|_wgetenv|secure_getenv|GETENV|ReadFile|ReadConsoleA|ReadConsoleW|InternetReadFile)$
+  - focus-metavariable: $LOADLIB

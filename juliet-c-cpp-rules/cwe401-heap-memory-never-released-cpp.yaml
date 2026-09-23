@@ -1,0 +1,127 @@
+rules:
+- id: cwe401-heap-memory-never-released-cpp
+  languages:
+  - cpp
+  paths:
+    include:
+    - '*.c'
+    - '*.h'
+    - '*.cpp'
+    - '*.cc'
+    - '*.cxx'
+    - '*.c++'
+    - '*.hpp'
+    - '*.hh'
+    - '*.hxx'
+    - '*.inc'
+  severity: ERROR
+  message: Heap memory assigned to $X is never released, returned or handed off before the last reference
+    to it is lost.
+  metadata:
+    vulnerability_class: Missing Release of Memory after Effective Lifetime
+    help: |
+      ## Summary
+      Heap memory assigned to `$X` is never released, returned or handed off before the last reference to it is lost.
+
+      ## Remediation
+      Free every allocation on every path once it is no longer needed, or use RAII (smart pointers, containers) in C++.
+    category: security
+    cwe:
+    - 'CWE-401: Missing Release of Memory after Effective Lifetime'
+    references:
+    - https://cwe.mitre.org/data/definitions/401.html
+    confidence: MEDIUM
+    likelihood: MEDIUM
+    impact: HIGH
+    subcategory:
+    - vuln
+    technology:
+    - c
+    - cpp
+    source: Validated against NIST Juliet C/C++ Test Suite v1.3
+    remediation: Free every allocation on every path once it is no longer needed, or use RAII (smart pointers,
+      containers) in C++.
+  options:
+    constant_propagation: false
+  patterns:
+  - pattern-either:
+    - pattern-inside: |
+        $R $G(...) { ... $XT $X; ... $X = $ALLOC; ... }
+    - pattern-inside: |
+        $R $G(...) { ... $XT $X = $XI; ... $X = $ALLOC; ... }
+    - pattern-inside: |
+        $R $G(...) { ... $XT $X = $ALLOC; ... }
+  - metavariable-pattern:
+      metavariable: $ALLOC
+      pattern-either:
+      - patterns:
+        - pattern-either:
+          - pattern: $AF(...)
+          - pattern: ($ACT) $AF(...)
+        - metavariable-regex:
+            metavariable: $AF
+            regex: ^(malloc|calloc|realloc|strdup|wcsdup|_strdup|_wcsdup|strndup|wcsndup)$
+      - patterns:
+        - pattern-either:
+          - pattern: new $ANT
+          - pattern: new $ANT(...)
+        - pattern-not: new ($PB) $PBT
+  - pattern-not-inside: |
+      $R $G(...) { ... free(...); ... }
+  - pattern-not-inside: |
+      $R $G(...) { ... delete $ANY; ... }
+  - pattern-not-inside: |
+      $R $G(...) { ... delete [] $ANY; ... }
+  - pattern-not-inside: |
+      $R $G(...) { ... return $X; ... }
+  - pattern-not-inside: |
+      $R $G(...) { ... $O->$FLD = $X; ... }
+  - pattern-not-inside: |
+      $R $G(...) { ... $ARR[$I] = $X; ... }
+  - pattern-not-inside:
+      patterns:
+      - pattern-inside: |
+          $R $G(...) { ... $U.$UF = $X; ... }
+      - pattern-not-inside: |
+          $R $G(...) { ... $UT $U; ... }
+  - pattern-not-inside:
+      patterns:
+      - pattern-inside: |
+          $R $G(...) { ... $U.$UF = $X; ... }
+      - pattern-either:
+        - pattern-inside: |
+            $R $G(...) { ... $UCALL(..., $U, ...); ... }
+        - pattern-inside: |
+            $R $G(...) { ... $UCALL(..., &$U, ...); ... }
+        - pattern-inside: |
+            $R $G(...) { ... return $U; ... }
+  - pattern-not-inside:
+      patterns:
+      - pattern-inside: |
+          $R $G(...) { ... *$P = $X; ... }
+      - pattern-not-inside: |
+          $R $G(...) { ... $PT $P = &$PV; ... }
+  - pattern-not-inside:
+      patterns:
+      - pattern-inside: |
+          $R $G(...) { ... $Y = $X; ... }
+      - metavariable-regex:
+          metavariable: $Y
+          regex: ^\w+$
+      - metavariable-comparison:
+          comparison: str($Y) != str($X)
+      - pattern-not-inside: |
+          $R $G(...) { ... $YT $Y = $X; ... }
+  - pattern-not-inside:
+      patterns:
+      - pattern-either:
+        - pattern-inside: |
+            $R $G(...) { ... $CALLEE(..., $X, ...); ... }
+        - pattern-inside: |
+            $R $G(...) { ... $CALLEE(..., &$X, ...); ... }
+      - metavariable-regex:
+          metavariable: $CALLEE
+          regex: ^(?!(str|wcs|mem|print|puts|fputs|putws|fputws|fwrite|fread|fgets|fgetws|realloc|scanf|sscanf|fscanf|swscanf|atoi|atol|atof|isalnum|isdigit|isspace|toupper|tolower)\w*$)
+  - pattern-either:
+    - pattern: $X = $ALLOC;
+    - pattern: $XT $X = $ALLOC;

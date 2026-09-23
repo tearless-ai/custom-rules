@@ -1,0 +1,177 @@
+rules:
+- id: cwe773-open-handle-overwritten
+  languages:
+  - c
+  - cpp
+  paths:
+    include:
+    - '*.c'
+    - '*.h'
+    - '*.cpp'
+    - '*.cc'
+    - '*.cxx'
+    - '*.c++'
+    - '*.hpp'
+    - '*.hh'
+    - '*.hxx'
+    - '*.inc'
+  severity: ERROR
+  message: A variable that still holds an open file descriptor or handle is overwritten with a new one
+    before the old one is closed, so the old handle can never be released.
+  metadata:
+    vulnerability_class: Missing Reference to Active File Descriptor or Handle
+    help: |
+      ## Summary
+      A variable that still holds an open file descriptor or handle is overwritten with a new one before the old one is closed, so the old handle can never be released.
+
+      ## Remediation
+      Keep a reference to every open handle so it can be closed; do not overwrite handle variables while they are open.
+    category: security
+    cwe:
+    - 'CWE-773: Missing Reference to Active File Descriptor or Handle'
+    references:
+    - https://cwe.mitre.org/data/definitions/773.html
+    confidence: MEDIUM
+    likelihood: MEDIUM
+    impact: HIGH
+    subcategory:
+    - vuln
+    technology:
+    - c
+    - cpp
+    source: Validated against NIST Juliet C/C++ Test Suite v1.3
+    remediation: Keep a reference to every open handle so it can be closed; do not overwrite handle variables
+      while they are open.
+  mode: taint
+  pattern-sources:
+  - patterns:
+    - pattern: $ACQ(...)
+    - metavariable-regex:
+        metavariable: $ACQ
+        regex: ^(fopen|_wfopen|fdopen|_fdopen|freopen|open|_open|OPEN|_wopen|creat|_creat|CreateFile|CreateFileA|CreateFileW|socket|accept)$
+  - patterns:
+    - pattern-either:
+      - pattern-inside: |
+          $R $CALLEE(..., $T $P, ...) { ... }
+          ...
+          $R2 $CALLER(...) { ... $D = <... $ACQ(...) ...>; ... $CALLEE(..., $D, ...); ... }
+      - pattern-inside: |
+          $R $CALLEE(..., $T $P, ...) { ... }
+          ...
+          $R2 $CALLER(...) { ... $FT (*$FP)(...) = $CALLEE; ... $D = <... $ACQ(...) ...>; ... $FP(..., $D, ...); ... }
+    - pattern: |
+        $R $CALLEE(..., $T $P, ...) { ... }
+    - metavariable-regex:
+        metavariable: $ACQ
+        regex: ^(fopen|_wfopen|fdopen|_fdopen|freopen|open|_open|OPEN|_wopen|creat|_creat|CreateFile|CreateFileA|CreateFileW|socket|accept)$
+    - focus-metavariable: $P
+  - patterns:
+    - pattern-inside: |
+        $R $READER(...) { ... }
+        ...
+        $R2 $WRITER(...) { ... $D = <... $ACQ(...) ...>; ... $G = $D; ... }
+    - pattern-inside: |
+        $R $READER(...) { ... }
+    - metavariable-regex:
+        metavariable: $ACQ
+        regex: ^(fopen|_wfopen|fdopen|_fdopen|freopen|open|_open|OPEN|_wopen|creat|_creat|CreateFile|CreateFileA|CreateFileW|socket|accept)$
+    - pattern: $G
+  - patterns:
+    - pattern-inside: |
+        $R $HELPER(...) { ... $X = <... $ACQ(...) ...>; ... return $X; }
+        ...
+    - metavariable-regex:
+        metavariable: $ACQ
+        regex: ^(fopen|_wfopen|fdopen|_fdopen|freopen|open|_open|OPEN|_wopen|creat|_creat|CreateFile|CreateFileA|CreateFileW|socket|accept)$
+    - pattern: $HELPER(...)
+  - patterns:
+    - pattern-inside: |
+        $R $HELPER(..., $T &$X, ...) { ... $X = <... $ACQ(...) ...>; ... }
+        ...
+    - metavariable-regex:
+        metavariable: $ACQ
+        regex: ^(fopen|_wfopen|fdopen|_fdopen|freopen|open|_open|OPEN|_wopen|creat|_creat|CreateFile|CreateFileA|CreateFileW|socket|accept)$
+    - pattern: $HELPER($D)
+    - focus-metavariable: $D
+    by-side-effect: true
+  - patterns:
+    - pattern-inside: |
+        $T &$REF = $D;
+        ...
+        $D = <... $ACQ(...) ...>;
+        ...
+    - metavariable-regex:
+        metavariable: $ACQ
+        regex: ^(fopen|_wfopen|fdopen|_fdopen|freopen|open|_open|OPEN|_wopen|creat|_creat|CreateFile|CreateFileA|CreateFileW|socket|accept)$
+    - pattern: $REF
+  - patterns:
+    - pattern-inside: |
+        $T $P1 = &$D;
+        ...
+        $T $P2 = &$D;
+        ...
+    - pattern-either:
+      - pattern-inside: |
+          $V = <... $ACQ(...) ...>;
+          ...
+          *$P1 = $V;
+          ...
+      - pattern-inside: |
+          {
+            ...
+            $V = <... $ACQ(...) ...>;
+            ...
+            *$P1 = $V;
+          }
+          ...
+    - metavariable-regex:
+        metavariable: $ACQ
+        regex: ^(fopen|_wfopen|fdopen|_fdopen|freopen|open|_open|OPEN|_wopen|creat|_creat|CreateFile|CreateFileA|CreateFileW|socket|accept)$
+    - pattern: '*$P2'
+  pattern-propagators:
+  - patterns:
+    - pattern-inside: |
+        typedef union { $T1 $A; $T2 $B; } $UT;
+        ...
+    - pattern-inside: |
+        $UT $U;
+        ...
+    - pattern: $U.$F1 = $D
+    from: $D
+    to: $U
+  pattern-sanitizers:
+  - patterns:
+    - pattern-either:
+      - pattern: $USE(..., $X, ...)
+      - pattern: $USE(..., ($CT)$X, ...)
+      - pattern: $USE(..., &$X, ...)
+    - pattern-not-inside: |
+        $HR $USE(..., $HT &$HX, ...) { ... }
+        ...
+    - focus-metavariable: $X
+    by-side-effect: true
+  - patterns:
+    - pattern-either:
+      - pattern: $X != $INVALID
+      - pattern: $X == $INVALID
+    - focus-metavariable: $X
+    by-side-effect: true
+  - patterns:
+    - pattern-either:
+      - pattern-inside: if ($X) $S;
+      - pattern-inside: if ($X) $S; else $E;
+    - pattern: $X
+    - metavariable-regex:
+        metavariable: $X
+        regex: ^[A-Za-z_][A-Za-z0-9_]*$
+    by-side-effect: true
+  pattern-sinks:
+  - patterns:
+    - pattern: $X = $ACQ2(...)
+    - metavariable-regex:
+        metavariable: $ACQ2
+        regex: ^(fopen|_wfopen|fdopen|_fdopen|freopen|open|_open|OPEN|_wopen|creat|_creat|CreateFile|CreateFileA|CreateFileW|socket|accept)$
+    - metavariable-regex:
+        metavariable: $X
+        regex: ^[A-Za-z_][A-Za-z0-9_]*$
+    - focus-metavariable: $X

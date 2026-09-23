@@ -1,0 +1,82 @@
+rules:
+- id: cwe457-uninitialized-buffer-elements-read
+  languages:
+  - c
+  - cpp
+  paths:
+    include:
+    - '*.c'
+    - '*.h'
+    - '*.cpp'
+    - '*.cc'
+    - '*.cxx'
+    - '*.c++'
+    - '*.hpp'
+    - '*.hh'
+    - '*.hxx'
+    - '*.inc'
+  severity: ERROR
+  message: Elements of a heap, stack or alloca buffer are read, but no element of the buffer is ever written
+    in the function, so uninitialized memory is used.
+  metadata:
+    vulnerability_class: Use of Uninitialized Variable
+    help: |
+      ## Summary
+      Elements of a heap, stack or alloca buffer are read, but no element of the buffer is ever written in the function, so uninitialized memory is used.
+
+      ## Remediation
+      Initialize every variable before it is read.
+    category: security
+    cwe:
+    - 'CWE-457: Use of Uninitialized Variable'
+    references:
+    - https://cwe.mitre.org/data/definitions/457.html
+    confidence: MEDIUM
+    likelihood: MEDIUM
+    impact: HIGH
+    subcategory:
+    - vuln
+    technology:
+    - c
+    - cpp
+    source: Validated against NIST Juliet C/C++ Test Suite v1.3
+    remediation: Initialize every variable before it is read.
+  patterns:
+  - pattern-either:
+    - patterns:
+      - pattern-either:
+        - pattern-inside: |
+            $R $FN(...) { ... $X = ($CT)$ALLOC(...); ... }
+        - pattern-inside: |
+            $R $FN(...) { ... $X = $ALLOC(...); ... }
+        - pattern-inside: |
+            $R $FN(...) { ... $X = reinterpret_cast<$CT>($ALLOC(...)); ... }
+        - pattern-inside: |
+            $R $FN(...) { ... $X = static_cast<$CT>($ALLOC(...)); ... }
+      - metavariable-regex:
+          metavariable: $ALLOC
+          regex: ^(malloc|alloca|_alloca|ALLOCA|realloc)$
+    - pattern-inside: |
+        $R $FN(...) { ... $X = new $TY[$N]; ... }
+    - patterns:
+      - pattern-inside: |
+          $R $FN(...) { ... $AT $ARR[$N]; ... $X = $ARR; ... }
+      - pattern-not-inside: |
+          $R $FN(...) { ... $ARR[$I] = $V; ... }
+      - pattern-not-inside: |
+          $R $FN(...) { ... $ARR[$I].$FLD = $V; ... }
+      - pattern-not-inside: |
+          $R $FN(...) { ... $INIT(..., $ARR, ...); ... }
+  - pattern-not-inside: |
+      $R $FN(...) { ... $X[$I] = $V; ... }
+  - pattern-not-inside: |
+      $R $FN(...) { ... $X[$I].$FLD = $V; ... }
+  - pattern-not-inside: |
+      $R $FN(...) { ... *$X = $V; ... }
+  - pattern-not-inside: |
+      $R $FN(...) { ... $X->$FLD = $V; ... }
+  - pattern-not-inside: |
+      $R $FN(...) { ... $INIT(..., $X, ...); ... }
+  - pattern-either:
+    - pattern: $G(..., $X[$J], ...)
+    - pattern: $G(..., $X[$J].$FLD, ...)

@@ -1,0 +1,105 @@
+rules:
+- id: cwe415-double-free-across-functions
+  languages:
+  - c
+  paths:
+    include:
+    - '*.c'
+    - '*.h'
+    - '*.cpp'
+    - '*.cc'
+    - '*.cxx'
+    - '*.c++'
+    - '*.hpp'
+    - '*.hh'
+    - '*.hxx'
+    - '*.inc'
+  severity: ERROR
+  message: Memory already released in another function of this file is released again here.
+  metadata:
+    vulnerability_class: Double Free
+    help: |
+      ## Summary
+      Memory already released in another function of this file is released again here.
+
+      ## Remediation
+      Free each allocation exactly once and set the pointer to NULL after freeing it.
+    category: security
+    cwe:
+    - 'CWE-415: Double Free'
+    references:
+    - https://cwe.mitre.org/data/definitions/415.html
+    confidence: HIGH
+    likelihood: MEDIUM
+    impact: HIGH
+    subcategory:
+    - vuln
+    technology:
+    - c
+    - cpp
+    source: Validated against NIST Juliet C/C++ Test Suite v1.3
+    remediation: Free each allocation exactly once and set the pointer to NULL after freeing it.
+  pattern-either:
+  - patterns:
+    - pattern-inside: |
+        $R1 $F(..., $PT $D, ...) { ... }
+        ...
+        $R2 $G(...) {
+          ...
+          free($X);
+          ...
+          $F(..., $X, ...);
+          ...
+        }
+    - pattern-inside: |
+        $R1 $F(..., $PT $D, ...) { ... }
+    - pattern-either:
+      - pattern: free($D);
+  - patterns:
+    - pattern-inside: |
+        $R1 $F(..., $PT $D, ...) { ... }
+        ...
+        $R2 $G(...) {
+          ...
+          $FPT $FP = $F;
+          ...
+          free($X);
+          ...
+          $FP(..., $X, ...);
+          ...
+        }
+    - pattern-inside: |
+        $R1 $F(..., $PT $D, ...) { ... }
+    - pattern-either:
+      - pattern: free($D);
+  - patterns:
+    - pattern-inside: |
+        $R1 $F(...) { ... $T $D = $GV; ... }
+        ...
+        $R2 $G(...) {
+          ...
+          free($X);
+          ...
+          $GV = $X;
+          ...
+          $F(...);
+          ...
+        }
+    - pattern-inside: |
+        $R1 $F(...) { ... }
+    - pattern-either:
+      - pattern: free($D);
+  - patterns:
+    - pattern-inside: |
+        $R1 $S(...) {
+          ...
+          free($X);
+          ...
+          return $X;
+        }
+        ...
+        $R2 $G(...) { ... $Y = $S(...); ... }
+    - pattern-inside: |
+        $R2 $G(...) { ... $Y = $S(...); ... }
+    - pattern-either:
+      - pattern: free($Y);

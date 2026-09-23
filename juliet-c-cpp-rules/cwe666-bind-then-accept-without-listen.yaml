@@ -1,0 +1,140 @@
+rules:
+- id: cwe666-bind-then-accept-without-listen
+  languages:
+  - c
+  - cpp
+  paths:
+    include:
+    - '*.c'
+    - '*.h'
+    - '*.cpp'
+    - '*.cc'
+    - '*.cxx'
+    - '*.c++'
+    - '*.hpp'
+    - '*.hh'
+    - '*.hxx'
+    - '*.inc'
+  severity: ERROR
+  message: The socket is bound and then passed to accept() without calling listen() in between, so the
+    accept() fails.
+  metadata:
+    vulnerability_class: Operation on Resource in Wrong Phase of Lifetime
+    help: |
+      ## Summary
+      The socket is bound and then passed to accept() without calling listen() in between, so the accept() fails.
+
+      ## Remediation
+      Only operate on resources that are in the correct lifecycle state (e.g. do not use a handle before it is opened).
+    category: security
+    cwe:
+    - 'CWE-666: Operation on Resource in Wrong Phase of Lifetime'
+    references:
+    - https://cwe.mitre.org/data/definitions/666.html
+    confidence: HIGH
+    likelihood: MEDIUM
+    impact: HIGH
+    subcategory:
+    - vuln
+    technology:
+    - c
+    - cpp
+    source: Validated against NIST Juliet C/C++ Test Suite v1.3
+    remediation: Only operate on resources that are in the correct lifecycle state (e.g. do not use a
+      handle before it is opened).
+  patterns:
+  - pattern-either:
+    - pattern: |
+        $R $F(...) { ... if (<... $BND($S, ...) ...>) { ... } ... if (<... accept($S, ...) ...>) { ... } ... }
+    - pattern: |
+        $R $F(...) { ... if (<... $BND($S, ...) ...>) { ... } ... accept($S, ...); ... }
+    - pattern: |
+        $R $F(...) { ... if (<... $BND($S, ...) ...>) { ... } ... $RV = accept($S, ...); ... }
+    - pattern: |
+        $R $F(...) { ... $BND($S, ...); ... if (<... accept($S, ...) ...>) { ... } ... }
+    - pattern: |
+        $R $F(...) { ... $BND($S, ...); ... accept($S, ...); ... }
+    - pattern: |
+        $R $F(...) { ... $BND($S, ...); ... $RV = accept($S, ...); ... }
+    - pattern: |
+        $R $F(...) { ... $RV = $BND($S, ...); ... if (<... accept($S, ...) ...>) { ... } ... }
+    - pattern: |
+        $R $F(...) { ... $RV = $BND($S, ...); ... accept($S, ...); ... }
+    - pattern: |
+        $R $F(...) { ... $RV = $BND($S, ...); ... $RV = accept($S, ...); ... }
+  - pattern-not: |
+      $R $F(...) { ... if (<... listen($S, ...) ...>) { ... } ... if (<... $BND($S, ...) ...>) { ... } ... }
+  - pattern-not: |
+      $R $F(...) { ... if (<... listen($S, ...) ...>) { ... } ... $BND($S, ...); ... }
+  - pattern-not: |
+      $R $F(...) { ... if (<... listen($S, ...) ...>) { ... } ... $RV = $BND($S, ...); ... }
+  - pattern-not: |
+      $R $F(...) { ... listen($S, ...); ... if (<... $BND($S, ...) ...>) { ... } ... }
+  - pattern-not: |
+      $R $F(...) { ... listen($S, ...); ... $BND($S, ...); ... }
+  - pattern-not: |
+      $R $F(...) { ... listen($S, ...); ... $RV = $BND($S, ...); ... }
+  - pattern-not: |
+      $R $F(...) { ... $RV = listen($S, ...); ... if (<... $BND($S, ...) ...>) { ... } ... }
+  - pattern-not: |
+      $R $F(...) { ... $RV = listen($S, ...); ... $BND($S, ...); ... }
+  - pattern-not: |
+      $R $F(...) { ... $RV = listen($S, ...); ... $RV = $BND($S, ...); ... }
+  - pattern-not: |
+      $R $F(...) { ... if (<... $BND($S, ...) ...>) { ... } ... if (<... listen($S, ...) ...>) { ... } ... if (<... accept($S, ...) ...>) { ... } ... }
+  - pattern-not: |
+      $R $F(...) { ... if (<... $BND($S, ...) ...>) { ... } ... if (<... listen($S, ...) ...>) { ... } ... accept($S, ...); ... }
+  - pattern-not: |
+      $R $F(...) { ... if (<... $BND($S, ...) ...>) { ... } ... if (<... listen($S, ...) ...>) { ... } ... $RV = accept($S, ...); ... }
+  - pattern-not: |
+      $R $F(...) { ... if (<... $BND($S, ...) ...>) { ... } ... listen($S, ...); ... if (<... accept($S, ...) ...>) { ... } ... }
+  - pattern-not: |
+      $R $F(...) { ... if (<... $BND($S, ...) ...>) { ... } ... listen($S, ...); ... accept($S, ...); ... }
+  - pattern-not: |
+      $R $F(...) { ... if (<... $BND($S, ...) ...>) { ... } ... listen($S, ...); ... $RV = accept($S, ...); ... }
+  - pattern-not: |
+      $R $F(...) { ... if (<... $BND($S, ...) ...>) { ... } ... $RV = listen($S, ...); ... if (<... accept($S, ...) ...>) { ... } ... }
+  - pattern-not: |
+      $R $F(...) { ... if (<... $BND($S, ...) ...>) { ... } ... $RV = listen($S, ...); ... accept($S, ...); ... }
+  - pattern-not: |
+      $R $F(...) { ... if (<... $BND($S, ...) ...>) { ... } ... $RV = listen($S, ...); ... $RV = accept($S, ...); ... }
+  - pattern-not: |
+      $R $F(...) { ... $BND($S, ...); ... if (<... listen($S, ...) ...>) { ... } ... if (<... accept($S, ...) ...>) { ... } ... }
+  - pattern-not: |
+      $R $F(...) { ... $BND($S, ...); ... if (<... listen($S, ...) ...>) { ... } ... accept($S, ...); ... }
+  - pattern-not: |
+      $R $F(...) { ... $BND($S, ...); ... if (<... listen($S, ...) ...>) { ... } ... $RV = accept($S, ...); ... }
+  - pattern-not: |
+      $R $F(...) { ... $BND($S, ...); ... listen($S, ...); ... if (<... accept($S, ...) ...>) { ... } ... }
+  - pattern-not: |
+      $R $F(...) { ... $BND($S, ...); ... listen($S, ...); ... accept($S, ...); ... }
+  - pattern-not: |
+      $R $F(...) { ... $BND($S, ...); ... listen($S, ...); ... $RV = accept($S, ...); ... }
+  - pattern-not: |
+      $R $F(...) { ... $BND($S, ...); ... $RV = listen($S, ...); ... if (<... accept($S, ...) ...>) { ... } ... }
+  - pattern-not: |
+      $R $F(...) { ... $BND($S, ...); ... $RV = listen($S, ...); ... accept($S, ...); ... }
+  - pattern-not: |
+      $R $F(...) { ... $BND($S, ...); ... $RV = listen($S, ...); ... $RV = accept($S, ...); ... }
+  - pattern-not: |
+      $R $F(...) { ... $RV = $BND($S, ...); ... if (<... listen($S, ...) ...>) { ... } ... if (<... accept($S, ...) ...>) { ... } ... }
+  - pattern-not: |
+      $R $F(...) { ... $RV = $BND($S, ...); ... if (<... listen($S, ...) ...>) { ... } ... accept($S, ...); ... }
+  - pattern-not: |
+      $R $F(...) { ... $RV = $BND($S, ...); ... if (<... listen($S, ...) ...>) { ... } ... $RV = accept($S, ...); ... }
+  - pattern-not: |
+      $R $F(...) { ... $RV = $BND($S, ...); ... listen($S, ...); ... if (<... accept($S, ...) ...>) { ... } ... }
+  - pattern-not: |
+      $R $F(...) { ... $RV = $BND($S, ...); ... listen($S, ...); ... accept($S, ...); ... }
+  - pattern-not: |
+      $R $F(...) { ... $RV = $BND($S, ...); ... listen($S, ...); ... $RV = accept($S, ...); ... }
+  - pattern-not: |
+      $R $F(...) { ... $RV = $BND($S, ...); ... $RV = listen($S, ...); ... if (<... accept($S, ...) ...>) { ... } ... }
+  - pattern-not: |
+      $R $F(...) { ... $RV = $BND($S, ...); ... $RV = listen($S, ...); ... accept($S, ...); ... }
+  - pattern-not: |
+      $R $F(...) { ... $RV = $BND($S, ...); ... $RV = listen($S, ...); ... $RV = accept($S, ...); ... }
+  - metavariable-regex:
+      metavariable: $BND
+      regex: ^bind$
+  - focus-metavariable: $BND

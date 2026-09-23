@@ -1,0 +1,73 @@
+rules:
+- id: cwe476-null-check-after-dereference
+  languages:
+  - c
+  - cpp
+  paths:
+    include:
+    - '*.c'
+    - '*.h'
+    - '*.cpp'
+    - '*.cc'
+    - '*.cxx'
+    - '*.c++'
+    - '*.hpp'
+    - '*.hh'
+    - '*.hxx'
+    - '*.inc'
+  severity: WARNING
+  message: A pointer is checked for NULL after it has already been dereferenced, so either the check is
+    dead or the earlier dereference can crash.
+  metadata:
+    vulnerability_class: NULL Pointer Dereference
+    help: |
+      ## Summary
+      A pointer is checked for NULL after it has already been dereferenced, so either the check is dead or the earlier dereference can crash.
+
+      ## Remediation
+      Check pointers for NULL before dereferencing them.
+    category: security
+    cwe:
+    - 'CWE-476: NULL Pointer Dereference'
+    references:
+    - https://cwe.mitre.org/data/definitions/476.html
+    confidence: MEDIUM
+    likelihood: MEDIUM
+    impact: MEDIUM
+    subcategory:
+    - vuln
+    technology:
+    - c
+    - cpp
+    source: Validated against NIST Juliet C/C++ Test Suite v1.3
+    remediation: Check pointers for NULL before dereferencing them.
+  patterns:
+  - pattern-either:
+    - pattern: |
+        *$P = $V;
+        ...
+        if ($COND) { ... }
+    - pattern: |
+        $P->$FLD = $V;
+        ...
+        if ($COND) { ... }
+    - pattern: |
+        $F(..., *$P, ...);
+        ...
+        if ($COND) { ... }
+    - pattern: |
+        $F(..., $P->$FLD, ...);
+        ...
+        if ($COND) { ... }
+  - pattern-not: |
+      $DEREF;
+      ...
+      $P = $W;
+      ...
+      if ($COND) { ... }
+  - metavariable-pattern:
+      metavariable: $COND
+      pattern-either:
+      - pattern: $P != NULL
+      - pattern: $P == NULL
+  - focus-metavariable: $COND

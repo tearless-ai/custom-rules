@@ -1,0 +1,94 @@
+rules:
+- id: cwe134-format-string-via-destructor-helper
+  languages:
+  - cpp
+  paths:
+    include:
+    - '*.c'
+    - '*.h'
+    - '*.cpp'
+    - '*.cc'
+    - '*.cxx'
+    - '*.c++'
+    - '*.hpp'
+    - '*.hh'
+    - '*.hxx'
+    - '*.inc'
+  severity: ERROR
+  message: printf-family call with a non-literal format string in a helper called by a destructor, using
+    member data that the class constructor read from untrusted input (console, file, socket or environment).
+  metadata:
+    vulnerability_class: Use of Externally-Controlled Format String
+    help: |
+      ## Summary
+      printf-family call with a non-literal format string in a helper called by a destructor, using member data that the class constructor read from untrusted input (console, file, socket or environment).
+
+      ## Remediation
+      Always pass a string literal as the format argument, e.g. printf("%s", data) instead of printf(data).
+    category: security
+    cwe:
+    - 'CWE-134: Use of Externally-Controlled Format String'
+    references:
+    - https://cwe.mitre.org/data/definitions/134.html
+    confidence: MEDIUM
+    likelihood: MEDIUM
+    impact: HIGH
+    subcategory:
+    - vuln
+    technology:
+    - c
+    - cpp
+    source: Validated against NIST Juliet C/C++ Test Suite v1.3
+    remediation: Always pass a string literal as the format argument, e.g. printf("%s", data) instead
+      of printf(data).
+  patterns:
+  - pattern-either:
+    - patterns:
+      - pattern: $PRINTF($FMT, ...)
+      - metavariable-regex:
+          metavariable: $PRINTF
+          regex: ^(printf|wprintf|vprintf|vwprintf|_printf_l|_wprintf_l)$
+    - patterns:
+      - pattern: $PRINTF($DST, $FMT, ...)
+      - metavariable-regex:
+          metavariable: $PRINTF
+          regex: ^(fprintf|fwprintf|vfprintf|vfwprintf|sprintf|vsprintf|dprintf|vdprintf|syslog|vsyslog|asprintf|vasprintf|wsprintfA|wsprintfW|wvsprintfA|wvsprintfW)$
+    - patterns:
+      - pattern: $PRINTF($DST, $N, $FMT, ...)
+      - metavariable-regex:
+          metavariable: $PRINTF
+          regex: ^(SNPRINTF|snprintf|_snprintf|_snwprintf|swprintf|vsnprintf|_vsnprintf|_vsnwprintf|vswprintf|StringCchPrintfA|StringCchPrintfW|StringCbPrintfA|StringCbPrintfW)$
+  - metavariable-regex:
+      metavariable: $FMT
+      regex: ^(?!\s*(L|u8|u|U)?\")(?!\s*[A-Z][A-Z0-9_]*\s*$)
+  - pattern-inside: |
+      $T_SINKFN $SINKFN(...) {
+        ...
+      }
+  - pattern-either:
+    - pattern-inside: |
+        $T_CTOR $CTOR(...) {
+          ...
+          <... $SRC(...) ...>;
+          ...
+        }
+        ...
+        $T_SINKFN $SINKFN(...) {
+          ...
+        }
+        ...
+        $T_DTOR $DTOR(...) {
+          ...
+          <... $SINKFN(...) ...>;
+          ...
+        }
+  - metavariable-regex:
+      metavariable: $CTOR
+      regex: ^(?:\w+::)*(\w+)::\1$
+  - metavariable-regex:
+      metavariable: $DTOR
+      regex: ^(?:\w+::)*(\w+)::~\1$
+  - metavariable-regex:
+      metavariable: $SRC
+      regex: ^(?:std::)?(fgets|fgetws|gets|_getws|getline|getdelim|scanf|wscanf|fscanf|fwscanf|read|_read|recv|recvfrom|recvmsg|WSARecv|WSARecvFrom|getenv|_wgetenv|secure_getenv|GETENV|ReadFile|ReadConsoleA|ReadConsoleW|InternetReadFile)$
+  - focus-metavariable: $PRINTF

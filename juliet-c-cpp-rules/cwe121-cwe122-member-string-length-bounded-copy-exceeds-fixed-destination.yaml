@@ -1,0 +1,149 @@
+rules:
+- id: cwe121-cwe122-member-string-length-bounded-copy-exceeds-fixed-destination
+  languages:
+  - cpp
+  paths:
+    include:
+    - '*.c'
+    - '*.h'
+    - '*.cpp'
+    - '*.cc'
+    - '*.cxx'
+    - '*.c++'
+    - '*.hpp'
+    - '*.hh'
+    - '*.hxx'
+    - '*.inc'
+  severity: ERROR
+  message: The data member '$SRC' is filled (in another method) to a length that does not fit in the fixed-size
+    array '$DST'; copying it bounded only by the source length overflows the destination.
+  metadata:
+    vulnerability_class: Stack-based Buffer Overflow
+    help: |
+      ## Summary
+      The data member '`$SRC`' is filled (in another method) to a length that does not fit in the fixed-size array '`$DST`'; copying it bounded only by the source length overflows the destination.
+
+      ## Remediation
+      Bound every copy and index by the destination's size (sizeof the array), use size-checked APIs such as snprintf, and validate lengths and indexes from input before use.
+    category: security
+    cwe:
+    - 'CWE-121: Stack-based Buffer Overflow'
+    - 'CWE-122: Heap-based Buffer Overflow'
+    references:
+    - https://cwe.mitre.org/data/definitions/121.html
+    - https://cwe.mitre.org/data/definitions/122.html
+    confidence: MEDIUM
+    likelihood: MEDIUM
+    impact: HIGH
+    subcategory:
+    - vuln
+    technology:
+    - c
+    - cpp
+    source: Validated against NIST Juliet C/C++ Test Suite v1.3
+    remediation: Bound every copy and index by the destination's size (sizeof the array), use size-checked
+      APIs such as snprintf, and validate lengths and indexes from input before use.
+  patterns:
+  - pattern-either:
+    - pattern: strncpy($DST, $SRC, strlen($SRC))
+    - pattern: wcsncpy($DST, $SRC, wcslen($SRC))
+    - pattern: memcpy($DST, $SRC, strlen($SRC) * sizeof(...))
+    - pattern: memmove($DST, $SRC, strlen($SRC) * sizeof(...))
+    - pattern: memcpy($DST, $SRC, wcslen($SRC) * sizeof(...))
+    - pattern: memmove($DST, $SRC, wcslen($SRC) * sizeof(...))
+    - patterns:
+      - pattern-inside: for ($I = $Z; $I < $BOUND; $I++) { ... }
+      - pattern: $DST[$I] = $SRC[$I];
+      - metavariable-regex:
+          metavariable: $BOUND
+          regex: '[A-Za-z_]'
+    - pattern: snprintf($DST, strlen($SRC), ...)
+    - pattern: _snprintf($DST, strlen($SRC), ...)
+    - pattern: _snwprintf($DST, strlen($SRC), ...)
+    - pattern: swprintf($DST, strlen($SRC), ...)
+    - pattern: vsnprintf($DST, strlen($SRC), ...)
+    - pattern: SNPRINTF($DST, strlen($SRC), ...)
+    - pattern: snprintf($DST, wcslen($SRC), ...)
+    - pattern: _snprintf($DST, wcslen($SRC), ...)
+    - pattern: _snwprintf($DST, wcslen($SRC), ...)
+    - pattern: swprintf($DST, wcslen($SRC), ...)
+    - pattern: vsnprintf($DST, wcslen($SRC), ...)
+    - pattern: SNPRINTF($DST, wcslen($SRC), ...)
+  - pattern-either:
+    - pattern-inside: |-
+        $RET $F(...) {
+          ...
+          $TD $DST[$N];
+          ...
+        }
+    - pattern-inside: |-
+        $RET $F(...) {
+          ...
+          $TD $DST[$N] = $INIT;
+          ...
+        }
+  - patterns:
+    - patterns:
+      - pattern-inside: |-
+          $CR1 $SETF(...) {
+            ...
+            $MS($V, $C, $L);
+            ...
+          }
+          ...
+          $CR2 $USEF(...) {
+            ...
+          }
+      - metavariable-regex:
+          metavariable: $MS
+          regex: ^w?memset$
+    - pattern-inside: |-
+        $CR2 $USEF(...) {
+          ...
+        }
+    - pattern-not-inside: |-
+        $CX $USEF(...) {
+          ...
+          $TT $V;
+          ...
+        }
+    - pattern-not-inside: |-
+        $CX $SETF(...) {
+          ...
+          $TT $V;
+          ...
+        }
+        ...
+        $CY $USEF(...) {
+          ...
+        }
+    - pattern-not-inside: |-
+        $CX $USEF(...) {
+          ...
+          $TT $V = $IV;
+          ...
+        }
+    - pattern-not-inside: |-
+        $CX $SETF(...) {
+          ...
+          $TT $V = $IV;
+          ...
+        }
+        ...
+        $CY $USEF(...) {
+          ...
+        }
+    - pattern-not-inside: |-
+        $CX $USEF(..., $TT $V, ...) {
+          ...
+        }
+    - pattern-not-inside: |-
+        $CX $SETF(..., $TT $V, ...) {
+          ...
+        }
+        ...
+        $CY $USEF(...) {
+          ...
+        }
+  - metavariable-comparison:
+      comparison: str($V) == str($SRC) and $L > $N

@@ -1,0 +1,65 @@
+rules:
+- id: cwe247-reverse-dns-name-in-security-decision
+  languages:
+  - c
+  - cpp
+  paths:
+    include:
+    - '*.c'
+    - '*.h'
+    - '*.cpp'
+    - '*.cc'
+    - '*.cxx'
+    - '*.c++'
+    - '*.hpp'
+    - '*.hh'
+    - '*.hxx'
+    - '*.inc'
+  severity: WARNING
+  message: The host name returned by a reverse DNS lookup is compared with $CMP() to make a trust decision;
+    an attacker who controls the DNS records of their address can return any name.
+  metadata:
+    vulnerability_class: Reliance on DNS Lookups in a Security Decision
+    help: |
+      ## Summary
+      The host name returned by a reverse DNS lookup is compared with `$CMP()` to make a trust decision; an attacker who controls the DNS records of their address can return any name.
+
+      ## Remediation
+      Do not make security decisions based on DNS names; authenticate the peer cryptographically instead.
+    category: security
+    cwe:
+    - 'CWE-247: Reliance on DNS Lookups in a Security Decision'
+    references:
+    - https://cwe.mitre.org/data/definitions/247.html
+    confidence: MEDIUM
+    likelihood: MEDIUM
+    impact: MEDIUM
+    subcategory:
+    - vuln
+    technology:
+    - c
+    - cpp
+    source: Validated against NIST Juliet C/C++ Test Suite v1.3
+    remediation: Do not make security decisions based on DNS names; authenticate the peer cryptographically
+      instead.
+  patterns:
+  - pattern-either:
+    - patterns:
+      - pattern-inside: |
+          $H = gethostbyaddr(...);
+          ...
+      - pattern-either:
+        - pattern: $CMP($H->h_name, ...)
+        - pattern: $CMP($OTHER, $H->h_name, ...)
+    - patterns:
+      - pattern-inside: |
+          $RC = getnameinfo($SA, $SALEN, $HOST, ...);
+          ...
+      - pattern-either:
+        - pattern: $CMP($HOST, ...)
+        - pattern: $CMP($OTHER, $HOST, ...)
+  - metavariable-regex:
+      metavariable: $CMP
+      regex: ^(strcmp|strncmp|strcasecmp|strncasecmp|stricmp|_stricmp|strnicmp|_strnicmp|lstrcmpA|lstrcmpiA|wcscmp|_wcsicmp|CompareStringA|strstr|strcasestr)$
+  - pattern-inside: |
+      if (<... $CMP(...) ...>) { ... }

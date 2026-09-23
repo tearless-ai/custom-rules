@@ -1,0 +1,82 @@
+rules:
+- id: cwe832-unlock-of-lock-not-held
+  languages:
+  - c
+  - cpp
+  paths:
+    include:
+    - '*.c'
+    - '*.h'
+    - '*.cpp'
+    - '*.cc'
+    - '*.cxx'
+    - '*.c++'
+    - '*.hpp'
+    - '*.hh'
+    - '*.hxx'
+    - '*.inc'
+  severity: ERROR
+  message: A lock is released on a path where it was never acquired (or was already released), which is
+    undefined behavior for most mutex implementations.
+  metadata:
+    vulnerability_class: Unlock of a Resource that is not Locked
+    help: |
+      ## Summary
+      A lock is released on a path where it was never acquired (or was already released), which is undefined behavior for most mutex implementations.
+
+      ## Remediation
+      Only unlock resources that the current code path has locked.
+    category: security
+    cwe:
+    - 'CWE-832: Unlock of a Resource that is not Locked'
+    references:
+    - https://cwe.mitre.org/data/definitions/832.html
+    confidence: MEDIUM
+    likelihood: MEDIUM
+    impact: HIGH
+    subcategory:
+    - vuln
+    technology:
+    - c
+    - cpp
+    source: Validated against NIST Juliet C/C++ Test Suite v1.3
+    remediation: Only unlock resources that the current code path has locked.
+  mode: taint
+  pattern-sources:
+  - patterns:
+    - pattern-either:
+      - pattern: $CREATE(&$L, ...)
+      - pattern: $CREATE($L, ...)
+    - metavariable-regex:
+        metavariable: $CREATE
+        regex: ^(pthread_mutex_init|pthread_rwlock_init|mtx_init|InitializeCriticalSection|InitializeCriticalSectionAndSpinCount|InitializeCriticalSectionEx|InitializeSRWLock|\w*[Ll]ock[Cc]reate|\w*[Ll]ock[Ii]nit|\w*[Mm]utex[Cc]reate|\w*[Mm]utex[Ii]nit)$
+    - focus-metavariable: $L
+    by-side-effect: only
+  - patterns:
+    - pattern-either:
+      - pattern: $REL(&$L)
+      - pattern: $REL($L)
+    - metavariable-regex:
+        metavariable: $REL
+        regex: ^(pthread_mutex_unlock|pthread_rwlock_unlock|mtx_unlock|LeaveCriticalSection|ReleaseSRWLockExclusive|ReleaseSRWLockShared|ReleaseMutex|\w*[Ll]ock[Rr]elease|\w*[Mm]utex[Uu]nlock|\w*[Mm]utex[Rr]elease)$
+    - focus-metavariable: $L
+    by-side-effect: only
+  pattern-sanitizers:
+  - patterns:
+    - pattern-either:
+      - pattern: $ACQ(&$L)
+      - pattern: $ACQ($L)
+    - metavariable-regex:
+        metavariable: $ACQ
+        regex: ^(pthread_mutex_lock|pthread_mutex_trylock|pthread_mutex_timedlock|pthread_rwlock_rdlock|pthread_rwlock_wrlock|pthread_rwlock_tryrdlock|pthread_rwlock_trywrlock|mtx_lock|mtx_trylock|mtx_timedlock|EnterCriticalSection|TryEnterCriticalSection|AcquireSRWLockExclusive|AcquireSRWLockShared|WaitForSingleObject|\w*[Ll]ock[Aa]cquire|\w*[Mm]utex[Ll]ock|\w*[Mm]utex[Aa]cquire)$
+    - focus-metavariable: $L
+    by-side-effect: true
+  pattern-sinks:
+  - patterns:
+    - pattern-either:
+      - pattern: $REL(&$L)
+      - pattern: $REL($L)
+    - metavariable-regex:
+        metavariable: $REL
+        regex: ^(pthread_mutex_unlock|pthread_rwlock_unlock|mtx_unlock|LeaveCriticalSection|ReleaseSRWLockExclusive|ReleaseSRWLockShared|ReleaseMutex|\w*[Ll]ock[Rr]elease|\w*[Mm]utex[Uu]nlock|\w*[Mm]utex[Rr]elease)$
+    - focus-metavariable: $L

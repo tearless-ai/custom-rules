@@ -1,0 +1,72 @@
+rules:
+- id: cwe416-use-after-free-cpp
+  languages:
+  - cpp
+  paths:
+    include:
+    - '*.c'
+    - '*.h'
+    - '*.cpp'
+    - '*.cc'
+    - '*.cxx'
+    - '*.c++'
+    - '*.hpp'
+    - '*.hh'
+    - '*.hxx'
+    - '*.inc'
+  severity: ERROR
+  message: Pointer $X is used after the memory it points to was released.
+  metadata:
+    vulnerability_class: Use After Free
+    help: |
+      ## Summary
+      Pointer `$X` is used after the memory it points to was released.
+
+      ## Remediation
+      Do not use memory after it has been freed; set pointers to NULL after free and restructure ownership so no stale references remain.
+    category: security
+    cwe:
+    - 'CWE-416: Use After Free'
+    references:
+    - https://cwe.mitre.org/data/definitions/416.html
+    confidence: HIGH
+    likelihood: MEDIUM
+    impact: HIGH
+    subcategory:
+    - vuln
+    technology:
+    - c
+    - cpp
+    source: Validated against NIST Juliet C/C++ Test Suite v1.3
+    remediation: Do not use memory after it has been freed; set pointers to NULL after free and restructure
+      ownership so no stale references remain.
+  mode: taint
+  pattern-sources:
+  - by-side-effect: only
+    patterns:
+    - pattern: free($X);
+    - focus-metavariable: $X
+  - by-side-effect: only
+    patterns:
+    - pattern: delete $X;
+    - focus-metavariable: $X
+  - by-side-effect: only
+    patterns:
+    - pattern: delete [] $X;
+    - focus-metavariable: $X
+  pattern-sinks:
+  - patterns:
+    - pattern-either:
+      - patterns:
+        - pattern: $UF(..., $X, ...)
+        - metavariable-regex:
+            metavariable: $UF
+            regex: ^(?!(free|_aligned_free|g_free)$)
+      - pattern: $X[$UI]
+      - pattern: '*$X'
+      - pattern: $X->$UFLD
+      - pattern: return $X;
+    - metavariable-regex:
+        metavariable: $X
+        regex: ^[^&]
+    - focus-metavariable: $X

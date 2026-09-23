@@ -1,0 +1,72 @@
+rules:
+- id: cwe122-narrow-strlen-sizes-wide-copy-into-heap-buffer
+  languages:
+  - c
+  - cpp
+  paths:
+    include:
+    - '*.c'
+    - '*.h'
+    - '*.cpp'
+    - '*.cc'
+    - '*.cxx'
+    - '*.c++'
+    - '*.hpp'
+    - '*.hh'
+    - '*.hxx'
+    - '*.inc'
+  severity: ERROR
+  message: The length of '$SRC' is measured with strlen() on a char* cast, but the data is then copied
+    with wcscpy(); the heap buffer sized from that length is too small for the wide string.
+  metadata:
+    vulnerability_class: Heap-based Buffer Overflow
+    help: |
+      ## Summary
+      The length of '`$SRC`' is measured with strlen() on a char* cast, but the data is then copied with wcscpy(); the heap buffer sized from that length is too small for the wide string.
+
+      ## Remediation
+      Allocate enough room for the data including the terminator, bound every copy and index by the allocation size, and validate lengths and indexes from input before use.
+    category: security
+    cwe:
+    - 'CWE-122: Heap-based Buffer Overflow'
+    references:
+    - https://cwe.mitre.org/data/definitions/122.html
+    confidence: MEDIUM
+    likelihood: MEDIUM
+    impact: HIGH
+    subcategory:
+    - vuln
+    technology:
+    - c
+    - cpp
+    source: Validated against NIST Juliet C/C++ Test Suite v1.3
+    remediation: Allocate enough room for the data including the terminator, bound every copy and index
+      by the allocation size, and validate lengths and indexes from input before use.
+  patterns:
+  - pattern-either:
+    - pattern-inside: |
+        $LT $LEN = strlen((char *)$SRC);
+        ...
+    - pattern-inside: |
+        $LEN = strlen((char *)$SRC);
+        ...
+  - pattern-either:
+    - pattern-inside: |-
+        $RET $F(...) {
+          ...
+          $DEST = ($T *)malloc(...);
+          ...
+        }
+    - pattern-inside: |-
+        $RET $F(...) {
+          ...
+          $DEST = ($T *)calloc(...);
+          ...
+        }
+    - pattern-inside: |-
+        $RET $F(...) {
+          ...
+          $DEST = ($T *)realloc(...);
+          ...
+        }
+  - pattern: wcscpy($DEST, $SRC)

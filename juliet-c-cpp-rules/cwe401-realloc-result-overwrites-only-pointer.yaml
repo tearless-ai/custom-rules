@@ -1,0 +1,62 @@
+rules:
+- id: cwe401-realloc-result-overwrites-only-pointer
+  languages:
+  - c
+  - cpp
+  paths:
+    include:
+    - '*.c'
+    - '*.h'
+    - '*.cpp'
+    - '*.cc'
+    - '*.cxx'
+    - '*.c++'
+    - '*.hpp'
+    - '*.hh'
+    - '*.hxx'
+    - '*.inc'
+  severity: ERROR
+  message: If realloc() fails it returns NULL and the original block pointed to by $X is leaked; assign
+    the result to a temporary first.
+  metadata:
+    vulnerability_class: Missing Release of Memory after Effective Lifetime
+    help: |
+      ## Summary
+      If realloc() fails it returns NULL and the original block pointed to by `$X` is leaked; assign the result to a temporary first.
+
+      ## Remediation
+      Free every allocation on every path once it is no longer needed, or use RAII (smart pointers, containers) in C++.
+    category: security
+    cwe:
+    - 'CWE-401: Missing Release of Memory after Effective Lifetime'
+    references:
+    - https://cwe.mitre.org/data/definitions/401.html
+    confidence: HIGH
+    likelihood: MEDIUM
+    impact: HIGH
+    subcategory:
+    - vuln
+    technology:
+    - c
+    - cpp
+    source: Validated against NIST Juliet C/C++ Test Suite v1.3
+    remediation: Free every allocation on every path once it is no longer needed, or use RAII (smart pointers,
+      containers) in C++.
+  patterns:
+  - pattern-either:
+    - pattern: $X = realloc($X, $SZ);
+    - pattern: $X = ($T) realloc($X, $SZ);
+  - pattern-either:
+    - pattern-inside: |
+        $R $G(...) { ... $X = $ALLOC; ... }
+    - pattern-inside: |
+        $R $G(...) { ... $XT $X = $ALLOC; ... }
+  - metavariable-pattern:
+      metavariable: $ALLOC
+      patterns:
+      - pattern-either:
+        - pattern: $AF(...)
+        - pattern: ($ACT) $AF(...)
+      - metavariable-regex:
+          metavariable: $AF
+          regex: ^(malloc|calloc|strdup|wcsdup|_strdup|_wcsdup|strndup|wcsndup)$

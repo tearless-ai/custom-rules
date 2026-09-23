@@ -1,0 +1,58 @@
+rules:
+- id: cwe762-new-released-with-delete-array-or-free
+  languages:
+  - cpp
+  paths:
+    include:
+    - '*.c'
+    - '*.h'
+    - '*.cpp'
+    - '*.cc'
+    - '*.cxx'
+    - '*.c++'
+    - '*.hpp'
+    - '*.hh'
+    - '*.hxx'
+    - '*.inc'
+  severity: ERROR
+  message: Memory obtained from scalar new is released with delete[] or free(); it must be released with
+    delete.
+  metadata:
+    vulnerability_class: Mismatched Memory Management Routines
+    help: |
+      ## Summary
+      Memory obtained from scalar new is released with delete[] or free(); it must be released with delete.
+
+      ## Remediation
+      Pair allocation and release functions correctly: malloc/free, new/delete, new[]/delete[].
+    category: security
+    cwe:
+    - 'CWE-762: Mismatched Memory Management Routines'
+    references:
+    - https://cwe.mitre.org/data/definitions/762.html
+    confidence: HIGH
+    likelihood: MEDIUM
+    impact: HIGH
+    subcategory:
+    - vuln
+    technology:
+    - c
+    - cpp
+    source: Validated against NIST Juliet C/C++ Test Suite v1.3
+    remediation: 'Pair allocation and release functions correctly: malloc/free, new/delete, new[]/delete[].'
+  mode: taint
+  pattern-sources:
+  - patterns:
+    - pattern-either:
+      - pattern: new $ANT
+      - pattern: new $ANT(...)
+    - pattern-not: new ($PLB) $PLT
+    - metavariable-regex:
+        metavariable: $ANT
+        regex: ^[^\[]*$
+  pattern-sinks:
+  - patterns:
+    - pattern-either:
+      - pattern: delete [] $X;
+      - pattern: free($X)
+    - focus-metavariable: $X

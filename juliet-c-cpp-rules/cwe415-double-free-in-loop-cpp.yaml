@@ -1,0 +1,568 @@
+rules:
+- id: cwe415-double-free-in-loop-cpp
+  languages:
+  - cpp
+  paths:
+    include:
+    - '*.c'
+    - '*.h'
+    - '*.cpp'
+    - '*.cc'
+    - '*.cxx'
+    - '*.c++'
+    - '*.hpp'
+    - '*.hh'
+    - '*.hxx'
+    - '*.inc'
+  severity: ERROR
+  message: Pointer $X released here was already released earlier in this function and not reassigned since.
+  metadata:
+    vulnerability_class: Double Free
+    help: |
+      ## Summary
+      Pointer `$X` released here was already released earlier in this function and not reassigned since.
+
+      ## Remediation
+      Free each allocation exactly once and set the pointer to NULL after freeing it.
+    category: security
+    cwe:
+    - 'CWE-415: Double Free'
+    references:
+    - https://cwe.mitre.org/data/definitions/415.html
+    confidence: HIGH
+    likelihood: MEDIUM
+    impact: HIGH
+    subcategory:
+    - vuln
+    technology:
+    - c
+    - cpp
+    source: Validated against NIST Juliet C/C++ Test Suite v1.3
+    remediation: Free each allocation exactly once and set the pointer to NULL after freeing it.
+  options:
+    constant_propagation: false
+  pattern-either:
+  - patterns:
+    - pattern: |
+        $R $G(...) {
+          ...
+          $F1($X);
+          ...
+          for (...) { ... $F2($X); ... }
+          ...
+        }
+    - pattern-not: |
+        $R $G(...) {
+          ...
+          $F1($X);
+          ...
+          $X = $NEWV;
+          ...
+          for (...) { ... $F2($X); ... }
+          ...
+        }
+    - pattern-not: |
+        $R $G(...) {
+          ...
+          $F1($X);
+          ...
+          for (...) { ... $F2($X); ... break; }
+          ...
+        }
+    - pattern-not: |
+        $R $G(...) {
+          ...
+          if ($EC) { ... $F1($X); ... } else { ... for (...) { ... $F2($X); ... } ... }
+          ...
+        }
+    - metavariable-regex:
+        metavariable: $F1
+        regex: ^free$
+    - metavariable-regex:
+        metavariable: $F2
+        regex: ^free$
+    - focus-metavariable: $F2
+  - patterns:
+    - pattern: |
+        $R $G(...) {
+          ...
+          $F1($X);
+          ...
+          while ($LC) { ... $F2($X); ... }
+          ...
+        }
+    - pattern-not: |
+        $R $G(...) {
+          ...
+          $F1($X);
+          ...
+          $X = $NEWV;
+          ...
+          while ($LC) { ... $F2($X); ... }
+          ...
+        }
+    - pattern-not: |
+        $R $G(...) {
+          ...
+          $F1($X);
+          ...
+          while ($LC) { ... $F2($X); ... break; }
+          ...
+        }
+    - pattern-not: |
+        $R $G(...) {
+          ...
+          if ($EC) { ... $F1($X); ... } else { ... while ($LC) { ... $F2($X); ... } ... }
+          ...
+        }
+    - metavariable-regex:
+        metavariable: $F1
+        regex: ^free$
+    - metavariable-regex:
+        metavariable: $F2
+        regex: ^free$
+    - focus-metavariable: $F2
+  - patterns:
+    - pattern: |
+        $R $G(...) {
+          ...
+          delete $X1;
+          ...
+          for (...) { ... delete $X2; ... }
+          ...
+        }
+    - pattern-not: |
+        $R $G(...) {
+          ...
+          delete $X1;
+          ...
+          $X1 = $NEWV;
+          ...
+          for (...) { ... delete $X2; ... }
+          ...
+        }
+    - pattern-not: |
+        $R $G(...) {
+          ...
+          delete $X1;
+          ...
+          for (...) { ... delete $X2; ... break; }
+          ...
+        }
+    - pattern-not: |
+        $R $G(...) {
+          ...
+          if ($EC) { ... delete $X1; ... } else { ... for (...) { ... delete $X2; ... } ... }
+          ...
+        }
+    - metavariable-comparison:
+        comparison: str($X1) == str($X2)
+    - focus-metavariable: $X2
+  - patterns:
+    - pattern: |
+        $R $G(...) {
+          ...
+          delete $X1;
+          ...
+          while ($LC) { ... delete $X2; ... }
+          ...
+        }
+    - pattern-not: |
+        $R $G(...) {
+          ...
+          delete $X1;
+          ...
+          $X1 = $NEWV;
+          ...
+          while ($LC) { ... delete $X2; ... }
+          ...
+        }
+    - pattern-not: |
+        $R $G(...) {
+          ...
+          delete $X1;
+          ...
+          while ($LC) { ... delete $X2; ... break; }
+          ...
+        }
+    - pattern-not: |
+        $R $G(...) {
+          ...
+          if ($EC) { ... delete $X1; ... } else { ... while ($LC) { ... delete $X2; ... } ... }
+          ...
+        }
+    - metavariable-comparison:
+        comparison: str($X1) == str($X2)
+    - focus-metavariable: $X2
+  - patterns:
+    - pattern: |
+        $R $G(...) {
+          ...
+          delete [] $X1;
+          ...
+          for (...) { ... delete [] $X2; ... }
+          ...
+        }
+    - pattern-not: |
+        $R $G(...) {
+          ...
+          delete [] $X1;
+          ...
+          $X1 = $NEWV;
+          ...
+          for (...) { ... delete [] $X2; ... }
+          ...
+        }
+    - pattern-not: |
+        $R $G(...) {
+          ...
+          delete [] $X1;
+          ...
+          for (...) { ... delete [] $X2; ... break; }
+          ...
+        }
+    - pattern-not: |
+        $R $G(...) {
+          ...
+          if ($EC) { ... delete [] $X1; ... } else { ... for (...) { ... delete [] $X2; ... } ... }
+          ...
+        }
+    - metavariable-comparison:
+        comparison: str($X1) == str($X2)
+    - focus-metavariable: $X2
+  - patterns:
+    - pattern: |
+        $R $G(...) {
+          ...
+          delete [] $X1;
+          ...
+          while ($LC) { ... delete [] $X2; ... }
+          ...
+        }
+    - pattern-not: |
+        $R $G(...) {
+          ...
+          delete [] $X1;
+          ...
+          $X1 = $NEWV;
+          ...
+          while ($LC) { ... delete [] $X2; ... }
+          ...
+        }
+    - pattern-not: |
+        $R $G(...) {
+          ...
+          delete [] $X1;
+          ...
+          while ($LC) { ... delete [] $X2; ... break; }
+          ...
+        }
+    - pattern-not: |
+        $R $G(...) {
+          ...
+          if ($EC) { ... delete [] $X1; ... } else { ... while ($LC) { ... delete [] $X2; ... } ... }
+          ...
+        }
+    - metavariable-comparison:
+        comparison: str($X1) == str($X2)
+    - focus-metavariable: $X2
+  - patterns:
+    - pattern: |
+        $R $G(...) {
+          ...
+          delete $X1;
+          ...
+          for (...) { ... delete [] $X2; ... }
+          ...
+        }
+    - pattern-not: |
+        $R $G(...) {
+          ...
+          delete $X1;
+          ...
+          $X1 = $NEWV;
+          ...
+          for (...) { ... delete [] $X2; ... }
+          ...
+        }
+    - pattern-not: |
+        $R $G(...) {
+          ...
+          delete $X1;
+          ...
+          for (...) { ... delete [] $X2; ... break; }
+          ...
+        }
+    - pattern-not: |
+        $R $G(...) {
+          ...
+          if ($EC) { ... delete $X1; ... } else { ... for (...) { ... delete [] $X2; ... } ... }
+          ...
+        }
+    - metavariable-comparison:
+        comparison: str($X1) == str($X2)
+    - focus-metavariable: $X2
+  - patterns:
+    - pattern: |
+        $R $G(...) {
+          ...
+          delete $X1;
+          ...
+          while ($LC) { ... delete [] $X2; ... }
+          ...
+        }
+    - pattern-not: |
+        $R $G(...) {
+          ...
+          delete $X1;
+          ...
+          $X1 = $NEWV;
+          ...
+          while ($LC) { ... delete [] $X2; ... }
+          ...
+        }
+    - pattern-not: |
+        $R $G(...) {
+          ...
+          delete $X1;
+          ...
+          while ($LC) { ... delete [] $X2; ... break; }
+          ...
+        }
+    - pattern-not: |
+        $R $G(...) {
+          ...
+          if ($EC) { ... delete $X1; ... } else { ... while ($LC) { ... delete [] $X2; ... } ... }
+          ...
+        }
+    - metavariable-comparison:
+        comparison: str($X1) == str($X2)
+    - focus-metavariable: $X2
+  - patterns:
+    - pattern: |
+        $R $G(...) {
+          ...
+          delete [] $X1;
+          ...
+          for (...) { ... delete $X2; ... }
+          ...
+        }
+    - pattern-not: |
+        $R $G(...) {
+          ...
+          delete [] $X1;
+          ...
+          $X1 = $NEWV;
+          ...
+          for (...) { ... delete $X2; ... }
+          ...
+        }
+    - pattern-not: |
+        $R $G(...) {
+          ...
+          delete [] $X1;
+          ...
+          for (...) { ... delete $X2; ... break; }
+          ...
+        }
+    - pattern-not: |
+        $R $G(...) {
+          ...
+          if ($EC) { ... delete [] $X1; ... } else { ... for (...) { ... delete $X2; ... } ... }
+          ...
+        }
+    - metavariable-comparison:
+        comparison: str($X1) == str($X2)
+    - focus-metavariable: $X2
+  - patterns:
+    - pattern: |
+        $R $G(...) {
+          ...
+          delete [] $X1;
+          ...
+          while ($LC) { ... delete $X2; ... }
+          ...
+        }
+    - pattern-not: |
+        $R $G(...) {
+          ...
+          delete [] $X1;
+          ...
+          $X1 = $NEWV;
+          ...
+          while ($LC) { ... delete $X2; ... }
+          ...
+        }
+    - pattern-not: |
+        $R $G(...) {
+          ...
+          delete [] $X1;
+          ...
+          while ($LC) { ... delete $X2; ... break; }
+          ...
+        }
+    - pattern-not: |
+        $R $G(...) {
+          ...
+          if ($EC) { ... delete [] $X1; ... } else { ... while ($LC) { ... delete $X2; ... } ... }
+          ...
+        }
+    - metavariable-comparison:
+        comparison: str($X1) == str($X2)
+    - focus-metavariable: $X2
+  - patterns:
+    - pattern: |
+        $R $G(...) {
+          ...
+          $F1($X1);
+          ...
+          for (...) { ... delete $X2; ... }
+          ...
+        }
+    - pattern-not: |
+        $R $G(...) {
+          ...
+          $F1($X1);
+          ...
+          $X1 = $NEWV;
+          ...
+          for (...) { ... delete $X2; ... }
+          ...
+        }
+    - pattern-not: |
+        $R $G(...) {
+          ...
+          $F1($X1);
+          ...
+          for (...) { ... delete $X2; ... break; }
+          ...
+        }
+    - pattern-not: |
+        $R $G(...) {
+          ...
+          if ($EC) { ... $F1($X1); ... } else { ... for (...) { ... delete $X2; ... } ... }
+          ...
+        }
+    - metavariable-regex:
+        metavariable: $F1
+        regex: ^free$
+    - metavariable-comparison:
+        comparison: str($X1) == str($X2)
+    - focus-metavariable: $X2
+  - patterns:
+    - pattern: |
+        $R $G(...) {
+          ...
+          $F1($X1);
+          ...
+          while ($LC) { ... delete $X2; ... }
+          ...
+        }
+    - pattern-not: |
+        $R $G(...) {
+          ...
+          $F1($X1);
+          ...
+          $X1 = $NEWV;
+          ...
+          while ($LC) { ... delete $X2; ... }
+          ...
+        }
+    - pattern-not: |
+        $R $G(...) {
+          ...
+          $F1($X1);
+          ...
+          while ($LC) { ... delete $X2; ... break; }
+          ...
+        }
+    - pattern-not: |
+        $R $G(...) {
+          ...
+          if ($EC) { ... $F1($X1); ... } else { ... while ($LC) { ... delete $X2; ... } ... }
+          ...
+        }
+    - metavariable-regex:
+        metavariable: $F1
+        regex: ^free$
+    - metavariable-comparison:
+        comparison: str($X1) == str($X2)
+    - focus-metavariable: $X2
+  - patterns:
+    - pattern: |
+        $R $G(...) {
+          ...
+          $F1($X1);
+          ...
+          for (...) { ... delete [] $X2; ... }
+          ...
+        }
+    - pattern-not: |
+        $R $G(...) {
+          ...
+          $F1($X1);
+          ...
+          $X1 = $NEWV;
+          ...
+          for (...) { ... delete [] $X2; ... }
+          ...
+        }
+    - pattern-not: |
+        $R $G(...) {
+          ...
+          $F1($X1);
+          ...
+          for (...) { ... delete [] $X2; ... break; }
+          ...
+        }
+    - pattern-not: |
+        $R $G(...) {
+          ...
+          if ($EC) { ... $F1($X1); ... } else { ... for (...) { ... delete [] $X2; ... } ... }
+          ...
+        }
+    - metavariable-regex:
+        metavariable: $F1
+        regex: ^free$
+    - metavariable-comparison:
+        comparison: str($X1) == str($X2)
+    - focus-metavariable: $X2
+  - patterns:
+    - pattern: |
+        $R $G(...) {
+          ...
+          $F1($X1);
+          ...
+          while ($LC) { ... delete [] $X2; ... }
+          ...
+        }
+    - pattern-not: |
+        $R $G(...) {
+          ...
+          $F1($X1);
+          ...
+          $X1 = $NEWV;
+          ...
+          while ($LC) { ... delete [] $X2; ... }
+          ...
+        }
+    - pattern-not: |
+        $R $G(...) {
+          ...
+          $F1($X1);
+          ...
+          while ($LC) { ... delete [] $X2; ... break; }
+          ...
+        }
+    - pattern-not: |
+        $R $G(...) {
+          ...
+          if ($EC) { ... $F1($X1); ... } else { ... while ($LC) { ... delete [] $X2; ... } ... }
+          ...
+        }
+    - metavariable-regex:
+        metavariable: $F1
+        regex: ^free$
+    - metavariable-comparison:
+        comparison: str($X1) == str($X2)
+    - focus-metavariable: $X2

@@ -1,0 +1,62 @@
+rules:
+- id: cwe404-release-function-mismatched-with-handle-type
+  languages:
+  - c
+  - cpp
+  paths:
+    include:
+    - '*.c'
+    - '*.h'
+    - '*.cpp'
+    - '*.cc'
+    - '*.cxx'
+    - '*.c++'
+    - '*.hpp'
+    - '*.hh'
+    - '*.hxx'
+    - '*.inc'
+  severity: ERROR
+  message: A resource is released with a function meant for a different resource type (the argument's
+    declared type does not match the release function), so it is not properly released.
+  metadata:
+    vulnerability_class: Improper Resource Shutdown or Release
+    help: |
+      ## Summary
+      A resource is released with a function meant for a different resource type (the argument's declared type does not match the release function), so it is not properly released.
+
+      ## Remediation
+      Release each resource with the matching function (fclose for fopen, close for open, CloseHandle for CreateFile) and on every path.
+    category: security
+    cwe:
+    - 'CWE-404: Improper Resource Shutdown or Release'
+    references:
+    - https://cwe.mitre.org/data/definitions/404.html
+    confidence: HIGH
+    likelihood: MEDIUM
+    impact: HIGH
+    subcategory:
+    - vuln
+    technology:
+    - c
+    - cpp
+    source: Validated against NIST Juliet C/C++ Test Suite v1.3
+    remediation: Release each resource with the matching function (fclose for fopen, close for open, CloseHandle
+      for CreateFile) and on every path.
+  pattern-either:
+  - pattern: fclose((FILE *)(int $X))
+  - pattern: fclose((int $X))
+  - pattern: CloseHandle((HANDLE)(int $X))
+  - pattern: CloseHandle((int $X))
+  - pattern: CloseHandle((HANDLE)(FILE *$X))
+  - pattern: CloseHandle((FILE *$X))
+  - pattern: fclose((FILE *)(HANDLE $X))
+  - pattern: fclose((HANDLE $X))
+  - patterns:
+    - pattern-either:
+      - pattern: $CLOSE((int)(FILE *$X))
+      - pattern: $CLOSE((FILE *$X))
+      - pattern: $CLOSE((int)(HANDLE $X))
+      - pattern: $CLOSE((HANDLE $X))
+    - metavariable-regex:
+        metavariable: $CLOSE
+        regex: ^(close|_close|CLOSE|closesocket)$

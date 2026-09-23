@@ -1,0 +1,91 @@
+rules:
+- id: cwe114-library-relative-name-via-source-function
+  languages:
+  - c
+  - cpp
+  paths:
+    include:
+    - '*.c'
+    - '*.h'
+    - '*.cpp'
+    - '*.cc'
+    - '*.cxx'
+    - '*.c++'
+    - '*.hpp'
+    - '*.hh'
+    - '*.hxx'
+    - '*.inc'
+  severity: ERROR
+  message: Dynamic library loaded by a bare file name (no directory), so the loader search order decides
+    which file runs, after calling a helper that fills the data from a bare library name into the buffer.
+  metadata:
+    vulnerability_class: Process Control
+    help: |
+      ## Summary
+      Dynamic library loaded by a bare file name (no directory), so the loader search order decides which file runs, after calling a helper that fills the data from a bare library name into the buffer.
+
+      ## Remediation
+      Load libraries and programs only from fixed absolute paths; never let external input choose the module or command to load.
+    category: security
+    cwe:
+    - 'CWE-114: Process Control'
+    references:
+    - https://cwe.mitre.org/data/definitions/114.html
+    confidence: MEDIUM
+    likelihood: MEDIUM
+    impact: HIGH
+    subcategory:
+    - vuln
+    technology:
+    - c
+    - cpp
+    source: Validated against NIST Juliet C/C++ Test Suite v1.3
+    remediation: Load libraries and programs only from fixed absolute paths; never let external input
+      choose the module or command to load.
+  patterns:
+  - pattern: $LOADLIB($LIB, ...)
+  - metavariable-regex:
+      metavariable: $LOADLIB
+      regex: ^(LoadLibrary|LoadLibraryA|LoadLibraryW|LoadLibraryEx|LoadLibraryExA|LoadLibraryExW|dlopen|g_module_open)$
+  - metavariable-regex:
+      metavariable: $LIB
+      regex: ^(?!\s*(L|u8|u|U)?\")(?!\s*[A-Z][A-Z0-9_]*\s*$)
+  - pattern-either:
+    - pattern-inside: |
+        $T_SRCFN $SRCFN(...) {
+          ...
+          $SRC($LIBBUF, $LIBNAME);
+          ...
+        }
+        ...
+        $T_F $F(...) {
+          ...
+          <... $SRCFN(...) ...>;
+          ...
+        }
+    - pattern-inside: |
+        $T_F $F(...) {
+          ...
+          <... $SRCFN(...) ...>;
+          ...
+        }
+        ...
+        $T_SRCFN $SRCFN(...) {
+          ...
+          $SRC($LIBBUF, $LIBNAME);
+          ...
+        }
+  - pattern-inside: |
+      $T_F $F(...) {
+        ...
+      }
+  - pattern-inside: |
+      <... $SRCFN(...) ...>;
+      ...
+  - metavariable-regex:
+      metavariable: $SRC
+      regex: ^(strcpy|wcscpy|_tcscpy|strncpy|wcsncpy|strcpy_s|wcscpy_s|lstrcpyA|lstrcpyW|StringCchCopyA|StringCchCopyW)$
+  - metavariable-regex:
+      metavariable: $LIBNAME
+      regex: ^(L|u8|u|U)?"[^"\\/:%]+"$
+  - focus-metavariable: $LOADLIB

@@ -1,0 +1,81 @@
+rules:
+- id: cwe775-file-handle-parameter-never-released
+  languages:
+  - c
+  - cpp
+  paths:
+    include:
+    - '*.c'
+    - '*.h'
+    - '*.cpp'
+    - '*.cc'
+    - '*.cxx'
+    - '*.c++'
+    - '*.hpp'
+    - '*.hh'
+    - '*.hxx'
+    - '*.inc'
+  severity: ERROR
+  message: This function receives a newly opened file descriptor or handle from a caller that does not
+    close it afterwards, but never closes or hands it off itself, so it leaks.
+  metadata:
+    vulnerability_class: Missing Release of File Descriptor or Handle after Effective Lifetime
+    help: |
+      ## Summary
+      This function receives a newly opened file descriptor or handle from a caller that does not close it afterwards, but never closes or hands it off itself, so it leaks.
+
+      ## Remediation
+      Close every file descriptor and handle once it is no longer needed, on every path.
+    category: security
+    cwe:
+    - 'CWE-775: Missing Release of File Descriptor or Handle after Effective Lifetime'
+    references:
+    - https://cwe.mitre.org/data/definitions/775.html
+    confidence: MEDIUM
+    likelihood: MEDIUM
+    impact: HIGH
+    subcategory:
+    - vuln
+    technology:
+    - c
+    - cpp
+    source: Validated against NIST Juliet C/C++ Test Suite v1.3
+    remediation: Close every file descriptor and handle once it is no longer needed, on every path.
+  patterns:
+  - pattern-either:
+    - pattern-inside: |
+        $R $CALLEE(..., $T $P, ...) { ... }
+        ...
+        $R2 $CALLER(...) { ... $D = $ACQ(...); ... $CALLEE(..., $D, ...); ... }
+    - pattern-inside: |
+        $R $CALLEE(..., $T $P, ...) { ... }
+        ...
+        $R2 $CALLER(...) { ... $FT (*$FP)(...) = $CALLEE; ... $D = $ACQ(...); ... $FP(..., $D, ...); ... }
+  - metavariable-regex:
+      metavariable: $ACQ
+      regex: ^(fopen|_wfopen|fdopen|_fdopen|open|_open|OPEN|_wopen|creat|_creat|CreateFile|CreateFileA|CreateFileW)$
+  - pattern-not-inside: |
+      $R $CALLEE(..., $T $P, ...) { ... }
+      ...
+      $R2 $CALLER(...) { ... $CALLEE(..., $D, ...); ... $USE2(..., $D, ...); ... }
+  - pattern-inside: |
+      $R $CALLEE(..., $T $P, ...) { ... }
+  - pattern-not-inside: |
+      $R $CALLEE(..., $T $P, ...) { ... $USE(..., $P, ...); ... }
+  - pattern-not-inside: |
+      $R $CALLEE(..., $T $P, ...) { ... $USE(..., ($CT)$P, ...); ... }
+  - pattern-not-inside: |
+      $R $CALLEE(..., $T $P, ...) { ... $USE(..., &$P, ...); ... }
+  - pattern-not-inside: |
+      $R $CALLEE(..., $T $P, ...) { ... $Y = $USE(..., $P, ...); ... }
+  - pattern-not-inside: |
+      $R $CALLEE(..., $T $P, ...) { ... return $P; ... }
+  - pattern-not-inside: |
+      $R $CALLEE(..., $T $P, ...) { ... $S.$FLD = $P; ... }
+  - pattern-not-inside: |
+      $R $CALLEE(..., $T $P, ...) { ... $S->$FLD = $P; ... }
+  - pattern-not-inside: |
+      $R $CALLEE(..., $T $P, ...) { ... $G = $P; ... }
+  - pattern: |
+      $R $CALLEE(..., $T $P, ...) { ... }
+  - focus-metavariable: $P

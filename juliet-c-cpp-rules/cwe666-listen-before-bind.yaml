@@ -1,0 +1,86 @@
+rules:
+- id: cwe666-listen-before-bind
+  languages:
+  - c
+  - cpp
+  paths:
+    include:
+    - '*.c'
+    - '*.h'
+    - '*.cpp'
+    - '*.cc'
+    - '*.cxx'
+    - '*.c++'
+    - '*.hpp'
+    - '*.hh'
+    - '*.hxx'
+    - '*.inc'
+  severity: ERROR
+  message: listen() is called on a socket before it has been bound with bind(), so the socket listens
+    on an arbitrary port or the later bind() fails.
+  metadata:
+    vulnerability_class: Operation on Resource in Wrong Phase of Lifetime
+    help: |
+      ## Summary
+      listen() is called on a socket before it has been bound with bind(), so the socket listens on an arbitrary port or the later bind() fails.
+
+      ## Remediation
+      Only operate on resources that are in the correct lifecycle state (e.g. do not use a handle before it is opened).
+    category: security
+    cwe:
+    - 'CWE-666: Operation on Resource in Wrong Phase of Lifetime'
+    references:
+    - https://cwe.mitre.org/data/definitions/666.html
+    confidence: HIGH
+    likelihood: MEDIUM
+    impact: HIGH
+    subcategory:
+    - vuln
+    technology:
+    - c
+    - cpp
+    source: Validated against NIST Juliet C/C++ Test Suite v1.3
+    remediation: Only operate on resources that are in the correct lifecycle state (e.g. do not use a
+      handle before it is opened).
+  patterns:
+  - pattern-either:
+    - pattern: |
+        $R $F(...) { ... if (<... $LST($S, ...) ...>) { ... } ... if (<... bind($S, ...) ...>) { ... } ... }
+    - pattern: |
+        $R $F(...) { ... if (<... $LST($S, ...) ...>) { ... } ... bind($S, ...); ... }
+    - pattern: |
+        $R $F(...) { ... if (<... $LST($S, ...) ...>) { ... } ... $RV = bind($S, ...); ... }
+    - pattern: |
+        $R $F(...) { ... $LST($S, ...); ... if (<... bind($S, ...) ...>) { ... } ... }
+    - pattern: |
+        $R $F(...) { ... $LST($S, ...); ... bind($S, ...); ... }
+    - pattern: |
+        $R $F(...) { ... $LST($S, ...); ... $RV = bind($S, ...); ... }
+    - pattern: |
+        $R $F(...) { ... $RV = $LST($S, ...); ... if (<... bind($S, ...) ...>) { ... } ... }
+    - pattern: |
+        $R $F(...) { ... $RV = $LST($S, ...); ... bind($S, ...); ... }
+    - pattern: |
+        $R $F(...) { ... $RV = $LST($S, ...); ... $RV = bind($S, ...); ... }
+  - pattern-not: |
+      $R $F(...) { ... if (<... bind($S, ...) ...>) { ... } ... if (<... $LST($S, ...) ...>) { ... } ... }
+  - pattern-not: |
+      $R $F(...) { ... if (<... bind($S, ...) ...>) { ... } ... $LST($S, ...); ... }
+  - pattern-not: |
+      $R $F(...) { ... if (<... bind($S, ...) ...>) { ... } ... $RV = $LST($S, ...); ... }
+  - pattern-not: |
+      $R $F(...) { ... bind($S, ...); ... if (<... $LST($S, ...) ...>) { ... } ... }
+  - pattern-not: |
+      $R $F(...) { ... bind($S, ...); ... $LST($S, ...); ... }
+  - pattern-not: |
+      $R $F(...) { ... bind($S, ...); ... $RV = $LST($S, ...); ... }
+  - pattern-not: |
+      $R $F(...) { ... $RV = bind($S, ...); ... if (<... $LST($S, ...) ...>) { ... } ... }
+  - pattern-not: |
+      $R $F(...) { ... $RV = bind($S, ...); ... $LST($S, ...); ... }
+  - pattern-not: |
+      $R $F(...) { ... $RV = bind($S, ...); ... $RV = $LST($S, ...); ... }
+  - metavariable-regex:
+      metavariable: $LST
+      regex: ^listen$
+  - focus-metavariable: $LST

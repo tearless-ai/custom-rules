@@ -1,0 +1,595 @@
+rules:
+- id: cwe606-untrusted-loop-bound
+  languages:
+  - c
+  - cpp
+  paths:
+    include:
+    - '*.c'
+    - '*.h'
+    - '*.cpp'
+    - '*.cc'
+    - '*.cxx'
+    - '*.c++'
+    - '*.hpp'
+    - '*.hh'
+    - '*.hxx'
+    - '*.inc'
+  severity: ERROR
+  message: A loop bound parsed from untrusted input (console, file, socket, or environment) is used without
+    an upper-bound check.
+  metadata:
+    vulnerability_class: Unchecked Input for Loop Condition
+    help: |
+      ## Summary
+      A loop bound parsed from untrusted input (console, file, socket, or environment) is used without an upper-bound check.
+
+      ## Remediation
+      Validate loop bounds taken from external input against a maximum before looping.
+    category: security
+    cwe:
+    - 'CWE-606: Unchecked Input for Loop Condition'
+    references:
+    - https://cwe.mitre.org/data/definitions/606.html
+    confidence: MEDIUM
+    likelihood: MEDIUM
+    impact: HIGH
+    subcategory:
+    - vuln
+    technology:
+    - c
+    - cpp
+    source: Validated against NIST Juliet C/C++ Test Suite v1.3
+    remediation: Validate loop bounds taken from external input against a maximum before looping.
+  mode: taint
+  options:
+    constant_propagation: false
+  pattern-sources:
+  - by-side-effect: true
+    patterns:
+    - pattern-either:
+      - pattern: fgets($B, ...)
+      - pattern: fgetws($B, ...)
+      - pattern: recv($SOCK, $B, ...)
+      - pattern: recvfrom($SOCK, $B, ...)
+      - pattern: read($FD, $B, ...)
+      - pattern: fread($B, ...)
+      - pattern: fgets($B + $O, ...)
+      - pattern: fgetws($B + $O, ...)
+      - pattern: recv($SOCK, $B + $O, ...)
+      - pattern: recvfrom($SOCK, $B + $O, ...)
+      - pattern: read($FD, $B + $O, ...)
+      - pattern: fread($B + $O, ...)
+      - pattern: fgets(($BT)($B + $O), ...)
+      - pattern: fgetws(($BT)($B + $O), ...)
+      - pattern: recv($SOCK, ($BT)($B + $O), ...)
+      - pattern: recvfrom($SOCK, ($BT)($B + $O), ...)
+      - pattern: read($FD, ($BT)($B + $O), ...)
+      - pattern: fread(($BT)($B + $O), ...)
+    - focus-metavariable: $B
+  - patterns:
+    - pattern: $GE(...)
+    - metavariable-regex:
+        metavariable: $GE
+        regex: ^(getenv|_wgetenv|GETENV|secure_getenv)$
+  - by-side-effect: true
+    patterns:
+    - pattern-inside: |
+        $ET $ENV = $GE(...);
+        ...
+    - metavariable-regex:
+        metavariable: $GE
+        regex: ^(getenv|_wgetenv|GETENV|secure_getenv)$
+    - pattern-either:
+      - pattern: strcat($B, $ENV, ...)
+      - pattern: strcat($B + $O, $ENV, ...)
+      - pattern: strncat($B, $ENV, ...)
+      - pattern: strncat($B + $O, $ENV, ...)
+      - pattern: wcscat($B, $ENV, ...)
+      - pattern: wcscat($B + $O, $ENV, ...)
+      - pattern: wcsncat($B, $ENV, ...)
+      - pattern: wcsncat($B + $O, $ENV, ...)
+      - pattern: strcpy($B, $ENV, ...)
+      - pattern: strcpy($B + $O, $ENV, ...)
+      - pattern: strncpy($B, $ENV, ...)
+      - pattern: strncpy($B + $O, $ENV, ...)
+      - pattern: wcscpy($B, $ENV, ...)
+      - pattern: wcscpy($B + $O, $ENV, ...)
+      - pattern: wcsncpy($B, $ENV, ...)
+      - pattern: wcsncpy($B + $O, $ENV, ...)
+      - pattern: memcpy($B, $ENV, ...)
+      - pattern: memcpy($B + $O, $ENV, ...)
+      - pattern: memmove($B, $ENV, ...)
+      - pattern: memmove($B + $O, $ENV, ...)
+    - focus-metavariable: $B
+  - patterns:
+    - pattern-inside: |
+        $R $SINK(..., $T $D, ...) { ... }
+        ...
+        $R2 $CALLER(...) { ... if (<... fgets(<... $V ...>, ...) ...>) { ... } ... $SINK(..., $V, ...); ... }
+    - pattern: $R $SINK(..., $T $D, ...) { ... }
+    - focus-metavariable: $D
+  - patterns:
+    - pattern-inside: |
+        $R2 $CALLER(...) { ... if (<... fgets(<... $V ...>, ...) ...>) { ... } ... $SINK(..., $V, ...); ... }
+        ...
+        $R $SINK(..., $T $D, ...) { ... }
+    - pattern: $R $SINK(..., $T $D, ...) { ... }
+    - focus-metavariable: $D
+  - patterns:
+    - pattern-inside: |
+        $R $SINK(..., $T $D, ...) { ... }
+        ...
+        $R2 $CALLER(...) { ... $FT (*$FP)(...) = $SINK; ... if (<... fgets(<... $V ...>, ...) ...>) { ... } ... $FP(..., $V, ...); ... }
+    - pattern: $R $SINK(..., $T $D, ...) { ... }
+    - focus-metavariable: $D
+  - patterns:
+    - pattern-inside: |
+        $R $SINK(..., $T $D, ...) { ... }
+        ...
+        $R2 $CALLER(...) { ... $FPDECL = $SINK; ... if (<... fgets(<... $V ...>, ...) ...>) { ... } ... $FP(..., $V, ...); ... }
+    - pattern: $R $SINK(..., $T $D, ...) { ... }
+    - focus-metavariable: $D
+  - patterns:
+    - pattern-inside: |
+        $R $SINK(...) { ... }
+        ...
+        $R2 $CALLER(...) { ... if (<... fgets(<... $V ...>, ...) ...>) { ... } ... $G = $V; ... }
+    - metavariable-comparison:
+        comparison: str($G) != str($V)
+    - pattern-inside: $R $SINK(...) { ... }
+    - pattern-not-inside: $LRT $LFN(...) { ... $LT $G; ... }
+    - pattern-not-inside: $LRT $LFN(...) { ... $LT $G = $LI; ... }
+    - pattern: $G
+  - patterns:
+    - pattern-inside: |
+        $R2 $CALLER(...) { ... if (<... fgets(<... $V ...>, ...) ...>) { ... } ... $G = $V; ... }
+        ...
+        $R $SINK(...) { ... }
+    - metavariable-comparison:
+        comparison: str($G) != str($V)
+    - pattern-inside: $R $SINK(...) { ... }
+    - pattern-not-inside: $LRT $LFN(...) { ... $LT $G; ... }
+    - pattern-not-inside: $LRT $LFN(...) { ... $LT $G = $LI; ... }
+    - pattern: $G
+  - patterns:
+    - pattern-inside: |
+        $R $SRCF(...) { ... if (<... fgets(<... $V ...>, ...) ...>) { ... } ... return $V; }
+        ...
+    - pattern: $SRCF(...)
+  - by-side-effect: true
+    patterns:
+    - pattern-inside: |
+        $R $SRCF(..., $T &$V, ...) { ... if (<... fgets(<... $V ...>, ...) ...>) { ... } ... }
+        ...
+    - pattern: $SRCF(..., $A, ...)
+    - focus-metavariable: $A
+  - patterns:
+    - pattern-inside: $R $F(...) { ... $T &$REF = $V; ... if (<... fgets(<... $V ...>, ...) ...>) { ...
+        } ... }
+    - pattern: $REF
+  - patterns:
+    - pattern-inside: $R $F(...) { ... $T *$P2 = &$D; ... }
+    - pattern-inside: $R $F(...) { ... $T *$P1 = &$D; ... if (<... fgets(<... $V ...>, ...) ...>) { ...
+        } ... *$P1 = $V; ... }
+    - metavariable-comparison:
+        comparison: str($P1) != str($P2)
+    - pattern: '*$P2'
+  - patterns:
+    - pattern-inside: |
+        $R $C::$M1(...) { ... if (<... fgets(<... $V ...>, ...) ...>) { ... } ... }
+        ...
+        $R2 $C::$M2(...) { ... }
+    - pattern-inside: $R2 $C::$M2(...) { ... }
+    - pattern-not-inside: $LRT $LFN(...) { ... $LT $V; ... }
+    - pattern-not-inside: $LRT $LFN(...) { ... $LT $V = $LI; ... }
+    - pattern: $V
+  - patterns:
+    - pattern-inside: |
+        $R $SINK(..., $T $D, ...) { ... }
+        ...
+        $R2 $CALLER(...) { ... if (<... fgetws(<... $V ...>, ...) ...>) { ... } ... $SINK(..., $V, ...); ... }
+    - pattern: $R $SINK(..., $T $D, ...) { ... }
+    - focus-metavariable: $D
+  - patterns:
+    - pattern-inside: |
+        $R2 $CALLER(...) { ... if (<... fgetws(<... $V ...>, ...) ...>) { ... } ... $SINK(..., $V, ...); ... }
+        ...
+        $R $SINK(..., $T $D, ...) { ... }
+    - pattern: $R $SINK(..., $T $D, ...) { ... }
+    - focus-metavariable: $D
+  - patterns:
+    - pattern-inside: |
+        $R $SINK(..., $T $D, ...) { ... }
+        ...
+        $R2 $CALLER(...) { ... $FT (*$FP)(...) = $SINK; ... if (<... fgetws(<... $V ...>, ...) ...>) { ... } ... $FP(..., $V, ...); ... }
+    - pattern: $R $SINK(..., $T $D, ...) { ... }
+    - focus-metavariable: $D
+  - patterns:
+    - pattern-inside: |
+        $R $SINK(..., $T $D, ...) { ... }
+        ...
+        $R2 $CALLER(...) { ... $FPDECL = $SINK; ... if (<... fgetws(<... $V ...>, ...) ...>) { ... } ... $FP(..., $V, ...); ... }
+    - pattern: $R $SINK(..., $T $D, ...) { ... }
+    - focus-metavariable: $D
+  - patterns:
+    - pattern-inside: |
+        $R $SINK(...) { ... }
+        ...
+        $R2 $CALLER(...) { ... if (<... fgetws(<... $V ...>, ...) ...>) { ... } ... $G = $V; ... }
+    - metavariable-comparison:
+        comparison: str($G) != str($V)
+    - pattern-inside: $R $SINK(...) { ... }
+    - pattern-not-inside: $LRT $LFN(...) { ... $LT $G; ... }
+    - pattern-not-inside: $LRT $LFN(...) { ... $LT $G = $LI; ... }
+    - pattern: $G
+  - patterns:
+    - pattern-inside: |
+        $R2 $CALLER(...) { ... if (<... fgetws(<... $V ...>, ...) ...>) { ... } ... $G = $V; ... }
+        ...
+        $R $SINK(...) { ... }
+    - metavariable-comparison:
+        comparison: str($G) != str($V)
+    - pattern-inside: $R $SINK(...) { ... }
+    - pattern-not-inside: $LRT $LFN(...) { ... $LT $G; ... }
+    - pattern-not-inside: $LRT $LFN(...) { ... $LT $G = $LI; ... }
+    - pattern: $G
+  - patterns:
+    - pattern-inside: |
+        $R $SRCF(...) { ... if (<... fgetws(<... $V ...>, ...) ...>) { ... } ... return $V; }
+        ...
+    - pattern: $SRCF(...)
+  - by-side-effect: true
+    patterns:
+    - pattern-inside: |
+        $R $SRCF(..., $T &$V, ...) { ... if (<... fgetws(<... $V ...>, ...) ...>) { ... } ... }
+        ...
+    - pattern: $SRCF(..., $A, ...)
+    - focus-metavariable: $A
+  - patterns:
+    - pattern-inside: $R $F(...) { ... $T &$REF = $V; ... if (<... fgetws(<... $V ...>, ...) ...>) { ...
+        } ... }
+    - pattern: $REF
+  - patterns:
+    - pattern-inside: $R $F(...) { ... $T *$P2 = &$D; ... }
+    - pattern-inside: $R $F(...) { ... $T *$P1 = &$D; ... if (<... fgetws(<... $V ...>, ...) ...>) { ...
+        } ... *$P1 = $V; ... }
+    - metavariable-comparison:
+        comparison: str($P1) != str($P2)
+    - pattern: '*$P2'
+  - patterns:
+    - pattern-inside: |
+        $R $C::$M1(...) { ... if (<... fgetws(<... $V ...>, ...) ...>) { ... } ... }
+        ...
+        $R2 $C::$M2(...) { ... }
+    - pattern-inside: $R2 $C::$M2(...) { ... }
+    - pattern-not-inside: $LRT $LFN(...) { ... $LT $V; ... }
+    - pattern-not-inside: $LRT $LFN(...) { ... $LT $V = $LI; ... }
+    - pattern: $V
+  - patterns:
+    - pattern-inside: |
+        $R $SINK(..., $T $D, ...) { ... }
+        ...
+        $R2 $CALLER(...) { ... $RR = recv($SOCK, <... $V ...>, ...); ... $SINK(..., $V, ...); ... }
+    - pattern: $R $SINK(..., $T $D, ...) { ... }
+    - focus-metavariable: $D
+  - patterns:
+    - pattern-inside: |
+        $R2 $CALLER(...) { ... $RR = recv($SOCK, <... $V ...>, ...); ... $SINK(..., $V, ...); ... }
+        ...
+        $R $SINK(..., $T $D, ...) { ... }
+    - pattern: $R $SINK(..., $T $D, ...) { ... }
+    - focus-metavariable: $D
+  - patterns:
+    - pattern-inside: |
+        $R $SINK(..., $T $D, ...) { ... }
+        ...
+        $R2 $CALLER(...) { ... $FT (*$FP)(...) = $SINK; ... $RR = recv($SOCK, <... $V ...>, ...); ... $FP(..., $V, ...); ... }
+    - pattern: $R $SINK(..., $T $D, ...) { ... }
+    - focus-metavariable: $D
+  - patterns:
+    - pattern-inside: |
+        $R $SINK(..., $T $D, ...) { ... }
+        ...
+        $R2 $CALLER(...) { ... $FPDECL = $SINK; ... $RR = recv($SOCK, <... $V ...>, ...); ... $FP(..., $V, ...); ... }
+    - pattern: $R $SINK(..., $T $D, ...) { ... }
+    - focus-metavariable: $D
+  - patterns:
+    - pattern-inside: |
+        $R $SINK(...) { ... }
+        ...
+        $R2 $CALLER(...) { ... $RR = recv($SOCK, <... $V ...>, ...); ... $G = $V; ... }
+    - metavariable-comparison:
+        comparison: str($G) != str($V)
+    - pattern-inside: $R $SINK(...) { ... }
+    - pattern-not-inside: $LRT $LFN(...) { ... $LT $G; ... }
+    - pattern-not-inside: $LRT $LFN(...) { ... $LT $G = $LI; ... }
+    - pattern: $G
+  - patterns:
+    - pattern-inside: |
+        $R2 $CALLER(...) { ... $RR = recv($SOCK, <... $V ...>, ...); ... $G = $V; ... }
+        ...
+        $R $SINK(...) { ... }
+    - metavariable-comparison:
+        comparison: str($G) != str($V)
+    - pattern-inside: $R $SINK(...) { ... }
+    - pattern-not-inside: $LRT $LFN(...) { ... $LT $G; ... }
+    - pattern-not-inside: $LRT $LFN(...) { ... $LT $G = $LI; ... }
+    - pattern: $G
+  - patterns:
+    - pattern-inside: |
+        $R $SRCF(...) { ... $RR = recv($SOCK, <... $V ...>, ...); ... return $V; }
+        ...
+    - pattern: $SRCF(...)
+  - by-side-effect: true
+    patterns:
+    - pattern-inside: |
+        $R $SRCF(..., $T &$V, ...) { ... $RR = recv($SOCK, <... $V ...>, ...); ... }
+        ...
+    - pattern: $SRCF(..., $A, ...)
+    - focus-metavariable: $A
+  - patterns:
+    - pattern-inside: $R $F(...) { ... $T &$REF = $V; ... $RR = recv($SOCK, <... $V ...>, ...); ... }
+    - pattern: $REF
+  - patterns:
+    - pattern-inside: $R $F(...) { ... $T *$P2 = &$D; ... }
+    - pattern-inside: $R $F(...) { ... $T *$P1 = &$D; ... $RR = recv($SOCK, <... $V ...>, ...); ... *$P1
+        = $V; ... }
+    - metavariable-comparison:
+        comparison: str($P1) != str($P2)
+    - pattern: '*$P2'
+  - patterns:
+    - pattern-inside: |
+        $R $C::$M1(...) { ... $RR = recv($SOCK, <... $V ...>, ...); ... }
+        ...
+        $R2 $C::$M2(...) { ... }
+    - pattern-inside: $R2 $C::$M2(...) { ... }
+    - pattern-not-inside: $LRT $LFN(...) { ... $LT $V; ... }
+    - pattern-not-inside: $LRT $LFN(...) { ... $LT $V = $LI; ... }
+    - pattern: $V
+  - patterns:
+    - pattern-inside: |
+        $R $SINK(..., $T $D, ...) { ... }
+        ...
+        $R2 $CALLER(...) { ... $RR = recvfrom($SOCK, <... $V ...>, ...); ... $SINK(..., $V, ...); ... }
+    - pattern: $R $SINK(..., $T $D, ...) { ... }
+    - focus-metavariable: $D
+  - patterns:
+    - pattern-inside: |
+        $R2 $CALLER(...) { ... $RR = recvfrom($SOCK, <... $V ...>, ...); ... $SINK(..., $V, ...); ... }
+        ...
+        $R $SINK(..., $T $D, ...) { ... }
+    - pattern: $R $SINK(..., $T $D, ...) { ... }
+    - focus-metavariable: $D
+  - patterns:
+    - pattern-inside: |
+        $R $SINK(..., $T $D, ...) { ... }
+        ...
+        $R2 $CALLER(...) { ... $FT (*$FP)(...) = $SINK; ... $RR = recvfrom($SOCK, <... $V ...>, ...); ... $FP(..., $V, ...); ... }
+    - pattern: $R $SINK(..., $T $D, ...) { ... }
+    - focus-metavariable: $D
+  - patterns:
+    - pattern-inside: |
+        $R $SINK(..., $T $D, ...) { ... }
+        ...
+        $R2 $CALLER(...) { ... $FPDECL = $SINK; ... $RR = recvfrom($SOCK, <... $V ...>, ...); ... $FP(..., $V, ...); ... }
+    - pattern: $R $SINK(..., $T $D, ...) { ... }
+    - focus-metavariable: $D
+  - patterns:
+    - pattern-inside: |
+        $R $SINK(...) { ... }
+        ...
+        $R2 $CALLER(...) { ... $RR = recvfrom($SOCK, <... $V ...>, ...); ... $G = $V; ... }
+    - metavariable-comparison:
+        comparison: str($G) != str($V)
+    - pattern-inside: $R $SINK(...) { ... }
+    - pattern-not-inside: $LRT $LFN(...) { ... $LT $G; ... }
+    - pattern-not-inside: $LRT $LFN(...) { ... $LT $G = $LI; ... }
+    - pattern: $G
+  - patterns:
+    - pattern-inside: |
+        $R2 $CALLER(...) { ... $RR = recvfrom($SOCK, <... $V ...>, ...); ... $G = $V; ... }
+        ...
+        $R $SINK(...) { ... }
+    - metavariable-comparison:
+        comparison: str($G) != str($V)
+    - pattern-inside: $R $SINK(...) { ... }
+    - pattern-not-inside: $LRT $LFN(...) { ... $LT $G; ... }
+    - pattern-not-inside: $LRT $LFN(...) { ... $LT $G = $LI; ... }
+    - pattern: $G
+  - patterns:
+    - pattern-inside: |
+        $R $SRCF(...) { ... $RR = recvfrom($SOCK, <... $V ...>, ...); ... return $V; }
+        ...
+    - pattern: $SRCF(...)
+  - by-side-effect: true
+    patterns:
+    - pattern-inside: |
+        $R $SRCF(..., $T &$V, ...) { ... $RR = recvfrom($SOCK, <... $V ...>, ...); ... }
+        ...
+    - pattern: $SRCF(..., $A, ...)
+    - focus-metavariable: $A
+  - patterns:
+    - pattern-inside: $R $F(...) { ... $T &$REF = $V; ... $RR = recvfrom($SOCK, <... $V ...>, ...); ...
+        }
+    - pattern: $REF
+  - patterns:
+    - pattern-inside: $R $F(...) { ... $T *$P2 = &$D; ... }
+    - pattern-inside: $R $F(...) { ... $T *$P1 = &$D; ... $RR = recvfrom($SOCK, <... $V ...>, ...); ...
+        *$P1 = $V; ... }
+    - metavariable-comparison:
+        comparison: str($P1) != str($P2)
+    - pattern: '*$P2'
+  - patterns:
+    - pattern-inside: |
+        $R $C::$M1(...) { ... $RR = recvfrom($SOCK, <... $V ...>, ...); ... }
+        ...
+        $R2 $C::$M2(...) { ... }
+    - pattern-inside: $R2 $C::$M2(...) { ... }
+    - pattern-not-inside: $LRT $LFN(...) { ... $LT $V; ... }
+    - pattern-not-inside: $LRT $LFN(...) { ... $LT $V = $LI; ... }
+    - pattern: $V
+  - patterns:
+    - pattern-inside: |
+        $R $SINK(..., $T $D, ...) { ... }
+        ...
+        $R2 $CALLER(...) { ... $ET $ENV = $GE(...); ... $CAT(<... $V ...>, $ENV, ...); ... $SINK(..., $V, ...); ... }
+    - metavariable-regex:
+        metavariable: $GE
+        regex: ^(getenv|_wgetenv|GETENV|secure_getenv)$
+    - pattern: $R $SINK(..., $T $D, ...) { ... }
+    - focus-metavariable: $D
+  - patterns:
+    - pattern-inside: |
+        $R2 $CALLER(...) { ... $ET $ENV = $GE(...); ... $CAT(<... $V ...>, $ENV, ...); ... $SINK(..., $V, ...); ... }
+        ...
+        $R $SINK(..., $T $D, ...) { ... }
+    - metavariable-regex:
+        metavariable: $GE
+        regex: ^(getenv|_wgetenv|GETENV|secure_getenv)$
+    - pattern: $R $SINK(..., $T $D, ...) { ... }
+    - focus-metavariable: $D
+  - patterns:
+    - pattern-inside: |
+        $R $SINK(..., $T $D, ...) { ... }
+        ...
+        $R2 $CALLER(...) { ... $FT (*$FP)(...) = $SINK; ... $ET $ENV = $GE(...); ... $CAT(<... $V ...>, $ENV, ...); ... $FP(..., $V, ...); ... }
+    - metavariable-regex:
+        metavariable: $GE
+        regex: ^(getenv|_wgetenv|GETENV|secure_getenv)$
+    - pattern: $R $SINK(..., $T $D, ...) { ... }
+    - focus-metavariable: $D
+  - patterns:
+    - pattern-inside: |
+        $R $SINK(..., $T $D, ...) { ... }
+        ...
+        $R2 $CALLER(...) { ... $FPDECL = $SINK; ... $ET $ENV = $GE(...); ... $CAT(<... $V ...>, $ENV, ...); ... $FP(..., $V, ...); ... }
+    - metavariable-regex:
+        metavariable: $GE
+        regex: ^(getenv|_wgetenv|GETENV|secure_getenv)$
+    - pattern: $R $SINK(..., $T $D, ...) { ... }
+    - focus-metavariable: $D
+  - patterns:
+    - pattern-inside: |
+        $R $SINK(...) { ... }
+        ...
+        $R2 $CALLER(...) { ... $ET $ENV = $GE(...); ... $CAT(<... $V ...>, $ENV, ...); ... $G = $V; ... }
+    - metavariable-regex:
+        metavariable: $GE
+        regex: ^(getenv|_wgetenv|GETENV|secure_getenv)$
+    - metavariable-comparison:
+        comparison: str($G) != str($V)
+    - pattern-inside: $R $SINK(...) { ... }
+    - pattern-not-inside: $LRT $LFN(...) { ... $LT $G; ... }
+    - pattern-not-inside: $LRT $LFN(...) { ... $LT $G = $LI; ... }
+    - pattern: $G
+  - patterns:
+    - pattern-inside: |
+        $R2 $CALLER(...) { ... $ET $ENV = $GE(...); ... $CAT(<... $V ...>, $ENV, ...); ... $G = $V; ... }
+        ...
+        $R $SINK(...) { ... }
+    - metavariable-regex:
+        metavariable: $GE
+        regex: ^(getenv|_wgetenv|GETENV|secure_getenv)$
+    - metavariable-comparison:
+        comparison: str($G) != str($V)
+    - pattern-inside: $R $SINK(...) { ... }
+    - pattern-not-inside: $LRT $LFN(...) { ... $LT $G; ... }
+    - pattern-not-inside: $LRT $LFN(...) { ... $LT $G = $LI; ... }
+    - pattern: $G
+  - patterns:
+    - pattern-inside: |
+        $R $SRCF(...) { ... $ET $ENV = $GE(...); ... $CAT(<... $V ...>, $ENV, ...); ... return $V; }
+        ...
+    - metavariable-regex:
+        metavariable: $GE
+        regex: ^(getenv|_wgetenv|GETENV|secure_getenv)$
+    - pattern: $SRCF(...)
+  - by-side-effect: true
+    patterns:
+    - pattern-inside: |
+        $R $SRCF(..., $T &$V, ...) { ... $ET $ENV = $GE(...); ... $CAT(<... $V ...>, $ENV, ...); ... }
+        ...
+    - metavariable-regex:
+        metavariable: $GE
+        regex: ^(getenv|_wgetenv|GETENV|secure_getenv)$
+    - pattern: $SRCF(..., $A, ...)
+    - focus-metavariable: $A
+  - patterns:
+    - pattern-inside: $R $F(...) { ... $T &$REF = $V; ... $ET $ENV = $GE(...); ... $CAT(<... $V ...>,
+        $ENV, ...); ... }
+    - metavariable-regex:
+        metavariable: $GE
+        regex: ^(getenv|_wgetenv|GETENV|secure_getenv)$
+    - pattern: $REF
+  - patterns:
+    - pattern-inside: $R $F(...) { ... $T *$P2 = &$D; ... }
+    - pattern-inside: $R $F(...) { ... $T *$P1 = &$D; ... $ET $ENV = $GE(...); ... $CAT(<... $V ...>,
+        $ENV, ...); ... *$P1 = $V; ... }
+    - metavariable-regex:
+        metavariable: $GE
+        regex: ^(getenv|_wgetenv|GETENV|secure_getenv)$
+    - metavariable-comparison:
+        comparison: str($P1) != str($P2)
+    - pattern: '*$P2'
+  - patterns:
+    - pattern-inside: |
+        $R $C::$M1(...) { ... $ET $ENV = $GE(...); ... $CAT(<... $V ...>, $ENV, ...); ... }
+        ...
+        $R2 $C::$M2(...) { ... }
+    - metavariable-regex:
+        metavariable: $GE
+        regex: ^(getenv|_wgetenv|GETENV|secure_getenv)$
+    - pattern-inside: $R2 $C::$M2(...) { ... }
+    - pattern-not-inside: $LRT $LFN(...) { ... $LT $V; ... }
+    - pattern-not-inside: $LRT $LFN(...) { ... $LT $V = $LI; ... }
+    - pattern: $V
+  pattern-propagators:
+  - pattern: $U.$FLD = $X
+    from: $X
+    to: $U
+  - pattern: $B[$I] = $V
+    from: $B
+    to: $B
+  - patterns:
+    - pattern-inside: if (<... sscanf($S, $FMT, &$X) ...>) { ... }
+    - pattern: $X
+    from: $S
+    to: $X
+  - patterns:
+    - pattern-inside: if (<... swscanf($S, $FMT, &$X) ...>) { ... }
+    - pattern: $X
+    from: $S
+    to: $X
+  - patterns:
+    - pattern-inside: |
+        sscanf($S, $FMT, &$X);
+        ...
+    - pattern: $X
+    from: $S
+    to: $X
+  - patterns:
+    - pattern-inside: |
+        swscanf($S, $FMT, &$X);
+        ...
+    - pattern: $X
+    from: $S
+    to: $X
+  pattern-sanitizers:
+  - patterns:
+    - pattern-either:
+      - pattern-inside: if (<... $X < $LIM ...>) { ... }
+      - pattern-inside: if (<... $X <= $LIM ...>) { ... }
+      - pattern-inside: if (<... $LIM > $X ...>) { ... }
+      - pattern-inside: if (<... $LIM >= $X ...>) { ... }
+      - pattern-inside: if (<... $ABS(<... $X ...>) < $LIM ...>) { ... }
+      - pattern-inside: if (<... $ABS(<... $X ...>) <= $LIM ...>) { ... }
+    - pattern: $X
+  pattern-sinks:
+  - patterns:
+    - pattern-either:
+      - pattern: for ($I1; <... $X ...>; $I3) { ... }
+      - pattern: for (; <... $X ...>; $I3) { ... }
+      - pattern: for ($I1; <... $X ...>; ) { ... }
+      - pattern: while (<... $X ...>) { ... }
+    - focus-metavariable: $X

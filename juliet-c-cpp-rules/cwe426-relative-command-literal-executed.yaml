@@ -1,0 +1,55 @@
+rules:
+- id: cwe426-relative-command-literal-executed
+  languages:
+  - c
+  - cpp
+  paths:
+    include:
+    - '*.c'
+    - '*.h'
+    - '*.cpp'
+    - '*.cc'
+    - '*.cxx'
+    - '*.c++'
+    - '*.hpp'
+    - '*.hh'
+    - '*.hxx'
+    - '*.inc'
+  severity: WARNING
+  message: $EXEC() runs a command given without an absolute path, so the program that actually runs is
+    chosen through the search path, which an attacker may control.
+  metadata:
+    vulnerability_class: Untrusted Search Path
+    help: |
+      ## Summary
+      `$EXEC()` runs a command given without an absolute path, so the program that actually runs is chosen through the search path, which an attacker may control.
+    category: security
+    cwe:
+    - 'CWE-426: Untrusted Search Path'
+    references:
+    - https://cwe.mitre.org/data/definitions/426.html
+    confidence: MEDIUM
+    likelihood: MEDIUM
+    impact: MEDIUM
+    subcategory:
+    - vuln
+    technology:
+    - c
+    - cpp
+    source: Validated against NIST Juliet C/C++ Test Suite v1.3
+  patterns:
+  - pattern-either:
+    - patterns:
+      - pattern: $EXEC($CMD, ...)
+      - metavariable-regex:
+          metavariable: $EXEC
+          regex: ^(SYSTEM|POPEN|system|popen|_popen|_wpopen|_wsystem|execlp|execvp|execvpe|_execlp|_execvp|_wexeclp|_wexecvp|WinExec)$
+    - patterns:
+      - pattern: $EXEC($MODE, $CMD, ...)
+      - metavariable-regex:
+          metavariable: $EXEC
+          regex: ^(_spawnlp|_spawnvp|_wspawnlp|_wspawnvp|spawnlp|spawnvp)$
+  - metavariable-regex:
+      metavariable: $CMD
+      regex: ^(L|u8|u|U)?\"(?![A-Za-z]:|[\\\\/%])
+  - focus-metavariable: $EXEC

@@ -1,0 +1,74 @@
+rules:
+- id: cwe191-unsigned-zero-decremented
+  languages:
+  - c
+  - cpp
+  paths:
+    include:
+    - '*.c'
+    - '*.h'
+    - '*.cpp'
+    - '*.cc'
+    - '*.cxx'
+    - '*.c++'
+    - '*.hpp'
+    - '*.hh'
+    - '*.hxx'
+    - '*.inc'
+  severity: ERROR
+  message: An unsigned integer that is always zero at this point is decremented or has a value subtracted
+    from it, which wraps around to a huge value.
+  metadata:
+    vulnerability_class: Integer Underflow (Wrap or Wraparound)
+    help: |
+      ## Summary
+      An unsigned integer that is always zero at this point is decremented or has a value subtracted from it, which wraps around to a huge value.
+
+      ## Remediation
+      Check operands against the type's minimum before subtraction or decrement, or use checked-arithmetic builtins such as __builtin_sub_overflow.
+    category: security
+    cwe:
+    - 'CWE-191: Integer Underflow (Wrap or Wraparound)'
+    references:
+    - https://cwe.mitre.org/data/definitions/191.html
+    confidence: HIGH
+    likelihood: MEDIUM
+    impact: HIGH
+    subcategory:
+    - vuln
+    technology:
+    - c
+    - cpp
+    source: Validated against NIST Juliet C/C++ Test Suite v1.3
+    remediation: Check operands against the type's minimum before subtraction or decrement, or use checked-arithmetic
+      builtins such as __builtin_sub_overflow.
+  patterns:
+  - pattern-either:
+    - pattern: $X - $Y
+    - pattern: --$X
+    - pattern: $X--
+    - pattern: $X -= $Y
+  - metavariable-regex:
+      metavariable: $X
+      regex: ^[A-Za-z_][A-Za-z0-9_]*$
+  - metavariable-comparison:
+      metavariable: $X
+      comparison: $X == 0
+  - metavariable-type:
+      metavariable: $X
+      types:
+      - unsigned int
+      - unsigned
+      - unsigned long
+      - unsigned short
+      - unsigned char
+      - size_t
+      - uint32_t
+      - uint64_t
+      - unsigned long long
+  - pattern-not-inside: if (<... $X > $LIM ...>) { ... }
+  - pattern-not-inside: if (<... $X >= $LIM ...>) { ... }
+  - pattern-not-inside: if (<... $LIM < $X ...>) { ... }
+  - pattern-not-inside: if (<... $LIM <= $X ...>) { ... }
+  - pattern-not-inside: $RT $FN(...) { ... $CALLEE($X); ... }
+  - focus-metavariable: $X

@@ -1,0 +1,80 @@
+rules:
+- id: cwe195-negative-int-used-as-size
+  languages:
+  - c
+  - cpp
+  paths:
+    include:
+    - '*.c'
+    - '*.h'
+    - '*.cpp'
+    - '*.cc'
+    - '*.cxx'
+    - '*.c++'
+    - '*.hpp'
+    - '*.hh'
+    - '*.hxx'
+    - '*.inc'
+  severity: ERROR
+  message: A signed int that is always negative at this point is passed as a size_t length; it converts
+    to a huge unsigned size.
+  metadata:
+    vulnerability_class: Signed to Unsigned Conversion Error
+    help: |
+      ## Summary
+      A signed int that is always negative at this point is passed as a size_t length; it converts to a huge unsigned size.
+
+      ## Remediation
+      Reject negative values before converting a signed value to an unsigned type such as size_t.
+    category: security
+    cwe:
+    - 'CWE-195: Signed to Unsigned Conversion Error'
+    references:
+    - https://cwe.mitre.org/data/definitions/195.html
+    confidence: HIGH
+    likelihood: MEDIUM
+    impact: HIGH
+    subcategory:
+    - vuln
+    technology:
+    - c
+    - cpp
+    source: Validated against NIST Juliet C/C++ Test Suite v1.3
+    remediation: Reject negative values before converting a signed value to an unsigned type such as size_t.
+  patterns:
+  - pattern-either:
+    - pattern: malloc($X)
+    - pattern: calloc($X, $Y)
+    - pattern: calloc($Y, $X)
+    - pattern: realloc($P, $X)
+    - pattern: alloca($X)
+    - pattern: memcpy($A, $B, $X)
+    - pattern: memmove($A, $B, $X)
+    - pattern: strncpy($A, $B, $X)
+    - pattern: wcsncpy($A, $B, $X)
+    - pattern: strncat($A, $B, $X)
+    - pattern: memset($A, $B, $X)
+    - pattern: wmemcpy($A, $B, $X)
+    - pattern: wmemmove($A, $B, $X)
+  - metavariable-regex:
+      metavariable: $X
+      regex: ^[A-Za-z_][A-Za-z0-9_]*$
+  - metavariable-comparison:
+      metavariable: $X
+      comparison: $X < 0
+  - metavariable-type:
+      metavariable: $X
+      types:
+      - int
+      - signed int
+      - signed
+      - long
+      - long int
+      - int32_t
+      - ssize_t
+  - pattern-not-inside: if (<... $X > $LIM ...>) { ... }
+  - pattern-not-inside: if (<... $X >= $LIM ...>) { ... }
+  - pattern-not-inside: if (<... $LIM < $X ...>) { ... }
+  - pattern-not-inside: if (<... $LIM <= $X ...>) { ... }
+  - pattern-not-inside: $RT $FN(...) { ... $CALLEE($X); ... }
+  - focus-metavariable: $X

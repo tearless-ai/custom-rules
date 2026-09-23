@@ -1,0 +1,88 @@
+rules:
+- id: cwe457-local-scalar-read-but-never-assigned
+  languages:
+  - cpp
+  paths:
+    include:
+    - '*.c'
+    - '*.h'
+    - '*.cpp'
+    - '*.cc'
+    - '*.cxx'
+    - '*.c++'
+    - '*.hpp'
+    - '*.hh'
+    - '*.hxx'
+    - '*.inc'
+  severity: ERROR
+  message: A local variable declared without an initializer is read, but it is never assigned anywhere
+    in the function, so its indeterminate value is used.
+  metadata:
+    vulnerability_class: Use of Uninitialized Variable
+    help: |
+      ## Summary
+      A local variable declared without an initializer is read, but it is never assigned anywhere in the function, so its indeterminate value is used.
+
+      ## Remediation
+      Initialize every variable before it is read.
+    category: security
+    cwe:
+    - 'CWE-457: Use of Uninitialized Variable'
+    references:
+    - https://cwe.mitre.org/data/definitions/457.html
+    confidence: HIGH
+    likelihood: MEDIUM
+    impact: HIGH
+    subcategory:
+    - vuln
+    technology:
+    - c
+    - cpp
+    source: Validated against NIST Juliet C/C++ Test Suite v1.3
+    remediation: Initialize every variable before it is read.
+  patterns:
+  - pattern-inside: |
+      $R $FN(...) { ... $T $X; ... }
+  - metavariable-regex:
+      metavariable: $T
+      regex: ^((un)?signed\b.*|(unsigned\s+|signed\s+)?(char|short|int|long|long\s+long)|bool|float|double|long\s+double|size_t|ssize_t|ptrdiff_t|intptr_t|uintptr_t|u?int(8|16|32|64)_t|wchar_t|.*\*)$
+  - pattern-not-inside: |
+      $R $FN(...) { ... $T2 $X[$N]; ... }
+  - pattern-not-inside: |
+      $R $FN(...) { ... <... $X = $V ...>; ... }
+  - pattern-not-inside: |
+      $R $FN(...) { ... <... $X.$FLD = $V ...>; ... }
+  - pattern-not-inside: |
+      $R $FN(...) { ... <... $X[$I] = $V ...>; ... }
+  - pattern-not-inside: |
+      $R $FN(...) { ... <... &$X ...>; ... }
+  - pattern-not-inside: |
+      $R $FN(...) { ... <... &$X.$FLD ...>; ... }
+  - pattern-not-inside: |
+      $R $FN(...) { ... <... $STREAM >> $X ...>; ... }
+  - pattern-not-inside: |
+      $R2 $SRC(..., $PT &$P, ...) { ... $P = $V; ... }
+      ...
+      $R $FN(...) { ... $SRC(..., $X, ...); ... }
+  - pattern-not-inside: |
+      $R2 $SRC(..., $PT &$P, ...) { ... $P.$PF = $V; ... }
+      ...
+      $R $FN(...) { ... $SRC(..., $X, ...); ... }
+  - pattern-not-inside: |
+      $R2 $SRC(..., $PT &$P, ...);
+      ...
+      $R $FN(...) { ... $SRC(..., $X, ...); ... }
+  - pattern-either:
+    - pattern: $G(..., $X, ...)
+    - pattern: $G(..., $X.$FLD, ...)
+    - pattern: $G(..., *$X, ...)
+    - pattern: $G(..., $X->$FLD, ...)
+    - pattern: $G(..., $X[$J], ...)
+    - pattern: return $X;
+  - pattern-not: sizeof($X)
+  - pattern-not-inside: |
+      $R2 $G(..., $PT &$P, ...) { ... }
+      ...
+  - pattern-not-inside: |
+      $R2 $G(..., $PT &$P, ...);
+      ...

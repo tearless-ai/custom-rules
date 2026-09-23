@@ -1,0 +1,59 @@
+rules:
+- id: cwe427-search-path-from-input-same-function
+  languages:
+  - c
+  - cpp
+  paths:
+    include:
+    - '*.c'
+    - '*.h'
+    - '*.cpp'
+    - '*.cc'
+    - '*.cxx'
+    - '*.c++'
+    - '*.hpp'
+    - '*.hh'
+    - '*.hxx'
+    - '*.inc'
+  severity: ERROR
+  message: Process environment (e.g. PATH) set from external data in a function that also reads untrusted
+    input (console, file, socket or environment).
+  metadata:
+    vulnerability_class: Uncontrolled Search Path Element
+    help: |
+      ## Summary
+      Process environment (e.g. PATH) set from external data in a function that also reads untrusted input (console, file, socket or environment).
+    category: security
+    cwe:
+    - 'CWE-427: Uncontrolled Search Path Element'
+    references:
+    - https://cwe.mitre.org/data/definitions/427.html
+    confidence: MEDIUM
+    likelihood: MEDIUM
+    impact: HIGH
+    subcategory:
+    - vuln
+    technology:
+    - c
+    - cpp
+    source: Validated against NIST Juliet C/C++ Test Suite v1.3
+  patterns:
+  - pattern-either:
+    - pattern: $ENVFN($ENVSTR)
+    - pattern: $ENVFN($NAME, $ENVSTR, ...)
+  - metavariable-regex:
+      metavariable: $ENVFN
+      regex: ^(PUTENV|putenv|_putenv|_wputenv|_putenv_s|_wputenv_s|setenv|SetEnvironmentVariable|SetEnvironmentVariableA|SetEnvironmentVariableW)$
+  - metavariable-regex:
+      metavariable: $ENVSTR
+      regex: ^(?!\s*(L|u8|u|U)?\")(?!\s*[A-Z][A-Z0-9_]*\s*$)
+  - pattern-inside: |
+      $T_F $F(...) {
+        ...
+        <... $SRC(...) ...>;
+        ...
+      }
+  - metavariable-regex:
+      metavariable: $SRC
+      regex: ^(?:std::)?(fgets|fgetws|gets|_getws|getline|getdelim|scanf|wscanf|fscanf|fwscanf|read|_read|recv|recvfrom|recvmsg|WSARecv|WSARecvFrom|getenv|_wgetenv|secure_getenv|GETENV|ReadFile|ReadConsoleA|ReadConsoleW|InternetReadFile)$
+  - focus-metavariable: $ENVFN

@@ -1,0 +1,332 @@
+rules:
+- id: cwe775-file-handle-never-released
+  languages:
+  - c
+  - cpp
+  paths:
+    include:
+    - '*.c'
+    - '*.h'
+    - '*.cpp'
+    - '*.cc'
+    - '*.cxx'
+    - '*.c++'
+    - '*.hpp'
+    - '*.hh'
+    - '*.hxx'
+    - '*.inc'
+  severity: ERROR
+  message: A file descriptor or handle is opened here but is never closed, returned or handed off before
+    the function ends, so it leaks.
+  metadata:
+    vulnerability_class: Missing Release of File Descriptor or Handle after Effective Lifetime
+    help: |
+      ## Summary
+      A file descriptor or handle is opened here but is never closed, returned or handed off before the function ends, so it leaks.
+
+      ## Remediation
+      Close every file descriptor and handle once it is no longer needed, on every path.
+    category: security
+    cwe:
+    - 'CWE-775: Missing Release of File Descriptor or Handle after Effective Lifetime'
+    references:
+    - https://cwe.mitre.org/data/definitions/775.html
+    confidence: MEDIUM
+    likelihood: MEDIUM
+    impact: HIGH
+    subcategory:
+    - vuln
+    technology:
+    - c
+    - cpp
+    source: Validated against NIST Juliet C/C++ Test Suite v1.3
+    remediation: Close every file descriptor and handle once it is no longer needed, on every path.
+  patterns:
+  - pattern-inside: |
+      $R $F(...) { ... }
+  - pattern-either:
+    - pattern-inside: |
+        $R $F(...) { ... $DT $X; ... }
+    - pattern-inside: |
+        $R $F(...) { ... $DT $X = $DI; ... }
+  - pattern-either:
+    - patterns:
+      - pattern: |
+          $X = $ACQ(...);
+      - metavariable-regex:
+          metavariable: $ACQ
+          regex: ^(fopen|_wfopen|fdopen|_fdopen|open|_open|OPEN|_wopen|creat|_creat|CreateFile|CreateFileA|CreateFileW)$
+      - pattern-not-inside: |
+          $R $F(...) { ... $USE(..., $X, ...); ... }
+      - pattern-not-inside: |
+          $R $F(...) { ... $USE(..., ($CT)$X, ...); ... }
+      - pattern-not-inside: |
+          $R $F(...) { ... $USE(..., &$X, ...); ... }
+      - pattern-not-inside: |
+          $R $F(...) { ... $Y = $USE(..., $X, ...); ... }
+      - pattern-not-inside: |
+          $R $F(...) { ... return $X; ... }
+      - pattern-not-inside: |
+          $R $F(...) { ... $S.$FLD = $X; ... }
+      - pattern-not-inside: |
+          $R $F(...) { ... $S->$FLD = $X; ... }
+      - pattern-not-inside: |
+          $R $F(...) { ... $ARR[$I] = $X; ... }
+      - pattern-not-inside: |
+          $R $F(...) { ... $AT &$ALIAS = $X; ... }
+      - pattern-not-inside: |
+          $R $F(...) { ... $AT $ALIAS = &$X; ... }
+      - pattern-not-inside: |
+          $X = $ACQ(...);
+          ...
+          $USE(..., $X, ...);
+      - pattern-not-inside: |
+          $X = $ACQ(...);
+          ...
+          $USE(..., ($CT)$X, ...);
+      - pattern-not-inside: |
+          $X = $ACQ(...);
+          ...
+          $USE(..., &$X, ...);
+      - pattern-not-inside: |
+          $X = $ACQ(...);
+          ...
+          $Y = $USE(..., $X, ...);
+      - pattern-not-inside: |
+          $X = $ACQ(...);
+          ...
+          return $X;
+      - pattern-not-inside: |
+          $X = $ACQ(...);
+          ...
+          $G = $X;
+      - pattern-not-inside: |
+          $X = $ACQ(...);
+          ...
+          $S.$FLD = $X;
+      - pattern-not-inside: |
+          $X = $ACQ(...);
+          ...
+          $S->$FLD = $X;
+      - pattern-not-inside: |
+          $X = $ACQ(...);
+          ...
+          $ARR[$I] = $X;
+    - patterns:
+      - pattern: |
+          $T $X = $ACQ(...);
+      - metavariable-regex:
+          metavariable: $ACQ
+          regex: ^(fopen|_wfopen|fdopen|_fdopen|open|_open|OPEN|_wopen|creat|_creat|CreateFile|CreateFileA|CreateFileW)$
+      - pattern-not-inside: |
+          $R $F(...) { ... $USE(..., $X, ...); ... }
+      - pattern-not-inside: |
+          $R $F(...) { ... $USE(..., ($CT)$X, ...); ... }
+      - pattern-not-inside: |
+          $R $F(...) { ... $USE(..., &$X, ...); ... }
+      - pattern-not-inside: |
+          $R $F(...) { ... $Y = $USE(..., $X, ...); ... }
+      - pattern-not-inside: |
+          $R $F(...) { ... return $X; ... }
+      - pattern-not-inside: |
+          $R $F(...) { ... $S.$FLD = $X; ... }
+      - pattern-not-inside: |
+          $R $F(...) { ... $S->$FLD = $X; ... }
+      - pattern-not-inside: |
+          $R $F(...) { ... $ARR[$I] = $X; ... }
+      - pattern-not-inside: |
+          $R $F(...) { ... $AT &$ALIAS = $X; ... }
+      - pattern-not-inside: |
+          $R $F(...) { ... $AT $ALIAS = &$X; ... }
+      - pattern-not-inside: |
+          $T $X = $ACQ(...);
+          ...
+          $USE(..., $X, ...);
+      - pattern-not-inside: |
+          $T $X = $ACQ(...);
+          ...
+          $USE(..., ($CT)$X, ...);
+      - pattern-not-inside: |
+          $T $X = $ACQ(...);
+          ...
+          $USE(..., &$X, ...);
+      - pattern-not-inside: |
+          $T $X = $ACQ(...);
+          ...
+          $Y = $USE(..., $X, ...);
+      - pattern-not-inside: |
+          $T $X = $ACQ(...);
+          ...
+          return $X;
+      - pattern-not-inside: |
+          $T $X = $ACQ(...);
+          ...
+          $G = $X;
+      - pattern-not-inside: |
+          $T $X = $ACQ(...);
+          ...
+          $S.$FLD = $X;
+      - pattern-not-inside: |
+          $T $X = $ACQ(...);
+          ...
+          $S->$FLD = $X;
+      - pattern-not-inside: |
+          $T $X = $ACQ(...);
+          ...
+          $ARR[$I] = $X;
+    - patterns:
+      - pattern-inside: |
+          $HR $HELPER(...) { ... $HX = $ACQ(...); ... return $HX; }
+          ...
+      - metavariable-regex:
+          metavariable: $ACQ
+          regex: ^(fopen|_wfopen|fdopen|_fdopen|open|_open|OPEN|_wopen|creat|_creat|CreateFile|CreateFileA|CreateFileW)$
+      - pattern: |
+          $X = $HELPER(...);
+      - pattern-not-inside: |
+          $X = $HELPER(...);
+          ...
+          $USE(..., $X, ...);
+      - pattern-not-inside: |
+          $X = $HELPER(...);
+          ...
+          $USE(..., ($CT)$X, ...);
+      - pattern-not-inside: |
+          $X = $HELPER(...);
+          ...
+          $USE(..., &$X, ...);
+      - pattern-not-inside: |
+          $X = $HELPER(...);
+          ...
+          $Y = $USE(..., $X, ...);
+      - pattern-not-inside: |
+          $X = $HELPER(...);
+          ...
+          return $X;
+      - pattern-not-inside: |
+          $X = $HELPER(...);
+          ...
+          $G = $X;
+      - pattern-not-inside: |
+          $X = $HELPER(...);
+          ...
+          $S.$FLD = $X;
+      - pattern-not-inside: |
+          $X = $HELPER(...);
+          ...
+          $S->$FLD = $X;
+      - pattern-not-inside: |
+          $X = $HELPER(...);
+          ...
+          $ARR[$I] = $X;
+    - patterns:
+      - pattern-inside: |
+          $HR $HELPER(..., $HT &$HX, ...) { ... $HX = $ACQ(...); ... }
+          ...
+      - metavariable-regex:
+          metavariable: $ACQ
+          regex: ^(fopen|_wfopen|fdopen|_fdopen|open|_open|OPEN|_wopen|creat|_creat|CreateFile|CreateFileA|CreateFileW)$
+      - pattern: |
+          $HELPER($X);
+      - pattern-not-inside: |
+          $HELPER($X);
+          ...
+          $USE(..., $X, ...);
+      - pattern-not-inside: |
+          $HELPER($X);
+          ...
+          $USE(..., ($CT)$X, ...);
+      - pattern-not-inside: |
+          $HELPER($X);
+          ...
+          $USE(..., &$X, ...);
+      - pattern-not-inside: |
+          $HELPER($X);
+          ...
+          $Y = $USE(..., $X, ...);
+      - pattern-not-inside: |
+          $HELPER($X);
+          ...
+          return $X;
+      - pattern-not-inside: |
+          $HELPER($X);
+          ...
+          $G = $X;
+      - pattern-not-inside: |
+          $HELPER($X);
+          ...
+          $S.$FLD = $X;
+      - pattern-not-inside: |
+          $HELPER($X);
+          ...
+          $S->$FLD = $X;
+      - pattern-not-inside: |
+          $HELPER($X);
+          ...
+          $ARR[$I] = $X;
+    - patterns:
+      - pattern-inside: |
+          $RR $READER(...) { ... }
+          ...
+          $WR $WRITER(...) { ... $D = $ACQ(...); ... $GV = $D; ... }
+      - metavariable-regex:
+          metavariable: $ACQ
+          regex: ^(fopen|_wfopen|fdopen|_fdopen|open|_open|OPEN|_wopen|creat|_creat|CreateFile|CreateFileA|CreateFileW)$
+      - pattern: |
+          $T $X = $GV;
+      - pattern-not-inside: |
+          $T $X = $GV;
+          ...
+          $USE(..., $X, ...);
+      - pattern-not-inside: |
+          $T $X = $GV;
+          ...
+          $USE(..., ($CT)$X, ...);
+      - pattern-not-inside: |
+          $T $X = $GV;
+          ...
+          $USE(..., &$X, ...);
+      - pattern-not-inside: |
+          $T $X = $GV;
+          ...
+          $Y = $USE(..., $X, ...);
+      - pattern-not-inside: |
+          $T $X = $GV;
+          ...
+          return $X;
+      - pattern-not-inside: |
+          $T $X = $GV;
+          ...
+          $G = $X;
+      - pattern-not-inside: |
+          $T $X = $GV;
+          ...
+          $S.$FLD = $X;
+      - pattern-not-inside: |
+          $T $X = $GV;
+          ...
+          $S->$FLD = $X;
+      - pattern-not-inside: |
+          $T $X = $GV;
+          ...
+          $ARR[$I] = $X;
+      - pattern-not-inside: |
+          $RR $READER(...) { ... $USE(..., $X, ...); ... }
+      - pattern-not-inside: |
+          $RR $READER(...) { ... $USE(..., ($CT)$X, ...); ... }
+      - pattern-not-inside: |
+          $RR $READER(...) { ... $USE(..., &$X, ...); ... }
+      - pattern-not-inside: |
+          $RR $READER(...) { ... $Y = $USE(..., $X, ...); ... }
+      - pattern-not-inside: |
+          $RR $READER(...) { ... return $X; ... }
+      - pattern-not-inside: |
+          $RR $READER(...) { ... $S.$FLD = $X; ... }
+      - pattern-not-inside: |
+          $RR $READER(...) { ... $S->$FLD = $X; ... }
+      - pattern-not-inside: |
+          $RR $READER(...) { ... $ARR[$I] = $X; ... }
+      - pattern-not-inside: |
+          $RR $READER(...) { ... $AT &$ALIAS = $X; ... }
+      - pattern-not-inside: |
+          $RR $READER(...) { ... $AT $ALIAS = &$X; ... }

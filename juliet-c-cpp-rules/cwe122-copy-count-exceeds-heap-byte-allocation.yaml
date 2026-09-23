@@ -1,0 +1,255 @@
+rules:
+- id: cwe122-copy-count-exceeds-heap-byte-allocation
+  languages:
+  - c
+  - cpp
+  paths:
+    include:
+    - '*.c'
+    - '*.h'
+    - '*.cpp'
+    - '*.cc'
+    - '*.cxx'
+    - '*.c++'
+    - '*.hpp'
+    - '*.hh'
+    - '*.hxx'
+    - '*.inc'
+  severity: ERROR
+  message: The heap buffer '$DST' was sized in bytes without multiplying by the element size, but this
+    copy writes whole elements; the allocation is too small.
+  metadata:
+    vulnerability_class: Heap-based Buffer Overflow
+    help: |
+      ## Summary
+      The heap buffer '`$DST`' was sized in bytes without multiplying by the element size, but this copy writes whole elements; the allocation is too small.
+
+      ## Remediation
+      Allocate enough room for the data including the terminator, bound every copy and index by the allocation size, and validate lengths and indexes from input before use.
+    category: security
+    cwe:
+    - 'CWE-122: Heap-based Buffer Overflow'
+    references:
+    - https://cwe.mitre.org/data/definitions/122.html
+    confidence: MEDIUM
+    likelihood: MEDIUM
+    impact: HIGH
+    subcategory:
+    - vuln
+    technology:
+    - c
+    - cpp
+    source: Validated against NIST Juliet C/C++ Test Suite v1.3
+    remediation: Allocate enough room for the data including the terminator, bound every copy and index
+      by the allocation size, and validate lengths and indexes from input before use.
+  patterns:
+  - pattern-either:
+    - pattern-either:
+      - pattern: memcpy($DST, $SRC, $M * sizeof(...))
+      - pattern: memmove($DST, $SRC, $M * sizeof(...))
+      - pattern: wmemcpy($DST, $SRC, $M)
+      - pattern: wmemmove($DST, $SRC, $M)
+    - patterns:
+      - pattern-inside: for ($I = $Z; $I < $M; $I++) { ... }
+      - pattern: $DST[$I] = $E;
+    - pattern-either:
+      - pattern: strncpy($DST, $SRC, $M)
+      - pattern: wcsncpy($DST, $SRC, $M)
+      - pattern: strncat($DST, $SRC, $M)
+      - pattern: wcsncat($DST, $SRC, $M)
+    - pattern-either:
+      - pattern: snprintf($DST, $M, ...)
+      - pattern: _snprintf($DST, $M, ...)
+      - pattern: _snwprintf($DST, $M, ...)
+      - pattern: swprintf($DST, $M, ...)
+      - pattern: vsnprintf($DST, $M, ...)
+      - pattern: SNPRINTF($DST, $M, ...)
+  - pattern-either:
+    - patterns:
+      - pattern-inside: |-
+          $RET $F(...) {
+            ...
+            $V = ($T2 *)malloc($N);
+            ...
+          }
+      - metavariable-regex:
+          metavariable: $T2
+          regex: ^(?!(char|signed char|unsigned char|void|wchar_t|uint8_t|int8_t)$).*$
+    - patterns:
+      - patterns:
+        - pattern-inside: |-
+            $CR1 $SINK($PT $V) {
+              ...
+            }
+            ...
+            $CR2 $CALLER(...) {
+              ...
+              $A = ($T2 *)malloc($N);
+              ...
+              $SINK($A);
+              ...
+            }
+        - metavariable-regex:
+            metavariable: $T2
+            regex: ^(?!(char|signed char|unsigned char|void|wchar_t|uint8_t|int8_t)$).*$
+      - pattern-inside: |-
+          $CR1 $SINK($PT $V) {
+            ...
+          }
+    - patterns:
+      - patterns:
+        - pattern-inside: |-
+            $CR1 $SINK($PT $V) {
+              ...
+            }
+            ...
+            $CR2 $CALLER(...) {
+              ...
+              $FT (*$FPTR)(...) = $SINK;
+              ...
+              $A = ($T2 *)malloc($N);
+              ...
+              $FPTR($A);
+              ...
+            }
+        - metavariable-regex:
+            metavariable: $T2
+            regex: ^(?!(char|signed char|unsigned char|void|wchar_t|uint8_t|int8_t)$).*$
+      - pattern-inside: |-
+          $CR1 $SINK($PT $V) {
+            ...
+          }
+    - patterns:
+      - patterns:
+        - pattern-inside: |-
+            $CR1 $SINK() {
+              ...
+              $PT $V = $GV;
+              ...
+            }
+            ...
+            $CR2 $CALLER(...) {
+              ...
+              $A = ($T2 *)malloc($N);
+              ...
+              $GV = $A;
+              ...
+              $SINK();
+              ...
+            }
+        - metavariable-regex:
+            metavariable: $T2
+            regex: ^(?!(char|signed char|unsigned char|void|wchar_t|uint8_t|int8_t)$).*$
+      - pattern-inside: |-
+          $CR1 $SINK() {
+            ...
+          }
+    - patterns:
+      - patterns:
+        - pattern-inside: |-
+            $CR1 $SRCF(...) {
+              ...
+              $X = ($T2 *)malloc($N);
+              ...
+              return $X;
+              ...
+            }
+            ...
+            $CR2 $USEF(...) {
+              ...
+              $V = $SRCF(...);
+              ...
+            }
+        - metavariable-regex:
+            metavariable: $T2
+            regex: ^(?!(char|signed char|unsigned char|void|wchar_t|uint8_t|int8_t)$).*$
+      - pattern-inside: |-
+          $CR2 $USEF(...) {
+            ...
+          }
+    - patterns:
+      - patterns:
+        - pattern-inside: |-
+            $CR1 $SRCF($PT &$X) {
+              ...
+              $X = ($T2 *)malloc($N);
+              ...
+            }
+            ...
+            $CR2 $USEF(...) {
+              ...
+              $SRCF($V);
+              ...
+            }
+        - metavariable-regex:
+            metavariable: $T2
+            regex: ^(?!(char|signed char|unsigned char|void|wchar_t|uint8_t|int8_t)$).*$
+      - pattern-inside: |-
+          $CR2 $USEF(...) {
+            ...
+          }
+    - patterns:
+      - patterns:
+        - pattern-inside: |-
+            $CR1 $SETF(...) {
+              ...
+              $V = ($T2 *)malloc($N);
+              ...
+            }
+            ...
+            $CR2 $USEF(...) {
+              ...
+            }
+        - metavariable-regex:
+            metavariable: $T2
+            regex: ^(?!(char|signed char|unsigned char|void|wchar_t|uint8_t|int8_t)$).*$
+      - pattern-inside: |-
+          $CR2 $USEF(...) {
+            ...
+          }
+      - pattern-not-inside: |-
+          $CX $USEF(...) {
+            ...
+            $TT $V;
+            ...
+          }
+      - pattern-not-inside: |-
+          $CX $SETF(...) {
+            ...
+            $TT $V;
+            ...
+          }
+          ...
+          $CY $USEF(...) {
+            ...
+          }
+      - pattern-not-inside: |-
+          $CX $USEF(...) {
+            ...
+            $TT $V = $IV;
+            ...
+          }
+      - pattern-not-inside: |-
+          $CX $SETF(...) {
+            ...
+            $TT $V = $IV;
+            ...
+          }
+          ...
+          $CY $USEF(...) {
+            ...
+          }
+      - pattern-not-inside: |-
+          $CX $USEF(..., $TT $V, ...) {
+            ...
+          }
+      - pattern-not-inside: |-
+          $CX $SETF(..., $TT $V, ...) {
+            ...
+          }
+          ...
+          $CY $USEF(...) {
+            ...
+          }
+  - metavariable-comparison:
+      comparison: str($V) == str($DST) and $M * 2 > $N

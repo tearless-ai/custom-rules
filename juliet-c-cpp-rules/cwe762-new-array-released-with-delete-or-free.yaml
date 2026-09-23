@@ -1,0 +1,51 @@
+rules:
+- id: cwe762-new-array-released-with-delete-or-free
+  languages:
+  - cpp
+  paths:
+    include:
+    - '*.c'
+    - '*.h'
+    - '*.cpp'
+    - '*.cc'
+    - '*.cxx'
+    - '*.c++'
+    - '*.hpp'
+    - '*.hh'
+    - '*.hxx'
+    - '*.inc'
+  severity: ERROR
+  message: Memory obtained from new[] is released with scalar delete or free(); it must be released with
+    delete[].
+  metadata:
+    vulnerability_class: Mismatched Memory Management Routines
+    help: |
+      ## Summary
+      Memory obtained from new[] is released with scalar delete or free(); it must be released with delete[].
+
+      ## Remediation
+      Pair allocation and release functions correctly: malloc/free, new/delete, new[]/delete[].
+    category: security
+    cwe:
+    - 'CWE-762: Mismatched Memory Management Routines'
+    references:
+    - https://cwe.mitre.org/data/definitions/762.html
+    confidence: HIGH
+    likelihood: MEDIUM
+    impact: HIGH
+    subcategory:
+    - vuln
+    technology:
+    - c
+    - cpp
+    source: Validated against NIST Juliet C/C++ Test Suite v1.3
+    remediation: 'Pair allocation and release functions correctly: malloc/free, new/delete, new[]/delete[].'
+  mode: taint
+  pattern-sources:
+  - pattern: new $ANT[$ANN]
+  pattern-sinks:
+  - patterns:
+    - pattern-either:
+      - pattern: delete $X;
+      - pattern: free($X)
+    - focus-metavariable: $X

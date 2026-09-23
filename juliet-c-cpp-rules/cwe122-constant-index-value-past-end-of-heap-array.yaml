@@ -1,0 +1,84 @@
+rules:
+- id: cwe122-constant-index-value-past-end-of-heap-array
+  languages:
+  - c
+  - cpp
+  paths:
+    include:
+    - '*.c'
+    - '*.h'
+    - '*.cpp'
+    - '*.cc'
+    - '*.cxx'
+    - '*.c++'
+    - '*.hpp'
+    - '*.hh'
+    - '*.hxx'
+    - '*.inc'
+  severity: ERROR
+  message: The index written into the heap array '$BUF' evaluates to a constant that is not smaller than
+    the array size, and no upper-bound check guards the write.
+  metadata:
+    vulnerability_class: Heap-based Buffer Overflow
+    help: |
+      ## Summary
+      The index written into the heap array '`$BUF`' evaluates to a constant that is not smaller than the array size, and no upper-bound check guards the write.
+
+      ## Remediation
+      Allocate enough room for the data including the terminator, bound every copy and index by the allocation size, and validate lengths and indexes from input before use.
+    category: security
+    cwe:
+    - 'CWE-122: Heap-based Buffer Overflow'
+    references:
+    - https://cwe.mitre.org/data/definitions/122.html
+    confidence: MEDIUM
+    likelihood: MEDIUM
+    impact: HIGH
+    subcategory:
+    - vuln
+    technology:
+    - c
+    - cpp
+    source: Validated against NIST Juliet C/C++ Test Suite v1.3
+    remediation: Allocate enough room for the data including the terminator, bound every copy and index
+      by the allocation size, and validate lengths and indexes from input before use.
+  patterns:
+  - pattern: $BUF[$IDX] = $VAL;
+  - pattern-either:
+    - pattern-inside: |-
+        $RET $F(...) {
+          ...
+          $BUF = ($T2 *)malloc($N * sizeof(...));
+          ...
+        }
+    - pattern-inside: |-
+        $RET $F(...) {
+          ...
+          $BUF = ($T2 *)calloc($N, sizeof(...));
+          ...
+        }
+    - pattern-inside: |-
+        $RET $F(...) {
+          ...
+          $BUF = ($T2 *)realloc($OLD, $N * sizeof(...));
+          ...
+        }
+    - pattern-either:
+      - pattern-inside: |-
+          $RET $F(...) {
+            ...
+            $BUF = new $T[$N];
+            ...
+          }
+      - pattern-inside: |-
+          $RET $F(...) {
+            ...
+            $BUF = new $T[$N] = $INIT;
+            ...
+          }
+  - pattern-not-inside: if (<... $IDX < $MAX ...>) { ... }
+  - pattern-not-inside: if (<... $IDX <= $MAX ...>) { ... }
+  - pattern-not-inside: if (<... $MAX > $IDX ...>) { ... }
+  - pattern-not-inside: if (<... $MAX >= $IDX ...>) { ... }
+  - metavariable-comparison:
+      comparison: $IDX >= $N

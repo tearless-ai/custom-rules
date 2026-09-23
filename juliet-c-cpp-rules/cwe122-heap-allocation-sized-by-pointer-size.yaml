@@ -1,0 +1,378 @@
+rules:
+- id: cwe122-heap-allocation-sized-by-pointer-size
+  languages:
+  - c
+  - cpp
+  paths:
+    include:
+    - '*.c'
+    - '*.h'
+    - '*.cpp'
+    - '*.cc'
+    - '*.cxx'
+    - '*.c++'
+    - '*.hpp'
+    - '*.hh'
+    - '*.hxx'
+    - '*.inc'
+  severity: ERROR
+  message: The heap buffer '$P' is allocated with sizeof applied to the pointer itself instead of the
+    pointed-to type, so writes through it overflow the allocation.
+  metadata:
+    vulnerability_class: Heap-based Buffer Overflow
+    help: |
+      ## Summary
+      The heap buffer '`$P`' is allocated with sizeof applied to the pointer itself instead of the pointed-to type, so writes through it overflow the allocation.
+
+      ## Remediation
+      Allocate enough room for the data including the terminator, bound every copy and index by the allocation size, and validate lengths and indexes from input before use.
+    category: security
+    cwe:
+    - 'CWE-122: Heap-based Buffer Overflow'
+    references:
+    - https://cwe.mitre.org/data/definitions/122.html
+    confidence: HIGH
+    likelihood: MEDIUM
+    impact: HIGH
+    subcategory:
+    - vuln
+    technology:
+    - c
+    - cpp
+    source: Validated against NIST Juliet C/C++ Test Suite v1.3
+    remediation: Allocate enough room for the data including the terminator, bound every copy and index
+      by the allocation size, and validate lengths and indexes from input before use.
+  patterns:
+  - pattern-either:
+    - pattern: '*$P = $VAL;'
+    - pattern: $P->$FLD = $VAL;
+    - pattern: $FN(..., *$P, ...);
+  - pattern-either:
+    - pattern-either:
+      - patterns:
+        - pattern-inside: |-
+            $RET $F(...) {
+              ...
+              $V = ($T *)$HF(sizeof($V));
+              ...
+            }
+        - metavariable-regex:
+            metavariable: $HF
+            regex: ^(malloc|calloc)$
+        - metavariable-regex:
+            metavariable: $T
+            regex: ^[^*]*$
+      - patterns:
+        - pattern-inside: |-
+            $RET $F(...) {
+              ...
+              $V = ($T *)calloc(1, sizeof($V));
+              ...
+            }
+        - metavariable-regex:
+            metavariable: $T
+            regex: ^[^*]*$
+    - patterns:
+      - pattern-either:
+        - patterns:
+          - pattern-inside: |-
+              $CR1 $SINK($PT $V) {
+                ...
+              }
+              ...
+              $CR2 $CALLER(...) {
+                ...
+                $A = ($T *)$HF(sizeof($A));
+                ...
+                $SINK($A);
+                ...
+              }
+          - metavariable-regex:
+              metavariable: $HF
+              regex: ^(malloc|calloc)$
+          - metavariable-regex:
+              metavariable: $T
+              regex: ^[^*]*$
+        - patterns:
+          - pattern-inside: |-
+              $CR1 $SINK($PT $V) {
+                ...
+              }
+              ...
+              $CR2 $CALLER(...) {
+                ...
+                $A = ($T *)calloc(1, sizeof($A));
+                ...
+                $SINK($A);
+                ...
+              }
+          - metavariable-regex:
+              metavariable: $T
+              regex: ^[^*]*$
+      - pattern-inside: |-
+          $CR1 $SINK($PT $V) {
+            ...
+          }
+    - patterns:
+      - pattern-either:
+        - patterns:
+          - pattern-inside: |-
+              $CR1 $SINK($PT $V) {
+                ...
+              }
+              ...
+              $CR2 $CALLER(...) {
+                ...
+                $FT (*$FPTR)(...) = $SINK;
+                ...
+                $A = ($T *)$HF(sizeof($A));
+                ...
+                $FPTR($A);
+                ...
+              }
+          - metavariable-regex:
+              metavariable: $HF
+              regex: ^(malloc|calloc)$
+          - metavariable-regex:
+              metavariable: $T
+              regex: ^[^*]*$
+        - patterns:
+          - pattern-inside: |-
+              $CR1 $SINK($PT $V) {
+                ...
+              }
+              ...
+              $CR2 $CALLER(...) {
+                ...
+                $FT (*$FPTR)(...) = $SINK;
+                ...
+                $A = ($T *)calloc(1, sizeof($A));
+                ...
+                $FPTR($A);
+                ...
+              }
+          - metavariable-regex:
+              metavariable: $T
+              regex: ^[^*]*$
+      - pattern-inside: |-
+          $CR1 $SINK($PT $V) {
+            ...
+          }
+    - patterns:
+      - pattern-either:
+        - patterns:
+          - pattern-inside: |-
+              $CR1 $SINK() {
+                ...
+                $PT $V = $GV;
+                ...
+              }
+              ...
+              $CR2 $CALLER(...) {
+                ...
+                $A = ($T *)$HF(sizeof($A));
+                ...
+                $GV = $A;
+                ...
+                $SINK();
+                ...
+              }
+          - metavariable-regex:
+              metavariable: $HF
+              regex: ^(malloc|calloc)$
+          - metavariable-regex:
+              metavariable: $T
+              regex: ^[^*]*$
+        - patterns:
+          - pattern-inside: |-
+              $CR1 $SINK() {
+                ...
+                $PT $V = $GV;
+                ...
+              }
+              ...
+              $CR2 $CALLER(...) {
+                ...
+                $A = ($T *)calloc(1, sizeof($A));
+                ...
+                $GV = $A;
+                ...
+                $SINK();
+                ...
+              }
+          - metavariable-regex:
+              metavariable: $T
+              regex: ^[^*]*$
+      - pattern-inside: |-
+          $CR1 $SINK() {
+            ...
+          }
+    - patterns:
+      - pattern-either:
+        - patterns:
+          - pattern-inside: |-
+              $CR1 $SRCF(...) {
+                ...
+                $X = ($T *)$HF(sizeof($X));
+                ...
+                return $X;
+                ...
+              }
+              ...
+              $CR2 $USEF(...) {
+                ...
+                $V = $SRCF(...);
+                ...
+              }
+          - metavariable-regex:
+              metavariable: $HF
+              regex: ^(malloc|calloc)$
+          - metavariable-regex:
+              metavariable: $T
+              regex: ^[^*]*$
+        - patterns:
+          - pattern-inside: |-
+              $CR1 $SRCF(...) {
+                ...
+                $X = ($T *)calloc(1, sizeof($X));
+                ...
+                return $X;
+                ...
+              }
+              ...
+              $CR2 $USEF(...) {
+                ...
+                $V = $SRCF(...);
+                ...
+              }
+          - metavariable-regex:
+              metavariable: $T
+              regex: ^[^*]*$
+      - pattern-inside: |-
+          $CR2 $USEF(...) {
+            ...
+          }
+    - patterns:
+      - pattern-either:
+        - patterns:
+          - pattern-inside: |-
+              $CR1 $SRCF($PT &$X) {
+                ...
+                $X = ($T *)$HF(sizeof($X));
+                ...
+              }
+              ...
+              $CR2 $USEF(...) {
+                ...
+                $SRCF($V);
+                ...
+              }
+          - metavariable-regex:
+              metavariable: $HF
+              regex: ^(malloc|calloc)$
+          - metavariable-regex:
+              metavariable: $T
+              regex: ^[^*]*$
+        - patterns:
+          - pattern-inside: |-
+              $CR1 $SRCF($PT &$X) {
+                ...
+                $X = ($T *)calloc(1, sizeof($X));
+                ...
+              }
+              ...
+              $CR2 $USEF(...) {
+                ...
+                $SRCF($V);
+                ...
+              }
+          - metavariable-regex:
+              metavariable: $T
+              regex: ^[^*]*$
+      - pattern-inside: |-
+          $CR2 $USEF(...) {
+            ...
+          }
+    - patterns:
+      - pattern-either:
+        - patterns:
+          - pattern-inside: |-
+              $CR1 $SETF(...) {
+                ...
+                $V = ($T *)$HF(sizeof($V));
+                ...
+              }
+              ...
+              $CR2 $USEF(...) {
+                ...
+              }
+          - metavariable-regex:
+              metavariable: $HF
+              regex: ^(malloc|calloc)$
+          - metavariable-regex:
+              metavariable: $T
+              regex: ^[^*]*$
+        - patterns:
+          - pattern-inside: |-
+              $CR1 $SETF(...) {
+                ...
+                $V = ($T *)calloc(1, sizeof($V));
+                ...
+              }
+              ...
+              $CR2 $USEF(...) {
+                ...
+              }
+          - metavariable-regex:
+              metavariable: $T
+              regex: ^[^*]*$
+      - pattern-inside: |-
+          $CR2 $USEF(...) {
+            ...
+          }
+      - pattern-not-inside: |-
+          $CX $USEF(...) {
+            ...
+            $TT $V;
+            ...
+          }
+      - pattern-not-inside: |-
+          $CX $SETF(...) {
+            ...
+            $TT $V;
+            ...
+          }
+          ...
+          $CY $USEF(...) {
+            ...
+          }
+      - pattern-not-inside: |-
+          $CX $USEF(...) {
+            ...
+            $TT $V = $IV;
+            ...
+          }
+      - pattern-not-inside: |-
+          $CX $SETF(...) {
+            ...
+            $TT $V = $IV;
+            ...
+          }
+          ...
+          $CY $USEF(...) {
+            ...
+          }
+      - pattern-not-inside: |-
+          $CX $USEF(..., $TT $V, ...) {
+            ...
+          }
+      - pattern-not-inside: |-
+          $CX $SETF(..., $TT $V, ...) {
+            ...
+          }
+          ...
+          $CY $USEF(...) {
+            ...
+          }
+  - metavariable-comparison:
+      comparison: str($V) == str($P)

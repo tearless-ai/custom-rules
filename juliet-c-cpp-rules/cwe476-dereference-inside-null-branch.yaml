@@ -1,0 +1,60 @@
+rules:
+- id: cwe476-dereference-inside-null-branch
+  languages:
+  - c
+  - cpp
+  paths:
+    include:
+    - '*.c'
+    - '*.h'
+    - '*.cpp'
+    - '*.cc'
+    - '*.cxx'
+    - '*.c++'
+    - '*.hpp'
+    - '*.hh'
+    - '*.hxx'
+    - '*.inc'
+  severity: ERROR
+  message: A pointer is dereferenced inside the branch where it was just found to be NULL.
+  metadata:
+    vulnerability_class: NULL Pointer Dereference
+    help: |
+      ## Summary
+      A pointer is dereferenced inside the branch where it was just found to be NULL.
+
+      ## Remediation
+      Check pointers for NULL before dereferencing them.
+    category: security
+    cwe:
+    - 'CWE-476: NULL Pointer Dereference'
+    references:
+    - https://cwe.mitre.org/data/definitions/476.html
+    confidence: HIGH
+    likelihood: MEDIUM
+    impact: HIGH
+    subcategory:
+    - vuln
+    technology:
+    - c
+    - cpp
+    source: Validated against NIST Juliet C/C++ Test Suite v1.3
+    remediation: Check pointers for NULL before dereferencing them.
+  patterns:
+  - pattern-either:
+    - pattern-inside: |
+        if ($P == NULL) { ... }
+    - pattern-inside: |
+        if (!$P) { ... }
+  - pattern-not-inside: |
+      if ($P == NULL) { ... } else { ... }
+  - pattern-not-inside: |
+      if (!$P) { ... } else { ... }
+  - pattern-not-inside: |
+      if ($P == NULL) { ... $P = $V; ... }
+  - pattern-not-inside: |
+      if (!$P) { ... $P = $V; ... }
+  - pattern-either:
+    - pattern: '*$P'
+    - pattern: $P->$F
+    - pattern: $P[$I]

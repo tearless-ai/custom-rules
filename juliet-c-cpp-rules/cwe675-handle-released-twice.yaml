@@ -1,0 +1,150 @@
+rules:
+- id: cwe675-handle-released-twice
+  languages:
+  - c
+  - cpp
+  paths:
+    include:
+    - '*.c'
+    - '*.h'
+    - '*.cpp'
+    - '*.cc'
+    - '*.cxx'
+    - '*.c++'
+    - '*.hpp'
+    - '*.hh'
+    - '*.hxx'
+    - '*.inc'
+  severity: ERROR
+  message: A file descriptor or handle that has already been closed is closed again, which can close an
+    unrelated resource that reused the descriptor or corrupt state.
+  metadata:
+    vulnerability_class: Multiple Operations on Resource in Single-Operation Context
+    help: |
+      ## Summary
+      A file descriptor or handle that has already been closed is closed again, which can close an unrelated resource that reused the descriptor or corrupt state.
+
+      ## Remediation
+      Do not perform the same release or open operation twice on a resource.
+    category: security
+    cwe:
+    - 'CWE-675: Multiple Operations on Resource in Single-Operation Context'
+    references:
+    - https://cwe.mitre.org/data/definitions/675.html
+    confidence: HIGH
+    likelihood: MEDIUM
+    impact: HIGH
+    subcategory:
+    - vuln
+    technology:
+    - c
+    - cpp
+    source: Validated against NIST Juliet C/C++ Test Suite v1.3
+    remediation: Do not perform the same release or open operation twice on a resource.
+  mode: taint
+  pattern-sources:
+  - patterns:
+    - pattern: $REL($X)
+    - pattern-not-inside: for (...) { ... }
+    - metavariable-regex:
+        metavariable: $REL
+        regex: ^(fclose|close|_close|CLOSE|CloseHandle|pclose|closesocket)$
+    - focus-metavariable: $X
+    by-side-effect: only
+  - patterns:
+    - pattern-either:
+      - pattern-inside: |
+          $R $CALLEE(..., $T $P, ...) { ... }
+          ...
+          $R2 $CALLER(...) { ... $REL($D); ... $CALLEE(..., $D, ...); ... }
+      - pattern-inside: |
+          $R $CALLEE(..., $T $P, ...) { ... }
+          ...
+          $R2 $CALLER(...) { ... $FT (*$FP)(...) = $CALLEE; ... $REL($D); ... $FP(..., $D, ...); ... }
+    - pattern: |
+        $R $CALLEE(..., $T $P, ...) { ... }
+    - metavariable-regex:
+        metavariable: $REL
+        regex: ^(fclose|close|_close|CLOSE|CloseHandle|pclose|closesocket)$
+    - focus-metavariable: $P
+  - patterns:
+    - pattern-inside: |
+        $R $READER(...) { ... }
+        ...
+        $R2 $WRITER(...) { ... $REL($D); ... $G = $D; ... }
+    - pattern-inside: |
+        $R $READER(...) { ... }
+    - metavariable-regex:
+        metavariable: $REL
+        regex: ^(fclose|close|_close|CLOSE|CloseHandle|pclose|closesocket)$
+    - pattern: $G
+  - patterns:
+    - pattern-inside: |
+        $R $HELPER(...) { ... $REL($X); ... return $X; }
+        ...
+    - metavariable-regex:
+        metavariable: $REL
+        regex: ^(fclose|close|_close|CLOSE|CloseHandle|pclose|closesocket)$
+    - pattern: $HELPER(...)
+  - patterns:
+    - pattern-inside: |
+        $R $HELPER(..., $T &$X, ...) { ... $REL($X); ... }
+        ...
+    - metavariable-regex:
+        metavariable: $REL
+        regex: ^(fclose|close|_close|CLOSE|CloseHandle|pclose|closesocket)$
+    - pattern: $HELPER($D)
+    - focus-metavariable: $D
+    by-side-effect: true
+  - patterns:
+    - pattern-inside: |
+        $T &$REF = $D;
+        ...
+        $REL($D);
+        ...
+    - metavariable-regex:
+        metavariable: $REL
+        regex: ^(fclose|close|_close|CLOSE|CloseHandle|pclose|closesocket)$
+    - pattern: $REF
+  - patterns:
+    - pattern-inside: |
+        $T $P1 = &$D;
+        ...
+        $T $P2 = &$D;
+        ...
+    - pattern-either:
+      - pattern-inside: |
+          $REL($V);
+          ...
+          *$P1 = $V;
+          ...
+      - pattern-inside: |
+          {
+            ...
+            $REL($V);
+            ...
+            *$P1 = $V;
+          }
+          ...
+    - metavariable-regex:
+        metavariable: $REL
+        regex: ^(fclose|close|_close|CLOSE|CloseHandle|pclose|closesocket)$
+    - pattern: '*$P2'
+  pattern-propagators:
+  - patterns:
+    - pattern-inside: |
+        typedef union { $T1 $A; $T2 $B; } $UT;
+        ...
+    - pattern-inside: |
+        $UT $U;
+        ...
+    - pattern: $U.$F1 = $D
+    from: $D
+    to: $U
+  pattern-sinks:
+  - patterns:
+    - pattern: $REL2($X)
+    - metavariable-regex:
+        metavariable: $REL2
+        regex: ^(fclose|close|_close|CLOSE|CloseHandle|pclose|closesocket)$
+    - focus-metavariable: $X

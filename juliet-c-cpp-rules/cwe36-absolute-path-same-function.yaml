@@ -1,0 +1,82 @@
+rules:
+- id: cwe36-absolute-path-same-function
+  languages:
+  - c
+  - cpp
+  paths:
+    include:
+    - '*.c'
+    - '*.h'
+    - '*.cpp'
+    - '*.cc'
+    - '*.cxx'
+    - '*.c++'
+    - '*.hpp'
+    - '*.hh'
+    - '*.hxx'
+    - '*.inc'
+  severity: ERROR
+  message: File opened with a path taken entirely from external data in a function that also reads untrusted
+    input (console, file, socket or environment).
+  metadata:
+    vulnerability_class: Absolute Path Traversal
+    help: |
+      ## Summary
+      File opened with a path taken entirely from external data in a function that also reads untrusted input (console, file, socket or environment).
+
+      ## Remediation
+      Never open a path taken directly from input; map input to an allow-list of known files or join it to a fixed base directory and re-check the canonical result.
+    category: security
+    cwe:
+    - 'CWE-36: Absolute Path Traversal'
+    references:
+    - https://cwe.mitre.org/data/definitions/36.html
+    confidence: MEDIUM
+    likelihood: MEDIUM
+    impact: HIGH
+    subcategory:
+    - vuln
+    technology:
+    - c
+    - cpp
+    source: Validated against NIST Juliet C/C++ Test Suite v1.3
+    remediation: Never open a path taken directly from input; map input to an allow-list of known files
+      or join it to a fixed base directory and re-check the canonical result.
+  patterns:
+  - pattern-either:
+    - patterns:
+      - pattern: $OPEN($PATH, ...)
+      - metavariable-regex:
+          metavariable: $OPEN
+          regex: ^(FOPEN|fopen|_wfopen|fopen_s|freopen|_wfreopen|OPEN|open|_open|_wopen|open64|creat|openat|CreateFile|CreateFileA|CreateFileW|_sopen|_wsopen|_sopen_s|_wsopen_s)$
+    - patterns:
+      - pattern-either:
+        - pattern-inside: |
+            $STREAM_T $STREAM;
+            ...
+        - pattern-inside: |
+            $STREAM_T $STREAM($PATH, ...);
+      - metavariable-regex:
+          metavariable: $STREAM_T
+          regex: ^(std::)?(basic_)?(i|o|w|wi|wo)?fstream$
+      - pattern-either:
+        - pattern: $STREAM.open($PATH, ...)
+        - pattern: $STREAM_T $STREAM($PATH, ...);
+  - metavariable-regex:
+      metavariable: $PATH
+      regex: ^(?!\s*(L|u8|u|U)?\")(?!\s*[A-Z][A-Z0-9_]*\s*$)
+  - pattern-inside: |
+      $T_F $F(...) {
+        ...
+        $BUF_T $BUF[$BUF_N] = $BUF_INIT;
+        ...
+        <... $SRC(...) ...>;
+        ...
+      }
+  - metavariable-regex:
+      metavariable: $SRC
+      regex: ^(?:std::)?(fgets|fgetws|gets|_getws|getline|getdelim|scanf|wscanf|fscanf|fwscanf|read|_read|recv|recvfrom|recvmsg|WSARecv|WSARecvFrom|getenv|_wgetenv|secure_getenv|GETENV|ReadFile|ReadConsoleA|ReadConsoleW|InternetReadFile)$
+  - metavariable-regex:
+      metavariable: $BUF_INIT
+      regex: ^\s*L?""\s*$
+  - focus-metavariable: $PATH

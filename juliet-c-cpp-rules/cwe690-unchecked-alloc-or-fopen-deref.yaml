@@ -1,0 +1,191 @@
+rules:
+- id: cwe690-unchecked-alloc-or-fopen-deref
+  languages:
+  - c
+  - cpp
+  paths:
+    include:
+    - '*.c'
+    - '*.h'
+    - '*.cpp'
+    - '*.cc'
+    - '*.cxx'
+    - '*.c++'
+    - '*.hpp'
+    - '*.hh'
+    - '*.hxx'
+    - '*.inc'
+  severity: ERROR
+  message: A pointer returned by an allocation or file-open function, which can be NULL, is dereferenced
+    without first being checked for NULL.
+  metadata:
+    vulnerability_class: Unchecked Return Value to NULL Pointer Dereference
+    help: |
+      ## Summary
+      A pointer returned by an allocation or file-open function, which can be NULL, is dereferenced without first being checked for NULL.
+
+      ## Remediation
+      Check the return value of allocation and lookup functions for NULL before dereferencing it.
+    category: security
+    cwe:
+    - 'CWE-690: Unchecked Return Value to NULL Pointer Dereference'
+    references:
+    - https://cwe.mitre.org/data/definitions/690.html
+    confidence: MEDIUM
+    likelihood: MEDIUM
+    impact: HIGH
+    subcategory:
+    - vuln
+    technology:
+    - c
+    - cpp
+    source: Validated against NIST Juliet C/C++ Test Suite v1.3
+    remediation: Check the return value of allocation and lookup functions for NULL before dereferencing
+      it.
+  mode: taint
+  pattern-sources:
+  - patterns:
+    - pattern: $ALLOC(...)
+    - metavariable-regex:
+        metavariable: $ALLOC
+        regex: ^(malloc|calloc|realloc|strdup|wcsdup|_strdup|_wcsdup|fopen|_wfopen|fdopen|freopen|tmpfile)$
+  - patterns:
+    - pattern-inside: |
+        $R $SINKF(..., $T $P, ...) { ... }
+        ...
+        $R2 $CALLER(...) { ... $D = <... $ALLOC(...) ...>; ... $SINKF(..., $D, ...); ... }
+    - pattern: |
+        $R $SINKF(..., $T $P, ...) { ... }
+    - metavariable-regex:
+        metavariable: $ALLOC
+        regex: ^(malloc|calloc|realloc|strdup|wcsdup|_strdup|_wcsdup|fopen|_wfopen|fdopen|freopen|tmpfile)$
+    - focus-metavariable: $P
+  - patterns:
+    - pattern-inside: |
+        $R $SINKF(..., $T $P, ...) { ... }
+        ...
+        $R2 $CALLER(...) { ... $FT (*$FP)(...) = $SINKF; ... $D = <... $ALLOC(...) ...>; ... $FP(..., $D, ...); ... }
+    - pattern: |
+        $R $SINKF(..., $T $P, ...) { ... }
+    - metavariable-regex:
+        metavariable: $ALLOC
+        regex: ^(malloc|calloc|realloc|strdup|wcsdup|_strdup|_wcsdup|fopen|_wfopen|fdopen|freopen|tmpfile)$
+    - focus-metavariable: $P
+  - patterns:
+    - pattern-inside: |
+        $R $SINKF(...) { ... }
+        ...
+        $R2 $CALLER(...) { ... $D = <... $ALLOC(...) ...>; ... $G = $D; ... }
+    - pattern-inside: |
+        $R $SINKF(...) { ... }
+    - metavariable-regex:
+        metavariable: $ALLOC
+        regex: ^(malloc|calloc|realloc|strdup|wcsdup|_strdup|_wcsdup|fopen|_wfopen|fdopen|freopen|tmpfile)$
+    - pattern: $G
+  - patterns:
+    - pattern-inside: |
+        $R $SRCF(...) { ... $X = <... $ALLOC(...) ...>; ... return $X; }
+        ...
+    - metavariable-regex:
+        metavariable: $ALLOC
+        regex: ^(malloc|calloc|realloc|strdup|wcsdup|_strdup|_wcsdup|fopen|_wfopen|fdopen|freopen|tmpfile)$
+    - pattern: $SRCF(...)
+  - patterns:
+    - pattern-inside: |
+        $R $SRCF(..., $T &$X, ...) { ... $X = <... $ALLOC(...) ...>; ... }
+        ...
+    - metavariable-regex:
+        metavariable: $ALLOC
+        regex: ^(malloc|calloc|realloc|strdup|wcsdup|_strdup|_wcsdup|fopen|_wfopen|fdopen|freopen|tmpfile)$
+    - pattern: $SRCF($D)
+    - focus-metavariable: $D
+    by-side-effect: true
+  - patterns:
+    - pattern-inside: |
+        $T &$REF = $D;
+        ...
+        $D = <... $ALLOC(...) ...>;
+        ...
+    - metavariable-regex:
+        metavariable: $ALLOC
+        regex: ^(malloc|calloc|realloc|strdup|wcsdup|_strdup|_wcsdup|fopen|_wfopen|fdopen|freopen|tmpfile)$
+    - pattern: $REF
+  - patterns:
+    - pattern-inside: |
+        $T $P1 = &$D;
+        ...
+        $T $P2 = &$D;
+        ...
+    - pattern-either:
+      - pattern-inside: |
+          $V = <... $ALLOC(...) ...>;
+          ...
+          *$P1 = $V;
+          ...
+      - pattern-inside: |
+          {
+            ...
+            $V = <... $ALLOC(...) ...>;
+            ...
+            *$P1 = $V;
+          }
+          ...
+    - metavariable-regex:
+        metavariable: $ALLOC
+        regex: ^(malloc|calloc|realloc|strdup|wcsdup|_strdup|_wcsdup|fopen|_wfopen|fdopen|freopen|tmpfile)$
+    - pattern: '*$P2'
+  pattern-propagators:
+  - patterns:
+    - pattern-inside: |
+        typedef union { $T1 $A; $T2 $B; } $UT;
+        ...
+    - pattern-inside: |
+        $UT $U;
+        ...
+    - pattern: $U.$F1 = $D
+    from: $D
+    to: $U
+  pattern-sanitizers:
+  - patterns:
+    - pattern-either:
+      - pattern: $X != NULL
+      - pattern: $X == NULL
+      - pattern: '!$X'
+      - pattern: '$X ? $A : $B'
+      - pattern: assert($X)
+    - focus-metavariable: $X
+    by-side-effect: true
+  - patterns:
+    - pattern-either:
+      - pattern-inside: if ($X) $S;
+      - pattern-inside: if ($X) $S; else $E;
+      - pattern-inside: while ($X) $S;
+    - pattern: $X
+    - metavariable-regex:
+        metavariable: $X
+        regex: ^[A-Za-z_][A-Za-z0-9_]*$
+    by-side-effect: true
+  pattern-sinks:
+  - patterns:
+    - pattern: $F($P, ...)
+    - metavariable-regex:
+        metavariable: $F
+        regex: ^(strcpy|wcscpy|strncpy|wcsncpy|strcat|wcscat|strncat|wcsncat|memcpy|memmove|memset|wmemset|sprintf|swprintf|snprintf|_snprintf|_snwprintf|fclose|fputs|fputws|fgets|fgetws|fprintf|fwprintf|fwrite|fread|fputc|fgetc|fseek|ftell|rewind|fflush|strlen|wcslen)$
+    - pattern-not-inside: malloc(...)
+    - pattern-not-inside: calloc(...)
+    - pattern-not-inside: realloc(...)
+    - focus-metavariable: $P
+  - patterns:
+    - pattern-either:
+      - pattern: $P[$I]
+      - pattern: '*$P'
+      - pattern: $P->$FLD
+    - pattern-not-inside: '*$P = $V'
+    - pattern-not-inside: $T * $X = *$P;
+    - focus-metavariable: $P
+  - patterns:
+    - pattern: '*$P = $V'
+    - metavariable-regex:
+        metavariable: $V
+        regex: ^(?![A-Za-z_][A-Za-z0-9_]*$)
+    - focus-metavariable: $P

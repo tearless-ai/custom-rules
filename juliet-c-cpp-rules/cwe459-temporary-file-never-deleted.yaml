@@ -1,0 +1,129 @@
+rules:
+- id: cwe459-temporary-file-never-deleted
+  languages:
+  - c
+  - cpp
+  paths:
+    include:
+    - '*.c'
+    - '*.h'
+    - '*.cpp'
+    - '*.cc'
+    - '*.cxx'
+    - '*.c++'
+    - '*.hpp'
+    - '*.hh'
+    - '*.hxx'
+    - '*.inc'
+  severity: WARNING
+  message: A temporary file is created here from a name template, but the function never deletes it (unlink/remove)
+    or returns its name, so the temporary file is left behind.
+  metadata:
+    vulnerability_class: Incomplete Cleanup
+    help: |
+      ## Summary
+      A temporary file is created here from a name template, but the function never deletes it (unlink/remove) or returns its name, so the temporary file is left behind.
+
+      ## Remediation
+      Clean up all temporary resources (files, handles, memory) on every exit path.
+    category: security
+    cwe:
+    - 'CWE-459: Incomplete Cleanup'
+    references:
+    - https://cwe.mitre.org/data/definitions/459.html
+    confidence: MEDIUM
+    likelihood: MEDIUM
+    impact: MEDIUM
+    subcategory:
+    - vuln
+    technology:
+    - c
+    - cpp
+    source: Validated against NIST Juliet C/C++ Test Suite v1.3
+    remediation: Clean up all temporary resources (files, handles, memory) on every exit path.
+  patterns:
+  - pattern-either:
+    - pattern-inside: |
+        $R $F(...) { ... $FD = $MK($TPL, ...); ... }
+    - pattern-inside: |
+        $R $F(...) { ... $TY $FD = $MK($TPL, ...); ... }
+  - metavariable-regex:
+      metavariable: $MK
+      regex: ^(MKSTEMP|MKTEMP|mkstemp|_mkstemp|mkstemps|mkostemp|mkostemps|mktemp|_mktemp|_wmktemp|tmpnam|_tempnam|_wtempnam|tempnam)$
+  - pattern-not-inside: |
+      $R $F(...) { ... unlink($TPL, ...); ... }
+  - pattern-not-inside: |
+      $R $F(...) { ... $RV = unlink($TPL, ...); ... }
+  - pattern-not-inside: |
+      $R $F(...) { ... unlink($FD, ...); ... }
+  - pattern-not-inside: |
+      $R $F(...) { ... $RV = unlink($FD, ...); ... }
+  - pattern-not-inside: |
+      $R $F(...) { ... _unlink($TPL, ...); ... }
+  - pattern-not-inside: |
+      $R $F(...) { ... $RV = _unlink($TPL, ...); ... }
+  - pattern-not-inside: |
+      $R $F(...) { ... _unlink($FD, ...); ... }
+  - pattern-not-inside: |
+      $R $F(...) { ... $RV = _unlink($FD, ...); ... }
+  - pattern-not-inside: |
+      $R $F(...) { ... _wunlink($TPL, ...); ... }
+  - pattern-not-inside: |
+      $R $F(...) { ... $RV = _wunlink($TPL, ...); ... }
+  - pattern-not-inside: |
+      $R $F(...) { ... _wunlink($FD, ...); ... }
+  - pattern-not-inside: |
+      $R $F(...) { ... $RV = _wunlink($FD, ...); ... }
+  - pattern-not-inside: |
+      $R $F(...) { ... remove($TPL, ...); ... }
+  - pattern-not-inside: |
+      $R $F(...) { ... $RV = remove($TPL, ...); ... }
+  - pattern-not-inside: |
+      $R $F(...) { ... remove($FD, ...); ... }
+  - pattern-not-inside: |
+      $R $F(...) { ... $RV = remove($FD, ...); ... }
+  - pattern-not-inside: |
+      $R $F(...) { ... _wremove($TPL, ...); ... }
+  - pattern-not-inside: |
+      $R $F(...) { ... $RV = _wremove($TPL, ...); ... }
+  - pattern-not-inside: |
+      $R $F(...) { ... _wremove($FD, ...); ... }
+  - pattern-not-inside: |
+      $R $F(...) { ... $RV = _wremove($FD, ...); ... }
+  - pattern-not-inside: |
+      $R $F(...) { ... DeleteFile($TPL, ...); ... }
+  - pattern-not-inside: |
+      $R $F(...) { ... $RV = DeleteFile($TPL, ...); ... }
+  - pattern-not-inside: |
+      $R $F(...) { ... DeleteFile($FD, ...); ... }
+  - pattern-not-inside: |
+      $R $F(...) { ... $RV = DeleteFile($FD, ...); ... }
+  - pattern-not-inside: |
+      $R $F(...) { ... DeleteFileA($TPL, ...); ... }
+  - pattern-not-inside: |
+      $R $F(...) { ... $RV = DeleteFileA($TPL, ...); ... }
+  - pattern-not-inside: |
+      $R $F(...) { ... DeleteFileA($FD, ...); ... }
+  - pattern-not-inside: |
+      $R $F(...) { ... $RV = DeleteFileA($FD, ...); ... }
+  - pattern-not-inside: |
+      $R $F(...) { ... DeleteFileW($TPL, ...); ... }
+  - pattern-not-inside: |
+      $R $F(...) { ... $RV = DeleteFileW($TPL, ...); ... }
+  - pattern-not-inside: |
+      $R $F(...) { ... DeleteFileW($FD, ...); ... }
+  - pattern-not-inside: |
+      $R $F(...) { ... $RV = DeleteFileW($FD, ...); ... }
+  - pattern-not-inside: |
+      $R $F(...) { ... UNLINK($TPL, ...); ... }
+  - pattern-not-inside: |
+      $R $F(...) { ... $RV = UNLINK($TPL, ...); ... }
+  - pattern-not-inside: |
+      $R $F(...) { ... UNLINK($FD, ...); ... }
+  - pattern-not-inside: |
+      $R $F(...) { ... $RV = UNLINK($FD, ...); ... }
+  - pattern-not-inside: |
+      $R $F(...) { ... return $FD; ... }
+  - pattern-not-inside: |
+      $R $F(...) { ... return $TPL; ... }
+  - pattern: $MK($TPL, ...)

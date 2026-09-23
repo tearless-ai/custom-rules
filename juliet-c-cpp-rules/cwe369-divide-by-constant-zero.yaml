@@ -1,0 +1,65 @@
+rules:
+- id: cwe369-divide-by-constant-zero
+  languages:
+  - c
+  - cpp
+  paths:
+    include:
+    - '*.c'
+    - '*.h'
+    - '*.cpp'
+    - '*.cc'
+    - '*.cxx'
+    - '*.c++'
+    - '*.hpp'
+    - '*.hh'
+    - '*.hxx'
+    - '*.inc'
+  severity: ERROR
+  message: The divisor is always zero at this point.
+  metadata:
+    vulnerability_class: Divide By Zero
+    help: |
+      ## Summary
+      The divisor is always zero at this point.
+
+      ## Remediation
+      Check that the divisor is non-zero (and not near zero for floating point) before dividing or taking a modulus.
+    category: security
+    cwe:
+    - 'CWE-369: Divide By Zero'
+    references:
+    - https://cwe.mitre.org/data/definitions/369.html
+    confidence: HIGH
+    likelihood: MEDIUM
+    impact: HIGH
+    subcategory:
+    - vuln
+    technology:
+    - c
+    - cpp
+    source: Validated against NIST Juliet C/C++ Test Suite v1.3
+    remediation: Check that the divisor is non-zero (and not near zero for floating point) before dividing
+      or taking a modulus.
+  patterns:
+  - pattern-either:
+    - pattern: $Y / $X
+    - pattern: $Y % $X
+    - pattern: $Y /= $X
+    - pattern: $Y %= $X
+  - metavariable-regex:
+      metavariable: $X
+      regex: ^[A-Za-z_][A-Za-z0-9_]*$
+  - metavariable-comparison:
+      metavariable: $X
+      comparison: $X == 0
+  - pattern-not-inside: if (<... $X != $LIM ...>) { ... }
+  - pattern-not-inside: if (<... $LIM != $X ...>) { ... }
+  - pattern-not-inside: if (<... $X > $LIM ...>) { ... }
+  - pattern-not-inside: if (<... $X < $LIM ...>) { ... }
+  - pattern-not-inside: if (<... $LIM < $X ...>) { ... }
+  - pattern-not-inside: if (<... $LIM > $X ...>) { ... }
+  - pattern-not-inside: if (<... $ABS(<... $X ...>) > $LIM ...>) { ... }
+  - pattern-not-inside: if (<... $ABS(<... $X ...>) >= $LIM ...>) { ... }
+  - pattern-not-inside: $RT $FN(...) { ... $CALLEE($X); ... }
+  - focus-metavariable: $X

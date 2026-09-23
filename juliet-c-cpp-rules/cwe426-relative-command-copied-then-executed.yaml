@@ -1,0 +1,54 @@
+rules:
+- id: cwe426-relative-command-copied-then-executed
+  languages:
+  - c
+  - cpp
+  paths:
+    include:
+    - '*.c'
+    - '*.h'
+    - '*.cpp'
+    - '*.cc'
+    - '*.cxx'
+    - '*.c++'
+    - '*.hpp'
+    - '*.hh'
+    - '*.hxx'
+    - '*.inc'
+  severity: WARNING
+  message: A command without an absolute path is copied into '$BUF' and executed with $EXEC(), so the
+    program that actually runs is chosen through the search path, which an attacker may control.
+  metadata:
+    vulnerability_class: Untrusted Search Path
+    help: |
+      ## Summary
+      A command without an absolute path is copied into '`$BUF`' and executed with `$EXEC()`, so the program that actually runs is chosen through the search path, which an attacker may control.
+    category: security
+    cwe:
+    - 'CWE-426: Untrusted Search Path'
+    references:
+    - https://cwe.mitre.org/data/definitions/426.html
+    confidence: MEDIUM
+    likelihood: MEDIUM
+    impact: MEDIUM
+    subcategory:
+    - vuln
+    technology:
+    - c
+    - cpp
+    source: Validated against NIST Juliet C/C++ Test Suite v1.3
+  patterns:
+  - pattern-inside: |
+      $CPY($BUF, $CMD);
+      ...
+  - metavariable-regex:
+      metavariable: $CPY
+      regex: ^(strcpy|wcscpy|_tcscpy|strncpy|wcsncpy|strcat|wcscat|lstrcpyA|lstrcpyW)$
+  - metavariable-regex:
+      metavariable: $CMD
+      regex: ^(L|u8|u|U)?\"(?![A-Za-z]:|[\\\\/%])
+  - pattern: $EXEC($BUF, ...)
+  - metavariable-regex:
+      metavariable: $EXEC
+      regex: ^(SYSTEM|POPEN|system|popen|_popen|_wpopen|_wsystem)$
+  - focus-metavariable: $EXEC

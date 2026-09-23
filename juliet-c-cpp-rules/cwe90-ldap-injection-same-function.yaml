@@ -1,0 +1,62 @@
+rules:
+- id: cwe90-ldap-injection-same-function
+  languages:
+  - c
+  - cpp
+  paths:
+    include:
+    - '*.c'
+    - '*.h'
+    - '*.cpp'
+    - '*.cc'
+    - '*.cxx'
+    - '*.c++'
+    - '*.hpp'
+    - '*.hh'
+    - '*.hxx'
+    - '*.inc'
+  severity: ERROR
+  message: LDAP search whose filter is built from external data in a function that also reads untrusted
+    input (console, file, socket or environment).
+  metadata:
+    vulnerability_class: Improper Neutralization of Special Elements used in an LDAP Query ('LDAP Injection')
+    help: |
+      ## Summary
+      LDAP search whose filter is built from external data in a function that also reads untrusted input (console, file, socket or environment).
+
+      ## Remediation
+      Escape LDAP filter metacharacters in untrusted input (RFC 4515) or build filters from an allow-list of values.
+    category: security
+    cwe:
+    - 'CWE-90: Improper Neutralization of Special Elements used in an LDAP Query (''LDAP Injection'')'
+    references:
+    - https://cwe.mitre.org/data/definitions/90.html
+    confidence: MEDIUM
+    likelihood: MEDIUM
+    impact: HIGH
+    subcategory:
+    - vuln
+    technology:
+    - c
+    - cpp
+    source: Validated against NIST Juliet C/C++ Test Suite v1.3
+    remediation: Escape LDAP filter metacharacters in untrusted input (RFC 4515) or build filters from
+      an allow-list of values.
+  patterns:
+  - pattern: $LDAPFN($LD, $BASE, $SCOPE, $FILTER, ...)
+  - metavariable-regex:
+      metavariable: $LDAPFN
+      regex: ^(ldap_search|ldap_search_s|ldap_search_st|ldap_search_ext|ldap_search_ext_s|ldap_searchA|ldap_searchW|ldap_search_sA|ldap_search_sW|ldap_search_stA|ldap_search_stW|ldap_search_extA|ldap_search_extW|ldap_search_ext_sA|ldap_search_ext_sW)$
+  - metavariable-regex:
+      metavariable: $FILTER
+      regex: ^(?!\s*(L|u8|u|U)?\")(?!\s*[A-Z][A-Z0-9_]*\s*$)
+  - pattern-inside: |
+      $T_F $F(...) {
+        ...
+        <... $SRC(...) ...>;
+        ...
+      }
+  - metavariable-regex:
+      metavariable: $SRC
+      regex: ^(?:std::)?(fgets|fgetws|gets|_getws|getline|getdelim|scanf|wscanf|fscanf|fwscanf|read|_read|recv|recvfrom|recvmsg|WSARecv|WSARecvFrom|getenv|_wgetenv|secure_getenv|GETENV|ReadFile|ReadConsoleA|ReadConsoleW|InternetReadFile)$
+  - focus-metavariable: $LDAPFN

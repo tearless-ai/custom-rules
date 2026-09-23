@@ -1,0 +1,72 @@
+rules:
+- id: cwe415-double-free-via-alias
+  languages:
+  - c
+  paths:
+    include:
+    - '*.c'
+    - '*.h'
+    - '*.cpp'
+    - '*.cc'
+    - '*.cxx'
+    - '*.c++'
+    - '*.hpp'
+    - '*.hh'
+    - '*.hxx'
+    - '*.inc'
+  severity: ERROR
+  message: Memory already released is released again through a pointer, reference or union alias.
+  metadata:
+    vulnerability_class: Double Free
+    help: |
+      ## Summary
+      Memory already released is released again through a pointer, reference or union alias.
+
+      ## Remediation
+      Free each allocation exactly once and set the pointer to NULL after freeing it.
+    category: security
+    cwe:
+    - 'CWE-415: Double Free'
+    references:
+    - https://cwe.mitre.org/data/definitions/415.html
+    confidence: HIGH
+    likelihood: MEDIUM
+    impact: HIGH
+    subcategory:
+    - vuln
+    technology:
+    - c
+    - cpp
+    source: Validated against NIST Juliet C/C++ Test Suite v1.3
+    remediation: Free each allocation exactly once and set the pointer to NULL after freeing it.
+  pattern-either:
+  - patterns:
+    - pattern-inside: |
+        $RT $FN(...) {
+          ...
+          $PT1 $P1 = &$V;
+          ...
+          $PT2 $P2 = &$V;
+          ...
+          free($X);
+          ...
+          *$P1 = $X;
+          ...
+          $TY $Y = *$P2;
+          ...
+        }
+    - pattern-either:
+      - pattern: free($Y);
+  - patterns:
+    - pattern-inside: |
+        $RT $FN(...) {
+          ...
+          free($X);
+          ...
+          $U.$UF1 = $X;
+          ...
+          $TY $Y = $U.$UF2;
+          ...
+        }
+    - pattern-either:
+      - pattern: free($Y);

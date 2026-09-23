@@ -1,0 +1,119 @@
+rules:
+- id: cwe762-new-released-with-delete-array-or-free-via-alias
+  languages:
+  - cpp
+  paths:
+    include:
+    - '*.c'
+    - '*.h'
+    - '*.cpp'
+    - '*.cc'
+    - '*.cxx'
+    - '*.c++'
+    - '*.hpp'
+    - '*.hh'
+    - '*.hxx'
+    - '*.inc'
+  severity: ERROR
+  message: Memory obtained from scalar new is released with delete[] or free(); it must be released with
+    delete. The pointer reaches the release through a pointer, reference or union alias.
+  metadata:
+    vulnerability_class: Mismatched Memory Management Routines
+    help: |
+      ## Summary
+      Memory obtained from scalar new is released with delete[] or free(); it must be released with delete. The pointer reaches the release through a pointer, reference or union alias.
+
+      ## Remediation
+      Pair allocation and release functions correctly: malloc/free, new/delete, new[]/delete[].
+    category: security
+    cwe:
+    - 'CWE-762: Mismatched Memory Management Routines'
+    references:
+    - https://cwe.mitre.org/data/definitions/762.html
+    confidence: HIGH
+    likelihood: MEDIUM
+    impact: HIGH
+    subcategory:
+    - vuln
+    technology:
+    - c
+    - cpp
+    source: Validated against NIST Juliet C/C++ Test Suite v1.3
+    remediation: 'Pair allocation and release functions correctly: malloc/free, new/delete, new[]/delete[].'
+  pattern-either:
+  - patterns:
+    - pattern-inside: |
+        $RT $FN(...) {
+          ...
+          $PT1 $P1 = &$V;
+          ...
+          $PT2 $P2 = &$V;
+          ...
+          $X = $SRC;
+          ...
+          *$P1 = $X;
+          ...
+          $TY $Y = *$P2;
+          ...
+        }
+    - pattern-either:
+      - pattern: delete [] $Y;
+      - pattern: free($Y)
+    - metavariable-pattern:
+        metavariable: $SRC
+        patterns:
+        - pattern-either:
+          - pattern: new $ANT
+          - pattern: new $ANT(...)
+        - metavariable-regex:
+            metavariable: $ANT
+            regex: ^[^\[]*$
+        - pattern-not: new ($PLB) $PLT
+  - patterns:
+    - pattern-inside: |
+        $RT $FN(...) {
+          ...
+          $TR & $RF = $X;
+          ...
+          $X = $SRC;
+          ...
+          $TY $Y = $RF;
+          ...
+        }
+    - pattern-either:
+      - pattern: delete [] $Y;
+      - pattern: free($Y)
+    - metavariable-pattern:
+        metavariable: $SRC
+        patterns:
+        - pattern-either:
+          - pattern: new $ANT
+          - pattern: new $ANT(...)
+        - metavariable-regex:
+            metavariable: $ANT
+            regex: ^[^\[]*$
+        - pattern-not: new ($PLB) $PLT
+  - patterns:
+    - pattern-inside: |
+        $RT $FN(...) {
+          ...
+          $X = $SRC;
+          ...
+          $U.$UF1 = $X;
+          ...
+          $TY $Y = $U.$UF2;
+          ...
+        }
+    - pattern-either:
+      - pattern: delete [] $Y;
+      - pattern: free($Y)
+    - metavariable-pattern:
+        metavariable: $SRC
+        patterns:
+        - pattern-either:
+          - pattern: new $ANT
+          - pattern: new $ANT(...)
+        - metavariable-regex:
+            metavariable: $ANT
+            regex: ^[^\[]*$
+        - pattern-not: new ($PLB) $PLT

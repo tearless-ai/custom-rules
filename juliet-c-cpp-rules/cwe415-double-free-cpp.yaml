@@ -1,0 +1,69 @@
+rules:
+- id: cwe415-double-free-cpp
+  languages:
+  - cpp
+  paths:
+    include:
+    - '*.c'
+    - '*.h'
+    - '*.cpp'
+    - '*.cc'
+    - '*.cxx'
+    - '*.c++'
+    - '*.hpp'
+    - '*.hh'
+    - '*.hxx'
+    - '*.inc'
+  severity: ERROR
+  message: Pointer $X is released again after it was already released and not reassigned.
+  metadata:
+    vulnerability_class: Double Free
+    help: |
+      ## Summary
+      Pointer `$X` is released again after it was already released and not reassigned.
+
+      ## Remediation
+      Free each allocation exactly once and set the pointer to NULL after freeing it.
+    category: security
+    cwe:
+    - 'CWE-415: Double Free'
+    references:
+    - https://cwe.mitre.org/data/definitions/415.html
+    confidence: HIGH
+    likelihood: MEDIUM
+    impact: HIGH
+    subcategory:
+    - vuln
+    technology:
+    - c
+    - cpp
+    source: Validated against NIST Juliet C/C++ Test Suite v1.3
+    remediation: Free each allocation exactly once and set the pointer to NULL after freeing it.
+  mode: taint
+  pattern-sources:
+  - by-side-effect: only
+    patterns:
+    - pattern: free($X);
+    - focus-metavariable: $X
+  - by-side-effect: only
+    patterns:
+    - pattern: delete $X;
+    - focus-metavariable: $X
+  - by-side-effect: only
+    patterns:
+    - pattern: delete [] $X;
+    - focus-metavariable: $X
+  pattern-sinks:
+  - patterns:
+    - pattern-either:
+      - pattern: free($X);
+      - pattern: delete $X;
+      - pattern: delete [] $X;
+    - pattern-not-inside:
+        patterns:
+        - pattern-either:
+          - pattern: for (...) $BODY;
+          - pattern: while ($COND) $BODY;
+        - pattern-not: for (...) { ... break; }
+        - pattern-not: while ($COND) { ... break; }
+    - focus-metavariable: $X

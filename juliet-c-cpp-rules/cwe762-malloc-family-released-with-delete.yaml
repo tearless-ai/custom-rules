@@ -1,0 +1,55 @@
+rules:
+- id: cwe762-malloc-family-released-with-delete
+  languages:
+  - cpp
+  paths:
+    include:
+    - '*.c'
+    - '*.h'
+    - '*.cpp'
+    - '*.cc'
+    - '*.cxx'
+    - '*.c++'
+    - '*.hpp'
+    - '*.hh'
+    - '*.hxx'
+    - '*.inc'
+  severity: ERROR
+  message: Memory obtained from malloc()/calloc()/realloc()/strdup() is released with delete or delete[];
+    it must be released with free().
+  metadata:
+    vulnerability_class: Mismatched Memory Management Routines
+    help: |
+      ## Summary
+      Memory obtained from malloc()/calloc()/realloc()/strdup() is released with delete or delete[]; it must be released with free().
+
+      ## Remediation
+      Pair allocation and release functions correctly: malloc/free, new/delete, new[]/delete[].
+    category: security
+    cwe:
+    - 'CWE-762: Mismatched Memory Management Routines'
+    references:
+    - https://cwe.mitre.org/data/definitions/762.html
+    confidence: HIGH
+    likelihood: MEDIUM
+    impact: HIGH
+    subcategory:
+    - vuln
+    technology:
+    - c
+    - cpp
+    source: Validated against NIST Juliet C/C++ Test Suite v1.3
+    remediation: 'Pair allocation and release functions correctly: malloc/free, new/delete, new[]/delete[].'
+  mode: taint
+  pattern-sources:
+  - patterns:
+    - pattern: $AF(...)
+    - metavariable-regex:
+        metavariable: $AF
+        regex: ^(malloc|calloc|realloc|strdup|wcsdup|_strdup|_wcsdup|strndup|wcsndup)$
+  pattern-sinks:
+  - patterns:
+    - pattern-either:
+      - pattern: delete $X;
+      - pattern: delete [] $X;
+    - focus-metavariable: $X

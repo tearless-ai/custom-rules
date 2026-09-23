@@ -1,0 +1,438 @@
+rules:
+- id: cwe665-helper-leaves-string-buffer-uninitialized
+  languages:
+  - c
+  - cpp
+  paths:
+    include:
+    - '*.c'
+    - '*.h'
+    - '*.cpp'
+    - '*.cc'
+    - '*.cxx'
+    - '*.c++'
+    - '*.hpp'
+    - '*.hh'
+    - '*.hxx'
+    - '*.inc'
+  severity: ERROR
+  message: This function receives a caller's uninitialized character buffer and hands it back without
+    initializing it, and the caller then uses it as a string.
+  metadata:
+    vulnerability_class: Improper Initialization
+    help: |
+      ## Summary
+      This function receives a caller's uninitialized character buffer and hands it back without initializing it, and the caller then uses it as a string.
+
+      ## Remediation
+      Initialize objects and buffers fully (including string terminators) before use.
+    category: security
+    cwe:
+    - 'CWE-665: Improper Initialization'
+    references:
+    - https://cwe.mitre.org/data/definitions/665.html
+    confidence: MEDIUM
+    likelihood: MEDIUM
+    impact: HIGH
+    subcategory:
+    - vuln
+    technology:
+    - c
+    - cpp
+    source: Validated against NIST Juliet C/C++ Test Suite v1.3
+    remediation: Initialize objects and buffers fully (including string terminators) before use.
+  patterns:
+  - pattern-either:
+    - pattern-inside: |
+        $RH $SRC(..., $PT $P, ...) { ... return $P; }
+        ...
+        $R $F(...) { ... $BT $BUF[$N]; ... $X = $BUF; ... $X = $SRC(..., $X, ...); ... $CAT($X, ...); ... }
+    - pattern-inside: |
+        $RH $SRC(..., $PT &$P, ...) { ... }
+        ...
+        $R $F(...) { ... $BT $BUF[$N]; ... $X = $BUF; ... $SRC($X); ... $CAT($X, ...); ... }
+  - metavariable-regex:
+      metavariable: $CAT
+      regex: ^(strcat|strncat|wcscat|wcsncat|_mbscat|_mbsncat|lstrcat|lstrcatA|lstrcatW|StrCat|strlen|wcslen)$
+  - pattern-not-inside: |
+      $RH $SRC(..., $PT $P, ...) { ... $P[$I] = $V; ... }
+      ...
+  - pattern-not-inside: |
+      $RH $SRC(..., $PT &$P, ...) { ... $P[$I] = $V; ... }
+      ...
+  - pattern-not-inside: |
+      $RH $SRC(..., $PT $P, ...) { ... *$P = $V; ... }
+      ...
+  - pattern-not-inside: |
+      $RH $SRC(..., $PT &$P, ...) { ... *$P = $V; ... }
+      ...
+  - pattern-not-inside: |
+      $RH $SRC(..., $PT $P, ...) { ... $P = $V; ... }
+      ...
+  - pattern-not-inside: |
+      $RH $SRC(..., $PT &$P, ...) { ... $P = $V; ... }
+      ...
+  - pattern-not-inside: |
+      $RH $SRC(..., $PT $P, ...) { ... strcpy($P, ...); ... }
+      ...
+  - pattern-not-inside: |
+      $RH $SRC(..., $PT &$P, ...) { ... strcpy($P, ...); ... }
+      ...
+  - pattern-not-inside: |
+      $RH $SRC(..., $PT $P, ...) { ... wcscpy($P, ...); ... }
+      ...
+  - pattern-not-inside: |
+      $RH $SRC(..., $PT &$P, ...) { ... wcscpy($P, ...); ... }
+      ...
+  - pattern-not-inside: |
+      $RH $SRC(..., $PT $P, ...) { ... strncpy($P, ...); ... }
+      ...
+  - pattern-not-inside: |
+      $RH $SRC(..., $PT &$P, ...) { ... strncpy($P, ...); ... }
+      ...
+  - pattern-not-inside: |
+      $RH $SRC(..., $PT $P, ...) { ... wcsncpy($P, ...); ... }
+      ...
+  - pattern-not-inside: |
+      $RH $SRC(..., $PT &$P, ...) { ... wcsncpy($P, ...); ... }
+      ...
+  - pattern-not-inside: |
+      $RH $SRC(..., $PT $P, ...) { ... memset($P, ...); ... }
+      ...
+  - pattern-not-inside: |
+      $RH $SRC(..., $PT &$P, ...) { ... memset($P, ...); ... }
+      ...
+  - pattern-not-inside: |
+      $RH $SRC(..., $PT $P, ...) { ... wmemset($P, ...); ... }
+      ...
+  - pattern-not-inside: |
+      $RH $SRC(..., $PT &$P, ...) { ... wmemset($P, ...); ... }
+      ...
+  - pattern-not-inside: |
+      $RH $SRC(..., $PT $P, ...) { ... memcpy($P, ...); ... }
+      ...
+  - pattern-not-inside: |
+      $RH $SRC(..., $PT &$P, ...) { ... memcpy($P, ...); ... }
+      ...
+  - pattern-not-inside: |
+      $RH $SRC(..., $PT $P, ...) { ... memmove($P, ...); ... }
+      ...
+  - pattern-not-inside: |
+      $RH $SRC(..., $PT &$P, ...) { ... memmove($P, ...); ... }
+      ...
+  - pattern-not-inside: |
+      $RH $SRC(..., $PT $P, ...) { ... wmemcpy($P, ...); ... }
+      ...
+  - pattern-not-inside: |
+      $RH $SRC(..., $PT &$P, ...) { ... wmemcpy($P, ...); ... }
+      ...
+  - pattern-not-inside: |
+      $RH $SRC(..., $PT $P, ...) { ... sprintf($P, ...); ... }
+      ...
+  - pattern-not-inside: |
+      $RH $SRC(..., $PT &$P, ...) { ... sprintf($P, ...); ... }
+      ...
+  - pattern-not-inside: |
+      $RH $SRC(..., $PT $P, ...) { ... snprintf($P, ...); ... }
+      ...
+  - pattern-not-inside: |
+      $RH $SRC(..., $PT &$P, ...) { ... snprintf($P, ...); ... }
+      ...
+  - pattern-not-inside: |
+      $RH $SRC(..., $PT $P, ...) { ... swprintf($P, ...); ... }
+      ...
+  - pattern-not-inside: |
+      $RH $SRC(..., $PT &$P, ...) { ... swprintf($P, ...); ... }
+      ...
+  - pattern-not-inside: |
+      $RH $SRC(..., $PT $P, ...) { ... _snprintf($P, ...); ... }
+      ...
+  - pattern-not-inside: |
+      $RH $SRC(..., $PT &$P, ...) { ... _snprintf($P, ...); ... }
+      ...
+  - pattern-not-inside: |
+      $RH $SRC(..., $PT $P, ...) { ... _snwprintf($P, ...); ... }
+      ...
+  - pattern-not-inside: |
+      $RH $SRC(..., $PT &$P, ...) { ... _snwprintf($P, ...); ... }
+      ...
+  - pattern-not-inside: |
+      $RH $SRC(..., $PT $P, ...) { ... vsprintf($P, ...); ... }
+      ...
+  - pattern-not-inside: |
+      $RH $SRC(..., $PT &$P, ...) { ... vsprintf($P, ...); ... }
+      ...
+  - pattern-not-inside: |
+      $RH $SRC(..., $PT $P, ...) { ... vsnprintf($P, ...); ... }
+      ...
+  - pattern-not-inside: |
+      $RH $SRC(..., $PT &$P, ...) { ... vsnprintf($P, ...); ... }
+      ...
+  - pattern-not-inside: |
+      $RH $SRC(..., $PT $P, ...) { ... fgets($P, ...); ... }
+      ...
+  - pattern-not-inside: |
+      $RH $SRC(..., $PT &$P, ...) { ... fgets($P, ...); ... }
+      ...
+  - pattern-not-inside: |
+      $RH $SRC(..., $PT $P, ...) { ... fgetws($P, ...); ... }
+      ...
+  - pattern-not-inside: |
+      $RH $SRC(..., $PT &$P, ...) { ... fgetws($P, ...); ... }
+      ...
+  - pattern-not-inside: |
+      $RH $SRC(..., $PT $P, ...) { ... gets($P, ...); ... }
+      ...
+  - pattern-not-inside: |
+      $RH $SRC(..., $PT &$P, ...) { ... gets($P, ...); ... }
+      ...
+  - pattern-not-inside: |
+      $RH $SRC(..., $PT $P, ...) { ... read($P, ...); ... }
+      ...
+  - pattern-not-inside: |
+      $RH $SRC(..., $PT &$P, ...) { ... read($P, ...); ... }
+      ...
+  - pattern-not-inside: |
+      $RH $SRC(..., $PT $P, ...) { ... recv($P, ...); ... }
+      ...
+  - pattern-not-inside: |
+      $RH $SRC(..., $PT &$P, ...) { ... recv($P, ...); ... }
+      ...
+  - pattern-not-inside: |
+      $RH $SRC(..., $PT $P, ...) { ... fread($P, ...); ... }
+      ...
+  - pattern-not-inside: |
+      $RH $SRC(..., $PT &$P, ...) { ... fread($P, ...); ... }
+      ...
+  - pattern-not-inside: |
+      $RH $SRC(..., $PT $P, ...) { ... strcpy_s($P, ...); ... }
+      ...
+  - pattern-not-inside: |
+      $RH $SRC(..., $PT &$P, ...) { ... strcpy_s($P, ...); ... }
+      ...
+  - pattern-not-inside: |
+      $RH $SRC(..., $PT $P, ...) { ... wcscpy_s($P, ...); ... }
+      ...
+  - pattern-not-inside: |
+      $RH $SRC(..., $PT &$P, ...) { ... wcscpy_s($P, ...); ... }
+      ...
+  - pattern-not-inside: |
+      $RH $SRC(..., $PT $P, ...) { ... strncpy_s($P, ...); ... }
+      ...
+  - pattern-not-inside: |
+      $RH $SRC(..., $PT &$P, ...) { ... strncpy_s($P, ...); ... }
+      ...
+  - pattern-not-inside: |
+      $RH $SRC(..., $PT $P, ...) { ... memset_s($P, ...); ... }
+      ...
+  - pattern-not-inside: |
+      $RH $SRC(..., $PT &$P, ...) { ... memset_s($P, ...); ... }
+      ...
+  - pattern-not-inside: |
+      $RH $SRC(..., $PT $P, ...) { ... bzero($P, ...); ... }
+      ...
+  - pattern-not-inside: |
+      $RH $SRC(..., $PT &$P, ...) { ... bzero($P, ...); ... }
+      ...
+  - pattern-not-inside: |
+      $RH $SRC(..., $PT $P, ...) { ... ZeroMemory($P, ...); ... }
+      ...
+  - pattern-not-inside: |
+      $RH $SRC(..., $PT &$P, ...) { ... ZeroMemory($P, ...); ... }
+      ...
+  - pattern-not-inside: |
+      $RH $SRC(..., $PT $P, ...) { ... getcwd($P, ...); ... }
+      ...
+  - pattern-not-inside: |
+      $RH $SRC(..., $PT &$P, ...) { ... getcwd($P, ...); ... }
+      ...
+  - pattern-not-inside: |
+      $RH $SRC(..., $PT $P, ...) { ... scanf($P, ...); ... }
+      ...
+  - pattern-not-inside: |
+      $RH $SRC(..., $PT &$P, ...) { ... scanf($P, ...); ... }
+      ...
+  - pattern-not-inside: |
+      $RH $SRC(..., $PT $P, ...) { ... sscanf($P, ...); ... }
+      ...
+  - pattern-not-inside: |
+      $RH $SRC(..., $PT &$P, ...) { ... sscanf($P, ...); ... }
+      ...
+  - pattern-not-inside: |
+      $RH $SRC(..., $PT $P, ...) { ... fscanf($P, ...); ... }
+      ...
+  - pattern-not-inside: |
+      $RH $SRC(..., $PT &$P, ...) { ... fscanf($P, ...); ... }
+      ...
+  - pattern-not-inside: |
+      $RH $SRC(..., $PT $P, ...) { ... swscanf($P, ...); ... }
+      ...
+  - pattern-not-inside: |
+      $RH $SRC(..., $PT &$P, ...) { ... swscanf($P, ...); ... }
+      ...
+  - pattern-not-inside: |
+      $RH $SRC(..., $PT $P, ...) { ... strftime($P, ...); ... }
+      ...
+  - pattern-not-inside: |
+      $RH $SRC(..., $PT &$P, ...) { ... strftime($P, ...); ... }
+      ...
+  - pattern-not-inside: |
+      $RH $SRC(..., $PT $P, ...) { ... wcsftime($P, ...); ... }
+      ...
+  - pattern-not-inside: |
+      $RH $SRC(..., $PT &$P, ...) { ... wcsftime($P, ...); ... }
+      ...
+  - pattern-not-inside: |
+      $RH $SRC(...) { ... }
+      ...
+      $R $F(...) { ... $X[$I] = $V; ... }
+  - pattern-not-inside: |
+      $RH $SRC(...) { ... }
+      ...
+      $R $F(...) { ... *$X = $V; ... }
+  - pattern-not-inside: |
+      $RH $SRC(...) { ... }
+      ...
+      $R $F(...) { ... strcpy($X, ...); ... }
+  - pattern-not-inside: |
+      $RH $SRC(...) { ... }
+      ...
+      $R $F(...) { ... wcscpy($X, ...); ... }
+  - pattern-not-inside: |
+      $RH $SRC(...) { ... }
+      ...
+      $R $F(...) { ... strncpy($X, ...); ... }
+  - pattern-not-inside: |
+      $RH $SRC(...) { ... }
+      ...
+      $R $F(...) { ... wcsncpy($X, ...); ... }
+  - pattern-not-inside: |
+      $RH $SRC(...) { ... }
+      ...
+      $R $F(...) { ... memset($X, ...); ... }
+  - pattern-not-inside: |
+      $RH $SRC(...) { ... }
+      ...
+      $R $F(...) { ... wmemset($X, ...); ... }
+  - pattern-not-inside: |
+      $RH $SRC(...) { ... }
+      ...
+      $R $F(...) { ... memcpy($X, ...); ... }
+  - pattern-not-inside: |
+      $RH $SRC(...) { ... }
+      ...
+      $R $F(...) { ... memmove($X, ...); ... }
+  - pattern-not-inside: |
+      $RH $SRC(...) { ... }
+      ...
+      $R $F(...) { ... wmemcpy($X, ...); ... }
+  - pattern-not-inside: |
+      $RH $SRC(...) { ... }
+      ...
+      $R $F(...) { ... sprintf($X, ...); ... }
+  - pattern-not-inside: |
+      $RH $SRC(...) { ... }
+      ...
+      $R $F(...) { ... snprintf($X, ...); ... }
+  - pattern-not-inside: |
+      $RH $SRC(...) { ... }
+      ...
+      $R $F(...) { ... swprintf($X, ...); ... }
+  - pattern-not-inside: |
+      $RH $SRC(...) { ... }
+      ...
+      $R $F(...) { ... _snprintf($X, ...); ... }
+  - pattern-not-inside: |
+      $RH $SRC(...) { ... }
+      ...
+      $R $F(...) { ... _snwprintf($X, ...); ... }
+  - pattern-not-inside: |
+      $RH $SRC(...) { ... }
+      ...
+      $R $F(...) { ... vsprintf($X, ...); ... }
+  - pattern-not-inside: |
+      $RH $SRC(...) { ... }
+      ...
+      $R $F(...) { ... vsnprintf($X, ...); ... }
+  - pattern-not-inside: |
+      $RH $SRC(...) { ... }
+      ...
+      $R $F(...) { ... fgets($X, ...); ... }
+  - pattern-not-inside: |
+      $RH $SRC(...) { ... }
+      ...
+      $R $F(...) { ... fgetws($X, ...); ... }
+  - pattern-not-inside: |
+      $RH $SRC(...) { ... }
+      ...
+      $R $F(...) { ... gets($X, ...); ... }
+  - pattern-not-inside: |
+      $RH $SRC(...) { ... }
+      ...
+      $R $F(...) { ... read($X, ...); ... }
+  - pattern-not-inside: |
+      $RH $SRC(...) { ... }
+      ...
+      $R $F(...) { ... recv($X, ...); ... }
+  - pattern-not-inside: |
+      $RH $SRC(...) { ... }
+      ...
+      $R $F(...) { ... fread($X, ...); ... }
+  - pattern-not-inside: |
+      $RH $SRC(...) { ... }
+      ...
+      $R $F(...) { ... strcpy_s($X, ...); ... }
+  - pattern-not-inside: |
+      $RH $SRC(...) { ... }
+      ...
+      $R $F(...) { ... wcscpy_s($X, ...); ... }
+  - pattern-not-inside: |
+      $RH $SRC(...) { ... }
+      ...
+      $R $F(...) { ... strncpy_s($X, ...); ... }
+  - pattern-not-inside: |
+      $RH $SRC(...) { ... }
+      ...
+      $R $F(...) { ... memset_s($X, ...); ... }
+  - pattern-not-inside: |
+      $RH $SRC(...) { ... }
+      ...
+      $R $F(...) { ... bzero($X, ...); ... }
+  - pattern-not-inside: |
+      $RH $SRC(...) { ... }
+      ...
+      $R $F(...) { ... ZeroMemory($X, ...); ... }
+  - pattern-not-inside: |
+      $RH $SRC(...) { ... }
+      ...
+      $R $F(...) { ... getcwd($X, ...); ... }
+  - pattern-not-inside: |
+      $RH $SRC(...) { ... }
+      ...
+      $R $F(...) { ... scanf($X, ...); ... }
+  - pattern-not-inside: |
+      $RH $SRC(...) { ... }
+      ...
+      $R $F(...) { ... sscanf($X, ...); ... }
+  - pattern-not-inside: |
+      $RH $SRC(...) { ... }
+      ...
+      $R $F(...) { ... fscanf($X, ...); ... }
+  - pattern-not-inside: |
+      $RH $SRC(...) { ... }
+      ...
+      $R $F(...) { ... swscanf($X, ...); ... }
+  - pattern-not-inside: |
+      $RH $SRC(...) { ... }
+      ...
+      $R $F(...) { ... strftime($X, ...); ... }
+  - pattern-not-inside: |
+      $RH $SRC(...) { ... }
+      ...
+      $R $F(...) { ... wcsftime($X, ...); ... }
+  - pattern-either:
+    - pattern: |
+        $RH $SRC(..., $PT $P, ...) { ... }
+    - pattern: |
+        $RH $SRC(..., $PT &$P, ...) { ... }
+  - focus-metavariable: $P

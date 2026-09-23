@@ -1,0 +1,284 @@
+rules:
+- id: cwe401-callee-never-releases-heap-argument-cpp
+  languages:
+  - cpp
+  paths:
+    include:
+    - '*.c'
+    - '*.h'
+    - '*.cpp'
+    - '*.cc'
+    - '*.cxx'
+    - '*.c++'
+    - '*.hpp'
+    - '*.hh'
+    - '*.hxx'
+    - '*.inc'
+  severity: ERROR
+  message: This function receives freshly allocated heap memory from its caller in this file but never
+    releases or hands it off.
+  metadata:
+    vulnerability_class: Missing Release of Memory after Effective Lifetime
+    help: |
+      ## Summary
+      This function receives freshly allocated heap memory from its caller in this file but never releases or hands it off.
+
+      ## Remediation
+      Free every allocation on every path once it is no longer needed, or use RAII (smart pointers, containers) in C++.
+    category: security
+    cwe:
+    - 'CWE-401: Missing Release of Memory after Effective Lifetime'
+    references:
+    - https://cwe.mitre.org/data/definitions/401.html
+    confidence: MEDIUM
+    likelihood: MEDIUM
+    impact: HIGH
+    subcategory:
+    - vuln
+    technology:
+    - c
+    - cpp
+    source: Validated against NIST Juliet C/C++ Test Suite v1.3
+    remediation: Free every allocation on every path once it is no longer needed, or use RAII (smart pointers,
+      containers) in C++.
+  options:
+    constant_propagation: false
+  patterns:
+  - pattern-either:
+    - patterns:
+      - pattern-inside: |
+          $R1 $F(..., $PT $D, ...) { ... }
+          ...
+          $R2 $G(...) { ... $X = $ALLOC; ... $F(..., $X, ...); ... }
+      - metavariable-pattern:
+          metavariable: $ALLOC
+          pattern-either:
+          - patterns:
+            - pattern-either:
+              - pattern: $AF(...)
+              - pattern: ($ACT) $AF(...)
+            - metavariable-regex:
+                metavariable: $AF
+                regex: ^(malloc|calloc|realloc|strdup|wcsdup|_strdup|_wcsdup|strndup|wcsndup)$
+          - patterns:
+            - pattern-either:
+              - pattern: new $ANT
+              - pattern: new $ANT(...)
+            - pattern-not: new ($PB) $PBT
+      - pattern-not-inside: |
+          $R1 $F(..., $PT $D, ...) { ... free(...); ... } ... $R2 $G(...) { ... }
+      - pattern-not-inside: |
+          $R1 $F(..., $PT $D, ...) { ... delete $ANY; ... } ... $R2 $G(...) { ... }
+      - pattern-not-inside: |
+          $R1 $F(..., $PT $D, ...) { ... delete [] $ANY; ... } ... $R2 $G(...) { ... }
+      - pattern-not-inside: |
+          $R1 $F(..., $PT $D, ...) { ... return $D; ... } ... $R2 $G(...) { ... }
+      - pattern-not-inside: |
+          $R1 $F(..., $PT $D, ...) { ... $O->$FLD = $D; ... } ... $R2 $G(...) { ... }
+      - pattern-not-inside: |
+          $R1 $F(..., $PT $D, ...) { ... $ARR[$I] = $D; ... } ... $R2 $G(...) { ... }
+      - pattern-not-inside:
+          patterns:
+          - pattern-inside: |
+              $R1 $F(..., $PT $D, ...) { ... $U.$UF = $D; ... } ... $R2 $G(...) { ... }
+          - pattern-not-inside: |
+              $R1 $F(..., $PT $D, ...) { ... $UT $U; ... } ... $R2 $G(...) { ... }
+      - pattern-not-inside:
+          patterns:
+          - pattern-inside: |
+              $R1 $F(..., $PT $D, ...) { ... $U.$UF = $D; ... } ... $R2 $G(...) { ... }
+          - pattern-either:
+            - pattern-inside: |
+                $R1 $F(..., $PT $D, ...) { ... $UCALL(..., $U, ...); ... } ... $R2 $G(...) { ... }
+            - pattern-inside: |
+                $R1 $F(..., $PT $D, ...) { ... $UCALL(..., &$U, ...); ... } ... $R2 $G(...) { ... }
+            - pattern-inside: |
+                $R1 $F(..., $PT $D, ...) { ... return $U; ... } ... $R2 $G(...) { ... }
+      - pattern-not-inside:
+          patterns:
+          - pattern-inside: |
+              $R1 $F(..., $PT $D, ...) { ... *$P = $D; ... } ... $R2 $G(...) { ... }
+          - pattern-not-inside: |
+              $R1 $F(..., $PT $D, ...) { ... $PT $P = &$PV; ... } ... $R2 $G(...) { ... }
+      - pattern-not-inside:
+          patterns:
+          - pattern-inside: |
+              $R1 $F(..., $PT $D, ...) { ... $Y = $D; ... } ... $R2 $G(...) { ... }
+          - metavariable-regex:
+              metavariable: $Y
+              regex: ^\w+$
+          - metavariable-comparison:
+              comparison: str($Y) != str($D)
+          - pattern-not-inside: |
+              $R1 $F(..., $PT $D, ...) { ... $YT $Y = $D; ... } ... $R2 $G(...) { ... }
+      - pattern-not-inside:
+          patterns:
+          - pattern-either:
+            - pattern-inside: |
+                $R1 $F(..., $PT $D, ...) { ... $CALLEE(..., $D, ...); ... } ... $R2 $G(...) { ... }
+            - pattern-inside: |
+                $R1 $F(..., $PT $D, ...) { ... $CALLEE(..., &$D, ...); ... } ... $R2 $G(...) { ... }
+          - metavariable-regex:
+              metavariable: $CALLEE
+              regex: ^(?!(str|wcs|mem|print|puts|fputs|putws|fputws|fwrite|fread|fgets|fgetws|realloc|scanf|sscanf|fscanf|swscanf|atoi|atol|atof|isalnum|isdigit|isspace|toupper|tolower)\w*$)
+      - pattern-inside: |
+          $R2 $G(...) { ... }
+      - pattern: $X = $ALLOC;
+    - patterns:
+      - pattern-inside: |
+          $R1 $F(..., $PT $D, ...) { ... }
+          ...
+          $R2 $G(...) { ... $FPT $FP = $F; ... $X = $ALLOC; ... $FP(..., $X, ...); ... }
+      - metavariable-pattern:
+          metavariable: $ALLOC
+          pattern-either:
+          - patterns:
+            - pattern-either:
+              - pattern: $AF(...)
+              - pattern: ($ACT) $AF(...)
+            - metavariable-regex:
+                metavariable: $AF
+                regex: ^(malloc|calloc|realloc|strdup|wcsdup|_strdup|_wcsdup|strndup|wcsndup)$
+          - patterns:
+            - pattern-either:
+              - pattern: new $ANT
+              - pattern: new $ANT(...)
+            - pattern-not: new ($PB) $PBT
+      - pattern-not-inside: |
+          $R1 $F(..., $PT $D, ...) { ... free(...); ... } ... $R2 $G(...) { ... }
+      - pattern-not-inside: |
+          $R1 $F(..., $PT $D, ...) { ... delete $ANY; ... } ... $R2 $G(...) { ... }
+      - pattern-not-inside: |
+          $R1 $F(..., $PT $D, ...) { ... delete [] $ANY; ... } ... $R2 $G(...) { ... }
+      - pattern-not-inside: |
+          $R1 $F(..., $PT $D, ...) { ... return $D; ... } ... $R2 $G(...) { ... }
+      - pattern-not-inside: |
+          $R1 $F(..., $PT $D, ...) { ... $O->$FLD = $D; ... } ... $R2 $G(...) { ... }
+      - pattern-not-inside: |
+          $R1 $F(..., $PT $D, ...) { ... $ARR[$I] = $D; ... } ... $R2 $G(...) { ... }
+      - pattern-not-inside:
+          patterns:
+          - pattern-inside: |
+              $R1 $F(..., $PT $D, ...) { ... $U.$UF = $D; ... } ... $R2 $G(...) { ... }
+          - pattern-not-inside: |
+              $R1 $F(..., $PT $D, ...) { ... $UT $U; ... } ... $R2 $G(...) { ... }
+      - pattern-not-inside:
+          patterns:
+          - pattern-inside: |
+              $R1 $F(..., $PT $D, ...) { ... $U.$UF = $D; ... } ... $R2 $G(...) { ... }
+          - pattern-either:
+            - pattern-inside: |
+                $R1 $F(..., $PT $D, ...) { ... $UCALL(..., $U, ...); ... } ... $R2 $G(...) { ... }
+            - pattern-inside: |
+                $R1 $F(..., $PT $D, ...) { ... $UCALL(..., &$U, ...); ... } ... $R2 $G(...) { ... }
+            - pattern-inside: |
+                $R1 $F(..., $PT $D, ...) { ... return $U; ... } ... $R2 $G(...) { ... }
+      - pattern-not-inside:
+          patterns:
+          - pattern-inside: |
+              $R1 $F(..., $PT $D, ...) { ... *$P = $D; ... } ... $R2 $G(...) { ... }
+          - pattern-not-inside: |
+              $R1 $F(..., $PT $D, ...) { ... $PT $P = &$PV; ... } ... $R2 $G(...) { ... }
+      - pattern-not-inside:
+          patterns:
+          - pattern-inside: |
+              $R1 $F(..., $PT $D, ...) { ... $Y = $D; ... } ... $R2 $G(...) { ... }
+          - metavariable-regex:
+              metavariable: $Y
+              regex: ^\w+$
+          - metavariable-comparison:
+              comparison: str($Y) != str($D)
+          - pattern-not-inside: |
+              $R1 $F(..., $PT $D, ...) { ... $YT $Y = $D; ... } ... $R2 $G(...) { ... }
+      - pattern-not-inside:
+          patterns:
+          - pattern-either:
+            - pattern-inside: |
+                $R1 $F(..., $PT $D, ...) { ... $CALLEE(..., $D, ...); ... } ... $R2 $G(...) { ... }
+            - pattern-inside: |
+                $R1 $F(..., $PT $D, ...) { ... $CALLEE(..., &$D, ...); ... } ... $R2 $G(...) { ... }
+          - metavariable-regex:
+              metavariable: $CALLEE
+              regex: ^(?!(str|wcs|mem|print|puts|fputs|putws|fputws|fwrite|fread|fgets|fgetws|realloc|scanf|sscanf|fscanf|swscanf|atoi|atol|atof|isalnum|isdigit|isspace|toupper|tolower)\w*$)
+      - pattern-inside: |
+          $R2 $G(...) { ... }
+      - pattern: $X = $ALLOC;
+    - patterns:
+      - pattern-inside: |
+          $R1 $F() { ... $T $D = $GV; ... }
+          ...
+          $R2 $G(...) { ... $X = $ALLOC; ... $GV = $X; ... $F(); ... }
+      - metavariable-pattern:
+          metavariable: $ALLOC
+          pattern-either:
+          - patterns:
+            - pattern-either:
+              - pattern: $AF(...)
+              - pattern: ($ACT) $AF(...)
+            - metavariable-regex:
+                metavariable: $AF
+                regex: ^(malloc|calloc|realloc|strdup|wcsdup|_strdup|_wcsdup|strndup|wcsndup)$
+          - patterns:
+            - pattern-either:
+              - pattern: new $ANT
+              - pattern: new $ANT(...)
+            - pattern-not: new ($PB) $PBT
+      - pattern-not-inside: |
+          $R1 $F() { ... free(...); ... } ... $R2 $G(...) { ... }
+      - pattern-not-inside: |
+          $R1 $F() { ... delete $ANY; ... } ... $R2 $G(...) { ... }
+      - pattern-not-inside: |
+          $R1 $F() { ... delete [] $ANY; ... } ... $R2 $G(...) { ... }
+      - pattern-not-inside: |
+          $R1 $F() { ... return $D; ... } ... $R2 $G(...) { ... }
+      - pattern-not-inside: |
+          $R1 $F() { ... $O->$FLD = $D; ... } ... $R2 $G(...) { ... }
+      - pattern-not-inside: |
+          $R1 $F() { ... $ARR[$I] = $D; ... } ... $R2 $G(...) { ... }
+      - pattern-not-inside:
+          patterns:
+          - pattern-inside: |
+              $R1 $F() { ... $U.$UF = $D; ... } ... $R2 $G(...) { ... }
+          - pattern-not-inside: |
+              $R1 $F() { ... $UT $U; ... } ... $R2 $G(...) { ... }
+      - pattern-not-inside:
+          patterns:
+          - pattern-inside: |
+              $R1 $F() { ... $U.$UF = $D; ... } ... $R2 $G(...) { ... }
+          - pattern-either:
+            - pattern-inside: |
+                $R1 $F() { ... $UCALL(..., $U, ...); ... } ... $R2 $G(...) { ... }
+            - pattern-inside: |
+                $R1 $F() { ... $UCALL(..., &$U, ...); ... } ... $R2 $G(...) { ... }
+            - pattern-inside: |
+                $R1 $F() { ... return $U; ... } ... $R2 $G(...) { ... }
+      - pattern-not-inside:
+          patterns:
+          - pattern-inside: |
+              $R1 $F() { ... *$P = $D; ... } ... $R2 $G(...) { ... }
+          - pattern-not-inside: |
+              $R1 $F() { ... $PT $P = &$PV; ... } ... $R2 $G(...) { ... }
+      - pattern-not-inside:
+          patterns:
+          - pattern-inside: |
+              $R1 $F() { ... $Y = $D; ... } ... $R2 $G(...) { ... }
+          - metavariable-regex:
+              metavariable: $Y
+              regex: ^\w+$
+          - metavariable-comparison:
+              comparison: str($Y) != str($D)
+          - pattern-not-inside: |
+              $R1 $F() { ... $YT $Y = $D; ... } ... $R2 $G(...) { ... }
+      - pattern-not-inside:
+          patterns:
+          - pattern-either:
+            - pattern-inside: |
+                $R1 $F() { ... $CALLEE(..., $D, ...); ... } ... $R2 $G(...) { ... }
+            - pattern-inside: |
+                $R1 $F() { ... $CALLEE(..., &$D, ...); ... } ... $R2 $G(...) { ... }
+          - metavariable-regex:
+              metavariable: $CALLEE
+              regex: ^(?!(str|wcs|mem|print|puts|fputs|putws|fputws|fwrite|fread|fgets|fgetws|realloc|scanf|sscanf|fscanf|swscanf|atoi|atol|atof|isalnum|isdigit|isspace|toupper|tolower)\w*$)
+      - pattern-inside: |
+          $R2 $G(...) { ... }
+      - pattern: $X = $ALLOC;

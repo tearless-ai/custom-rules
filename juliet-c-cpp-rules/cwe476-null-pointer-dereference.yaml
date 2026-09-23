@@ -1,0 +1,162 @@
+rules:
+- id: cwe476-null-pointer-dereference
+  languages:
+  - c
+  - cpp
+  paths:
+    include:
+    - '*.c'
+    - '*.h'
+    - '*.cpp'
+    - '*.cc'
+    - '*.cxx'
+    - '*.c++'
+    - '*.hpp'
+    - '*.hh'
+    - '*.hxx'
+    - '*.inc'
+  severity: ERROR
+  message: A pointer that was set to NULL is dereferenced on a path where it is not checked or reassigned.
+  metadata:
+    vulnerability_class: NULL Pointer Dereference
+    help: |
+      ## Summary
+      A pointer that was set to NULL is dereferenced on a path where it is not checked or reassigned.
+
+      ## Remediation
+      Check pointers for NULL before dereferencing them.
+    category: security
+    cwe:
+    - 'CWE-476: NULL Pointer Dereference'
+    references:
+    - https://cwe.mitre.org/data/definitions/476.html
+    confidence: MEDIUM
+    likelihood: MEDIUM
+    impact: HIGH
+    subcategory:
+    - vuln
+    technology:
+    - c
+    - cpp
+    source: Validated against NIST Juliet C/C++ Test Suite v1.3
+    remediation: Check pointers for NULL before dereferencing them.
+  mode: taint
+  pattern-sources:
+  - patterns:
+    - pattern-either:
+      - pattern: $X = $NULL
+      - pattern: $T $X = $NULL;
+    - metavariable-regex:
+        metavariable: $NULL
+        regex: ^(NULL|nullptr)$
+    - focus-metavariable: $NULL
+  - patterns:
+    - pattern-inside: |
+        $R $SINKF(..., $T $P, ...) { ... }
+        ...
+        $R2 $CALLER(...) { ... $D = NULL; ... $SINKF(..., $D, ...); ... }
+    - pattern-not-inside: |
+        $R $SINKF(..., $T $P, ...) { ... }
+        ...
+        $R2 $CALLER(...) { ... $D = NULL; ... $D = $OTHER; ... $SINKF(..., $D, ...); ... }
+    - pattern: |
+        $R $SINKF(..., $T $P, ...) { ... }
+    - focus-metavariable: $P
+  - patterns:
+    - pattern-inside: |
+        $R $SINKF(..., $T $P, ...) { ... }
+        ...
+        $R2 $CALLER(...) { ... $FT (*$FP)(...) = $SINKF; ... $D = NULL; ... $FP(..., $D, ...); ... }
+    - pattern: |
+        $R $SINKF(..., $T $P, ...) { ... }
+    - focus-metavariable: $P
+  - patterns:
+    - pattern-inside: |
+        $R $SINKF(...) { ... }
+        ...
+        $R2 $CALLER(...) { ... $D = NULL; ... $G = $D; ... }
+    - pattern-inside: |
+        $R $SINKF(...) { ... }
+    - pattern: $G
+  - patterns:
+    - pattern-inside: |
+        $T &$REF = $D;
+        ...
+        $D = NULL;
+        ...
+    - pattern: $REF
+  - patterns:
+    - pattern-inside: |
+        $T $P1 = &$D;
+        ...
+        $T $P2 = &$D;
+        ...
+    - pattern-either:
+      - pattern-inside: |
+          $V = NULL;
+          ...
+          *$P1 = $V;
+          ...
+      - pattern-inside: |
+          {
+            ...
+            $V = NULL;
+            ...
+            *$P1 = $V;
+          }
+          ...
+    - pattern: '*$P2'
+  pattern-propagators:
+  - patterns:
+    - pattern-inside: |
+        typedef union { $T1 $A; $T2 $B; } $UT;
+        ...
+    - pattern-inside: |
+        $UT $U;
+        ...
+    - pattern: $U.$F1 = $D
+    from: $D
+    to: $U
+  pattern-sanitizers:
+  - patterns:
+    - pattern-either:
+      - pattern: $X != NULL
+      - pattern: $X == NULL
+      - pattern: $X != nullptr
+      - pattern: $X == nullptr
+      - pattern: '!$X'
+      - pattern: '$X ? $A : $B'
+      - pattern: assert($X)
+    - focus-metavariable: $X
+    by-side-effect: true
+  - patterns:
+    - pattern-either:
+      - pattern-inside: if ($X) $S;
+      - pattern-inside: if ($X) $S; else $E;
+      - pattern-inside: while ($X) $S;
+    - pattern: $X
+    - metavariable-regex:
+        metavariable: $X
+        regex: ^[A-Za-z_][A-Za-z0-9_]*$
+    by-side-effect: true
+  pattern-sinks:
+  - patterns:
+    - pattern: $F($P, ...)
+    - metavariable-regex:
+        metavariable: $F
+        regex: ^(strcpy|wcscpy|strncpy|wcsncpy|strcat|wcscat|strncat|wcsncat|memcpy|memmove|memset|wmemset|sprintf|swprintf|snprintf|fclose|fputs|fputws|fgets|fgetws|fprintf|fwprintf|fwrite|fread|strlen|wcslen)$
+    - focus-metavariable: $P
+  - patterns:
+    - pattern-either:
+      - pattern: $P[$I]
+      - pattern: '*$P'
+      - pattern: $P->$FLD
+    - pattern-not-inside: '*$P = $V'
+    - pattern-not-inside: $T * $X = *$P;
+    - focus-metavariable: $P
+  - patterns:
+    - pattern: '*$P = $V'
+    - metavariable-regex:
+        metavariable: $V
+        regex: ^(?![A-Za-z_][A-Za-z0-9_]*$)
+    - focus-metavariable: $P

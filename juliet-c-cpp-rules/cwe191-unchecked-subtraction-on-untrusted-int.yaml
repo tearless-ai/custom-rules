@@ -1,0 +1,488 @@
+rules:
+- id: cwe191-unchecked-subtraction-on-untrusted-int
+  languages:
+  - c
+  - cpp
+  paths:
+    include:
+    - '*.c'
+    - '*.h'
+    - '*.cpp'
+    - '*.cc'
+    - '*.cxx'
+    - '*.c++'
+    - '*.hpp'
+    - '*.hh'
+    - '*.hxx'
+    - '*.inc'
+  severity: ERROR
+  message: An integer from an untrusted or unbounded source (input, socket, file, rand, or a type minimum)
+    is decremented, subtracted from, or multiplied without a lower-bound check, which can underflow.
+  metadata:
+    vulnerability_class: Integer Underflow (Wrap or Wraparound)
+    help: |
+      ## Summary
+      An integer from an untrusted or unbounded source (input, socket, file, rand, or a type minimum) is decremented, subtracted from, or multiplied without a lower-bound check, which can underflow.
+
+      ## Remediation
+      Check operands against the type's minimum before subtraction or decrement, or use checked-arithmetic builtins such as __builtin_sub_overflow.
+    category: security
+    cwe:
+    - 'CWE-191: Integer Underflow (Wrap or Wraparound)'
+    references:
+    - https://cwe.mitre.org/data/definitions/191.html
+    confidence: MEDIUM
+    likelihood: MEDIUM
+    impact: HIGH
+    subcategory:
+    - vuln
+    technology:
+    - c
+    - cpp
+    source: Validated against NIST Juliet C/C++ Test Suite v1.3
+    remediation: Check operands against the type's minimum before subtraction or decrement, or use checked-arithmetic
+      builtins such as __builtin_sub_overflow.
+  mode: taint
+  options:
+    constant_propagation: false
+  pattern-sources:
+  - by-side-effect: true
+    patterns:
+    - pattern-either:
+      - pattern: fscanf($FF, $FMT, &$X)
+      - pattern: scanf($FMT, &$X)
+      - pattern: fwscanf($FF, $FMT, &$X)
+      - pattern: wscanf($FMT, &$X)
+    - focus-metavariable: $X
+  - by-side-effect: true
+    patterns:
+    - pattern-either:
+      - pattern: fgets($B, ...)
+      - pattern: fgetws($B, ...)
+      - pattern: recv($SOCK, $B, ...)
+      - pattern: recvfrom($SOCK, $B, ...)
+      - pattern: read($FD, $B, ...)
+      - pattern: fread($B, ...)
+    - focus-metavariable: $B
+  - patterns:
+    - pattern-either:
+      - pattern-inside: |
+          $R = recv($SOCK, $B, ...);
+          ...
+      - pattern-inside: |
+          $R = recvfrom($SOCK, $B, ...);
+          ...
+      - pattern-inside: |
+          $R = read($SOCK, $B, ...);
+          ...
+      - pattern-inside: |
+          $R = fgets($B, ...);
+          ...
+      - pattern-inside: |
+          $R = fgetws($B, ...);
+          ...
+      - pattern-inside: if (fgets($B, ...) != NULL) { ... }
+      - pattern-inside: if (fgetws($B, ...) != NULL) { ... }
+    - pattern: $CONV($B, ...)
+    - metavariable-regex:
+        metavariable: $CONV
+        regex: ^(atoi|atol|atoll|_atoi64|strtol|strtoul|strtoll|strtoull|_wtoi|_wtol|_wtoi64|wcstol|wcstoul|wcstoll|wcstoull|atof|strtod|strtof|_wtof|wcstod|sscanf|swscanf)$
+  - pattern-either:
+    - pattern: rand()
+    - pattern: random()
+    - pattern: RAND32()
+    - pattern: RAND64()
+    - pattern: INT_MIN
+    - pattern: SHRT_MIN
+    - pattern: CHAR_MIN
+    - pattern: SCHAR_MIN
+    - pattern: LONG_MIN
+    - pattern: LLONG_MIN
+    - pattern: INT64_MIN
+    - pattern: INTMAX_MIN
+  - patterns:
+    - pattern-inside: |
+        $R $SINK(..., $T $D, ...) { ... }
+        ...
+        $R2 $CALLER(...) { ... $V = $E; ... $SINK(..., $V, ...); ... }
+    - metavariable-pattern:
+        metavariable: $E
+        pattern-either:
+        - patterns:
+          - pattern: <... $SRCFN(...) ...>
+          - metavariable-regex:
+              metavariable: $SRCFN
+              regex: ^(rand|random|RAND32|RAND64|atoi|atol|atoll|_atoi64|strtol|strtoul|strtoll|strtoull|_wtoi|_wtol|_wtoi64|wcstol|wcstoul|wcstoll|wcstoull|atof|strtod|strtof|_wtof|wcstod)$
+        - pattern: INT_MIN
+        - pattern: SHRT_MIN
+        - pattern: CHAR_MIN
+        - pattern: SCHAR_MIN
+        - pattern: LONG_MIN
+        - pattern: LLONG_MIN
+        - pattern: INT64_MIN
+        - pattern: INTMAX_MIN
+    - pattern: $R $SINK(..., $T $D, ...) { ... }
+    - focus-metavariable: $D
+  - patterns:
+    - pattern-inside: |
+        $R2 $CALLER(...) { ... $V = $E; ... $SINK(..., $V, ...); ... }
+        ...
+        $R $SINK(..., $T $D, ...) { ... }
+    - metavariable-pattern:
+        metavariable: $E
+        pattern-either:
+        - patterns:
+          - pattern: <... $SRCFN(...) ...>
+          - metavariable-regex:
+              metavariable: $SRCFN
+              regex: ^(rand|random|RAND32|RAND64|atoi|atol|atoll|_atoi64|strtol|strtoul|strtoll|strtoull|_wtoi|_wtol|_wtoi64|wcstol|wcstoul|wcstoll|wcstoull|atof|strtod|strtof|_wtof|wcstod)$
+        - pattern: INT_MIN
+        - pattern: SHRT_MIN
+        - pattern: CHAR_MIN
+        - pattern: SCHAR_MIN
+        - pattern: LONG_MIN
+        - pattern: LLONG_MIN
+        - pattern: INT64_MIN
+        - pattern: INTMAX_MIN
+    - pattern: $R $SINK(..., $T $D, ...) { ... }
+    - focus-metavariable: $D
+  - patterns:
+    - pattern-inside: |
+        $R $SINK(..., $T $D, ...) { ... }
+        ...
+        $R2 $CALLER(...) { ... $FT (*$FP)(...) = $SINK; ... $V = $E; ... $FP(..., $V, ...); ... }
+    - metavariable-pattern:
+        metavariable: $E
+        pattern-either:
+        - patterns:
+          - pattern: <... $SRCFN(...) ...>
+          - metavariable-regex:
+              metavariable: $SRCFN
+              regex: ^(rand|random|RAND32|RAND64|atoi|atol|atoll|_atoi64|strtol|strtoul|strtoll|strtoull|_wtoi|_wtol|_wtoi64|wcstol|wcstoul|wcstoll|wcstoull|atof|strtod|strtof|_wtof|wcstod)$
+        - pattern: INT_MIN
+        - pattern: SHRT_MIN
+        - pattern: CHAR_MIN
+        - pattern: SCHAR_MIN
+        - pattern: LONG_MIN
+        - pattern: LLONG_MIN
+        - pattern: INT64_MIN
+        - pattern: INTMAX_MIN
+    - pattern: $R $SINK(..., $T $D, ...) { ... }
+    - focus-metavariable: $D
+  - patterns:
+    - pattern-inside: |
+        $R $SINK(..., $T $D, ...) { ... }
+        ...
+        $R2 $CALLER(...) { ... $FPDECL = $SINK; ... $V = $E; ... $FP(..., $V, ...); ... }
+    - metavariable-pattern:
+        metavariable: $E
+        pattern-either:
+        - patterns:
+          - pattern: <... $SRCFN(...) ...>
+          - metavariable-regex:
+              metavariable: $SRCFN
+              regex: ^(rand|random|RAND32|RAND64|atoi|atol|atoll|_atoi64|strtol|strtoul|strtoll|strtoull|_wtoi|_wtol|_wtoi64|wcstol|wcstoul|wcstoll|wcstoull|atof|strtod|strtof|_wtof|wcstod)$
+        - pattern: INT_MIN
+        - pattern: SHRT_MIN
+        - pattern: CHAR_MIN
+        - pattern: SCHAR_MIN
+        - pattern: LONG_MIN
+        - pattern: LLONG_MIN
+        - pattern: INT64_MIN
+        - pattern: INTMAX_MIN
+    - pattern: $R $SINK(..., $T $D, ...) { ... }
+    - focus-metavariable: $D
+  - patterns:
+    - pattern-inside: |
+        $R $SINK(...) { ... }
+        ...
+        $R2 $CALLER(...) { ... $V = $E; ... $G = $V; ... }
+    - metavariable-pattern:
+        metavariable: $E
+        pattern-either:
+        - patterns:
+          - pattern: <... $SRCFN(...) ...>
+          - metavariable-regex:
+              metavariable: $SRCFN
+              regex: ^(rand|random|RAND32|RAND64|atoi|atol|atoll|_atoi64|strtol|strtoul|strtoll|strtoull|_wtoi|_wtol|_wtoi64|wcstol|wcstoul|wcstoll|wcstoull|atof|strtod|strtof|_wtof|wcstod)$
+        - pattern: INT_MIN
+        - pattern: SHRT_MIN
+        - pattern: CHAR_MIN
+        - pattern: SCHAR_MIN
+        - pattern: LONG_MIN
+        - pattern: LLONG_MIN
+        - pattern: INT64_MIN
+        - pattern: INTMAX_MIN
+    - metavariable-comparison:
+        comparison: str($G) != str($V)
+    - pattern-inside: $R $SINK(...) { ... }
+    - pattern-not-inside: $LRT $LFN(...) { ... $LT $G; ... }
+    - pattern-not-inside: $LRT $LFN(...) { ... $LT $G = $LI; ... }
+    - pattern: $G
+  - patterns:
+    - pattern-inside: |
+        $R2 $CALLER(...) { ... $V = $E; ... $G = $V; ... }
+        ...
+        $R $SINK(...) { ... }
+    - metavariable-pattern:
+        metavariable: $E
+        pattern-either:
+        - patterns:
+          - pattern: <... $SRCFN(...) ...>
+          - metavariable-regex:
+              metavariable: $SRCFN
+              regex: ^(rand|random|RAND32|RAND64|atoi|atol|atoll|_atoi64|strtol|strtoul|strtoll|strtoull|_wtoi|_wtol|_wtoi64|wcstol|wcstoul|wcstoll|wcstoull|atof|strtod|strtof|_wtof|wcstod)$
+        - pattern: INT_MIN
+        - pattern: SHRT_MIN
+        - pattern: CHAR_MIN
+        - pattern: SCHAR_MIN
+        - pattern: LONG_MIN
+        - pattern: LLONG_MIN
+        - pattern: INT64_MIN
+        - pattern: INTMAX_MIN
+    - metavariable-comparison:
+        comparison: str($G) != str($V)
+    - pattern-inside: $R $SINK(...) { ... }
+    - pattern-not-inside: $LRT $LFN(...) { ... $LT $G; ... }
+    - pattern-not-inside: $LRT $LFN(...) { ... $LT $G = $LI; ... }
+    - pattern: $G
+  - patterns:
+    - pattern-inside: |
+        $R $SRCF(...) { ... $V = $E; ... return $V; }
+        ...
+    - metavariable-pattern:
+        metavariable: $E
+        pattern-either:
+        - patterns:
+          - pattern: <... $SRCFN(...) ...>
+          - metavariable-regex:
+              metavariable: $SRCFN
+              regex: ^(rand|random|RAND32|RAND64|atoi|atol|atoll|_atoi64|strtol|strtoul|strtoll|strtoull|_wtoi|_wtol|_wtoi64|wcstol|wcstoul|wcstoll|wcstoull|atof|strtod|strtof|_wtof|wcstod)$
+        - pattern: INT_MIN
+        - pattern: SHRT_MIN
+        - pattern: CHAR_MIN
+        - pattern: SCHAR_MIN
+        - pattern: LONG_MIN
+        - pattern: LLONG_MIN
+        - pattern: INT64_MIN
+        - pattern: INTMAX_MIN
+    - pattern: $SRCF(...)
+  - by-side-effect: true
+    patterns:
+    - pattern-inside: |
+        $R $SRCF(..., $T &$V, ...) { ... $V = $E; ... }
+        ...
+    - metavariable-pattern:
+        metavariable: $E
+        pattern-either:
+        - patterns:
+          - pattern: <... $SRCFN(...) ...>
+          - metavariable-regex:
+              metavariable: $SRCFN
+              regex: ^(rand|random|RAND32|RAND64|atoi|atol|atoll|_atoi64|strtol|strtoul|strtoll|strtoull|_wtoi|_wtol|_wtoi64|wcstol|wcstoul|wcstoll|wcstoull|atof|strtod|strtof|_wtof|wcstod)$
+        - pattern: INT_MIN
+        - pattern: SHRT_MIN
+        - pattern: CHAR_MIN
+        - pattern: SCHAR_MIN
+        - pattern: LONG_MIN
+        - pattern: LLONG_MIN
+        - pattern: INT64_MIN
+        - pattern: INTMAX_MIN
+    - pattern: $SRCF(..., $A, ...)
+    - focus-metavariable: $A
+  - patterns:
+    - pattern-inside: $R $F(...) { ... $T &$REF = $V; ... $V = $E; ... }
+    - metavariable-pattern:
+        metavariable: $E
+        pattern-either:
+        - patterns:
+          - pattern: <... $SRCFN(...) ...>
+          - metavariable-regex:
+              metavariable: $SRCFN
+              regex: ^(rand|random|RAND32|RAND64|atoi|atol|atoll|_atoi64|strtol|strtoul|strtoll|strtoull|_wtoi|_wtol|_wtoi64|wcstol|wcstoul|wcstoll|wcstoull|atof|strtod|strtof|_wtof|wcstod)$
+        - pattern: INT_MIN
+        - pattern: SHRT_MIN
+        - pattern: CHAR_MIN
+        - pattern: SCHAR_MIN
+        - pattern: LONG_MIN
+        - pattern: LLONG_MIN
+        - pattern: INT64_MIN
+        - pattern: INTMAX_MIN
+    - pattern: $REF
+  - patterns:
+    - pattern-inside: $R $F(...) { ... $T *$P2 = &$D; ... }
+    - pattern-inside: $R $F(...) { ... $T *$P1 = &$D; ... $V = $E; ... *$P1 = $V; ... }
+    - metavariable-pattern:
+        metavariable: $E
+        pattern-either:
+        - patterns:
+          - pattern: <... $SRCFN(...) ...>
+          - metavariable-regex:
+              metavariable: $SRCFN
+              regex: ^(rand|random|RAND32|RAND64|atoi|atol|atoll|_atoi64|strtol|strtoul|strtoll|strtoull|_wtoi|_wtol|_wtoi64|wcstol|wcstoul|wcstoll|wcstoull|atof|strtod|strtof|_wtof|wcstod)$
+        - pattern: INT_MIN
+        - pattern: SHRT_MIN
+        - pattern: CHAR_MIN
+        - pattern: SCHAR_MIN
+        - pattern: LONG_MIN
+        - pattern: LLONG_MIN
+        - pattern: INT64_MIN
+        - pattern: INTMAX_MIN
+    - metavariable-comparison:
+        comparison: str($P1) != str($P2)
+    - pattern: '*$P2'
+  - patterns:
+    - pattern-inside: |
+        $R $C::$M1(...) { ... $V = $E; ... }
+        ...
+        $R2 $C::$M2(...) { ... }
+    - metavariable-pattern:
+        metavariable: $E
+        pattern-either:
+        - patterns:
+          - pattern: <... $SRCFN(...) ...>
+          - metavariable-regex:
+              metavariable: $SRCFN
+              regex: ^(rand|random|RAND32|RAND64|atoi|atol|atoll|_atoi64|strtol|strtoul|strtoll|strtoull|_wtoi|_wtol|_wtoi64|wcstol|wcstoul|wcstoll|wcstoull|atof|strtod|strtof|_wtof|wcstod)$
+        - pattern: INT_MIN
+        - pattern: SHRT_MIN
+        - pattern: CHAR_MIN
+        - pattern: SCHAR_MIN
+        - pattern: LONG_MIN
+        - pattern: LLONG_MIN
+        - pattern: INT64_MIN
+        - pattern: INTMAX_MIN
+    - pattern-inside: $R2 $C::$M2(...) { ... }
+    - pattern-not-inside: $LRT $LFN(...) { ... $LT $V; ... }
+    - pattern-not-inside: $LRT $LFN(...) { ... $LT $V = $LI; ... }
+    - pattern: $V
+  - patterns:
+    - pattern-inside: |
+        $R $SINK(..., $T $D, ...) { ... }
+        ...
+        $R2 $CALLER(...) { ... fscanf($FF, $FMT, &$V); ... $SINK(..., $V, ...); ... }
+    - pattern: $R $SINK(..., $T $D, ...) { ... }
+    - focus-metavariable: $D
+  - patterns:
+    - pattern-inside: |
+        $R2 $CALLER(...) { ... fscanf($FF, $FMT, &$V); ... $SINK(..., $V, ...); ... }
+        ...
+        $R $SINK(..., $T $D, ...) { ... }
+    - pattern: $R $SINK(..., $T $D, ...) { ... }
+    - focus-metavariable: $D
+  - patterns:
+    - pattern-inside: |
+        $R $SINK(..., $T $D, ...) { ... }
+        ...
+        $R2 $CALLER(...) { ... $FT (*$FP)(...) = $SINK; ... fscanf($FF, $FMT, &$V); ... $FP(..., $V, ...); ... }
+    - pattern: $R $SINK(..., $T $D, ...) { ... }
+    - focus-metavariable: $D
+  - patterns:
+    - pattern-inside: |
+        $R $SINK(..., $T $D, ...) { ... }
+        ...
+        $R2 $CALLER(...) { ... $FPDECL = $SINK; ... fscanf($FF, $FMT, &$V); ... $FP(..., $V, ...); ... }
+    - pattern: $R $SINK(..., $T $D, ...) { ... }
+    - focus-metavariable: $D
+  - patterns:
+    - pattern-inside: |
+        $R $SINK(...) { ... }
+        ...
+        $R2 $CALLER(...) { ... fscanf($FF, $FMT, &$V); ... $G = $V; ... }
+    - metavariable-comparison:
+        comparison: str($G) != str($V)
+    - pattern-inside: $R $SINK(...) { ... }
+    - pattern-not-inside: $LRT $LFN(...) { ... $LT $G; ... }
+    - pattern-not-inside: $LRT $LFN(...) { ... $LT $G = $LI; ... }
+    - pattern: $G
+  - patterns:
+    - pattern-inside: |
+        $R2 $CALLER(...) { ... fscanf($FF, $FMT, &$V); ... $G = $V; ... }
+        ...
+        $R $SINK(...) { ... }
+    - metavariable-comparison:
+        comparison: str($G) != str($V)
+    - pattern-inside: $R $SINK(...) { ... }
+    - pattern-not-inside: $LRT $LFN(...) { ... $LT $G; ... }
+    - pattern-not-inside: $LRT $LFN(...) { ... $LT $G = $LI; ... }
+    - pattern: $G
+  - patterns:
+    - pattern-inside: |
+        $R $SRCF(...) { ... fscanf($FF, $FMT, &$V); ... return $V; }
+        ...
+    - pattern: $SRCF(...)
+  - by-side-effect: true
+    patterns:
+    - pattern-inside: |
+        $R $SRCF(..., $T &$V, ...) { ... fscanf($FF, $FMT, &$V); ... }
+        ...
+    - pattern: $SRCF(..., $A, ...)
+    - focus-metavariable: $A
+  - patterns:
+    - pattern-inside: $R $F(...) { ... $T &$REF = $V; ... fscanf($FF, $FMT, &$V); ... }
+    - pattern: $REF
+  - patterns:
+    - pattern-inside: $R $F(...) { ... $T *$P2 = &$D; ... }
+    - pattern-inside: $R $F(...) { ... $T *$P1 = &$D; ... fscanf($FF, $FMT, &$V); ... *$P1 = $V; ... }
+    - metavariable-comparison:
+        comparison: str($P1) != str($P2)
+    - pattern: '*$P2'
+  - patterns:
+    - pattern-inside: |
+        $R $C::$M1(...) { ... fscanf($FF, $FMT, &$V); ... }
+        ...
+        $R2 $C::$M2(...) { ... }
+    - pattern-inside: $R2 $C::$M2(...) { ... }
+    - pattern-not-inside: $LRT $LFN(...) { ... $LT $V; ... }
+    - pattern-not-inside: $LRT $LFN(...) { ... $LT $V = $LI; ... }
+    - pattern: $V
+  pattern-propagators:
+  - pattern: $U.$FLD = $X
+    from: $X
+    to: $U
+  - pattern: $B[$I] = $V
+    from: $B
+    to: $B
+  - patterns:
+    - pattern-inside: if (<... sscanf($S, $FMT, &$X) ...>) { ... }
+    - pattern: $X
+    from: $S
+    to: $X
+  - patterns:
+    - pattern-inside: if (<... swscanf($S, $FMT, &$X) ...>) { ... }
+    - pattern: $X
+    from: $S
+    to: $X
+  - patterns:
+    - pattern-inside: |
+        sscanf($S, $FMT, &$X);
+        ...
+    - pattern: $X
+    from: $S
+    to: $X
+  - patterns:
+    - pattern-inside: |
+        swscanf($S, $FMT, &$X);
+        ...
+    - pattern: $X
+    from: $S
+    to: $X
+  pattern-sanitizers:
+  - patterns:
+    - pattern-either:
+      - pattern-inside: if (<... $X > $LIM ...>) { ... }
+      - pattern-inside: if (<... $X >= $LIM ...>) { ... }
+      - pattern-inside: if (<... $LIM < $X ...>) { ... }
+      - pattern-inside: if (<... $LIM <= $X ...>) { ... }
+    - pattern: $X
+  pattern-sinks:
+  - patterns:
+    - pattern-either:
+      - pattern: $X - $Y
+      - pattern: $X * $Y
+      - pattern: $Y * $X
+      - pattern: --$X
+      - pattern: $X--
+      - pattern: $X -= $Y
+      - pattern: $X *= $Y
+    - focus-metavariable: $X

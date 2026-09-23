@@ -1,0 +1,63 @@
+rules:
+- id: cwe457-buffer-read-beyond-prefix-initialized-by-helper
+  languages:
+  - cpp
+  paths:
+    include:
+    - '*.c'
+    - '*.h'
+    - '*.cpp'
+    - '*.cc'
+    - '*.cxx'
+    - '*.c++'
+    - '*.hpp'
+    - '*.hh'
+    - '*.hxx'
+    - '*.inc'
+  severity: ERROR
+  message: A helper initializes fewer buffer elements than a later loop reads, so the tail elements are
+    read uninitialized.
+  metadata:
+    vulnerability_class: Use of Uninitialized Variable
+    help: |
+      ## Summary
+      A helper initializes fewer buffer elements than a later loop reads, so the tail elements are read uninitialized.
+
+      ## Remediation
+      Initialize every variable before it is read.
+    category: security
+    cwe:
+    - 'CWE-457: Use of Uninitialized Variable'
+    references:
+    - https://cwe.mitre.org/data/definitions/457.html
+    confidence: MEDIUM
+    likelihood: MEDIUM
+    impact: HIGH
+    subcategory:
+    - vuln
+    technology:
+    - c
+    - cpp
+    source: Validated against NIST Juliet C/C++ Test Suite v1.3
+    remediation: Initialize every variable before it is read.
+  patterns:
+  - pattern-either:
+    - pattern-inside: |
+        $R2 $SRC(..., $PT &$P, ...) { ... for (...; $I < $N1; ...) { ... $P[$I] = $V; ... } ... }
+        ...
+        $R $FN(...) { ... $SRC($X); ... }
+    - pattern-inside: |
+        $R2 $SRC(..., $PT &$P, ...) { ... for (...; $I < $N1; ...) { ... $P[$I].$F1 = $V; ... } ... }
+        ...
+        $R $FN(...) { ... $SRC($X); ... }
+  - pattern-inside: |
+      for (...; $J < $N2; ...) { ... }
+  - pattern-not-inside: |
+      $R $FN(...) { ... for (...; $K < $N2; ...) { ... $X[$K] = $W; ... } ... }
+  - pattern-not-inside: |
+      $R $FN(...) { ... for (...; $K < $N2; ...) { ... $X[$K].$F2 = $W; ... } ... }
+  - pattern-either:
+    - pattern: $G(..., $X[$J], ...)
+    - pattern: $G(..., $X[$J].$FLD, ...)
+  - metavariable-comparison:
+      comparison: $N1 < $N2

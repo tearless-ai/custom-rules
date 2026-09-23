@@ -1,0 +1,373 @@
+rules:
+- id: cwe121-untrusted-value-used-as-stack-array-index
+  languages:
+  - c
+  - cpp
+  paths:
+    include:
+    - '*.c'
+    - '*.h'
+    - '*.cpp'
+    - '*.cc'
+    - '*.cxx'
+    - '*.c++'
+    - '*.hpp'
+    - '*.hh'
+    - '*.hxx'
+    - '*.inc'
+  severity: ERROR
+  message: A variable assigned from external input (here or in a calling/called function) is used to index
+    the stack array '$BUF' without checking it against the array size.
+  metadata:
+    vulnerability_class: Stack-based Buffer Overflow
+    help: |
+      ## Summary
+      A variable assigned from external input (here or in a calling/called function) is used to index the stack array '`$BUF`' without checking it against the array size.
+
+      ## Remediation
+      Bound every copy and index by the destination's size (sizeof the array), use size-checked APIs such as snprintf, and validate lengths and indexes from input before use.
+    category: security
+    cwe:
+    - 'CWE-121: Stack-based Buffer Overflow'
+    references:
+    - https://cwe.mitre.org/data/definitions/121.html
+    confidence: MEDIUM
+    likelihood: MEDIUM
+    impact: HIGH
+    subcategory:
+    - vuln
+    technology:
+    - c
+    - cpp
+    source: Validated against NIST Juliet C/C++ Test Suite v1.3
+    remediation: Bound every copy and index by the destination's size (sizeof the array), use size-checked
+      APIs such as snprintf, and validate lengths and indexes from input before use.
+  options:
+    constant_propagation: false
+  patterns:
+  - pattern: $BUF[$IDX] = $VAL;
+  - pattern-either:
+    - pattern-inside: |-
+        $RET $F(...) {
+          ...
+          $T $BUF[$N];
+          ...
+        }
+    - pattern-inside: |-
+        $RET $F(...) {
+          ...
+          $T $BUF[$N] = $INIT;
+          ...
+        }
+  - pattern-not-inside: if (<... $IDX < $MAX ...>) { ... }
+  - pattern-not-inside: if (<... $IDX <= $MAX ...>) { ... }
+  - pattern-not-inside: if (<... $MAX > $IDX ...>) { ... }
+  - pattern-not-inside: if (<... $MAX >= $IDX ...>) { ... }
+  - pattern-either:
+    - pattern-either:
+      - patterns:
+        - pattern-inside: |-
+            $RET $F(...) {
+              ...
+              $V = $UF(...);
+              ...
+            }
+        - metavariable-regex:
+            metavariable: $UF
+            regex: ^(atoi|atol|atoll|strtol|strtoul|strtoll|strtoull|rand|RAND32|RAND64)$
+      - patterns:
+        - pattern-inside: |-
+            $RET $F(...) {
+              ...
+              $SCANF(..., &$V);
+              ...
+            }
+        - metavariable-regex:
+            metavariable: $SCANF
+            regex: ^(fscanf|scanf|sscanf|fwscanf|wscanf|swscanf)$
+    - patterns:
+      - pattern-either:
+        - patterns:
+          - pattern-inside: |-
+              $CR1 $SINK($PT $V) {
+                ...
+              }
+              ...
+              $CR2 $CALLER(...) {
+                ...
+                $A = $UF(...);
+                ...
+                $SINK($A);
+                ...
+              }
+          - metavariable-regex:
+              metavariable: $UF
+              regex: ^(atoi|atol|atoll|strtol|strtoul|strtoll|strtoull|rand|RAND32|RAND64)$
+        - patterns:
+          - pattern-inside: |-
+              $CR1 $SINK($PT $V) {
+                ...
+              }
+              ...
+              $CR2 $CALLER(...) {
+                ...
+                $SCANF(..., &$A);
+                ...
+                $SINK($A);
+                ...
+              }
+          - metavariable-regex:
+              metavariable: $SCANF
+              regex: ^(fscanf|scanf|sscanf|fwscanf|wscanf|swscanf)$
+      - pattern-inside: |-
+          $CR1 $SINK($PT $V) {
+            ...
+          }
+    - patterns:
+      - pattern-either:
+        - patterns:
+          - pattern-inside: |-
+              $CR1 $SINK($PT $V) {
+                ...
+              }
+              ...
+              $CR2 $CALLER(...) {
+                ...
+                $FT (*$FPTR)(...) = $SINK;
+                ...
+                $A = $UF(...);
+                ...
+                $FPTR($A);
+                ...
+              }
+          - metavariable-regex:
+              metavariable: $UF
+              regex: ^(atoi|atol|atoll|strtol|strtoul|strtoll|strtoull|rand|RAND32|RAND64)$
+        - patterns:
+          - pattern-inside: |-
+              $CR1 $SINK($PT $V) {
+                ...
+              }
+              ...
+              $CR2 $CALLER(...) {
+                ...
+                $FT (*$FPTR)(...) = $SINK;
+                ...
+                $SCANF(..., &$A);
+                ...
+                $FPTR($A);
+                ...
+              }
+          - metavariable-regex:
+              metavariable: $SCANF
+              regex: ^(fscanf|scanf|sscanf|fwscanf|wscanf|swscanf)$
+      - pattern-inside: |-
+          $CR1 $SINK($PT $V) {
+            ...
+          }
+    - patterns:
+      - pattern-either:
+        - patterns:
+          - pattern-inside: |-
+              $CR1 $SINK() {
+                ...
+                $PT $V = $GV;
+                ...
+              }
+              ...
+              $CR2 $CALLER(...) {
+                ...
+                $A = $UF(...);
+                ...
+                $GV = $A;
+                ...
+                $SINK();
+                ...
+              }
+          - metavariable-regex:
+              metavariable: $UF
+              regex: ^(atoi|atol|atoll|strtol|strtoul|strtoll|strtoull|rand|RAND32|RAND64)$
+        - patterns:
+          - pattern-inside: |-
+              $CR1 $SINK() {
+                ...
+                $PT $V = $GV;
+                ...
+              }
+              ...
+              $CR2 $CALLER(...) {
+                ...
+                $SCANF(..., &$A);
+                ...
+                $GV = $A;
+                ...
+                $SINK();
+                ...
+              }
+          - metavariable-regex:
+              metavariable: $SCANF
+              regex: ^(fscanf|scanf|sscanf|fwscanf|wscanf|swscanf)$
+      - pattern-inside: |-
+          $CR1 $SINK() {
+            ...
+          }
+    - patterns:
+      - pattern-either:
+        - patterns:
+          - pattern-inside: |-
+              $CR1 $SRCF(...) {
+                ...
+                $X = $UF(...);
+                ...
+                return $X;
+                ...
+              }
+              ...
+              $CR2 $USEF(...) {
+                ...
+                $V = $SRCF(...);
+                ...
+              }
+          - metavariable-regex:
+              metavariable: $UF
+              regex: ^(atoi|atol|atoll|strtol|strtoul|strtoll|strtoull|rand|RAND32|RAND64)$
+        - patterns:
+          - pattern-inside: |-
+              $CR1 $SRCF(...) {
+                ...
+                $SCANF(..., &$X);
+                ...
+                return $X;
+                ...
+              }
+              ...
+              $CR2 $USEF(...) {
+                ...
+                $V = $SRCF(...);
+                ...
+              }
+          - metavariable-regex:
+              metavariable: $SCANF
+              regex: ^(fscanf|scanf|sscanf|fwscanf|wscanf|swscanf)$
+      - pattern-inside: |-
+          $CR2 $USEF(...) {
+            ...
+          }
+    - patterns:
+      - pattern-either:
+        - patterns:
+          - pattern-inside: |-
+              $CR1 $SRCF($PT &$X) {
+                ...
+                $X = $UF(...);
+                ...
+              }
+              ...
+              $CR2 $USEF(...) {
+                ...
+                $SRCF($V);
+                ...
+              }
+          - metavariable-regex:
+              metavariable: $UF
+              regex: ^(atoi|atol|atoll|strtol|strtoul|strtoll|strtoull|rand|RAND32|RAND64)$
+        - patterns:
+          - pattern-inside: |-
+              $CR1 $SRCF($PT &$X) {
+                ...
+                $SCANF(..., &$X);
+                ...
+              }
+              ...
+              $CR2 $USEF(...) {
+                ...
+                $SRCF($V);
+                ...
+              }
+          - metavariable-regex:
+              metavariable: $SCANF
+              regex: ^(fscanf|scanf|sscanf|fwscanf|wscanf|swscanf)$
+      - pattern-inside: |-
+          $CR2 $USEF(...) {
+            ...
+          }
+    - patterns:
+      - pattern-either:
+        - patterns:
+          - pattern-inside: |-
+              $CR1 $SETF(...) {
+                ...
+                $V = $UF(...);
+                ...
+              }
+              ...
+              $CR2 $USEF(...) {
+                ...
+              }
+          - metavariable-regex:
+              metavariable: $UF
+              regex: ^(atoi|atol|atoll|strtol|strtoul|strtoll|strtoull|rand|RAND32|RAND64)$
+        - patterns:
+          - pattern-inside: |-
+              $CR1 $SETF(...) {
+                ...
+                $SCANF(..., &$V);
+                ...
+              }
+              ...
+              $CR2 $USEF(...) {
+                ...
+              }
+          - metavariable-regex:
+              metavariable: $SCANF
+              regex: ^(fscanf|scanf|sscanf|fwscanf|wscanf|swscanf)$
+      - pattern-inside: |-
+          $CR2 $USEF(...) {
+            ...
+          }
+      - pattern-not-inside: |-
+          $CX $USEF(...) {
+            ...
+            $TT $V;
+            ...
+          }
+      - pattern-not-inside: |-
+          $CX $SETF(...) {
+            ...
+            $TT $V;
+            ...
+          }
+          ...
+          $CY $USEF(...) {
+            ...
+          }
+      - pattern-not-inside: |-
+          $CX $USEF(...) {
+            ...
+            $TT $V = $IV;
+            ...
+          }
+      - pattern-not-inside: |-
+          $CX $SETF(...) {
+            ...
+            $TT $V = $IV;
+            ...
+          }
+          ...
+          $CY $USEF(...) {
+            ...
+          }
+      - pattern-not-inside: |-
+          $CX $USEF(..., $TT $V, ...) {
+            ...
+          }
+      - pattern-not-inside: |-
+          $CX $SETF(..., $TT $V, ...) {
+            ...
+          }
+          ...
+          $CY $USEF(...) {
+            ...
+          }
+  - metavariable-comparison:
+      comparison: str($V) == str($IDX)

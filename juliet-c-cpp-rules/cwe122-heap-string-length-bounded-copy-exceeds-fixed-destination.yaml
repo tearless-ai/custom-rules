@@ -1,0 +1,533 @@
+rules:
+- id: cwe122-heap-string-length-bounded-copy-exceeds-fixed-destination
+  languages:
+  - c
+  - cpp
+  paths:
+    include:
+    - '*.c'
+    - '*.h'
+    - '*.cpp'
+    - '*.cc'
+    - '*.cxx'
+    - '*.c++'
+    - '*.hpp'
+    - '*.hh'
+    - '*.hxx'
+    - '*.inc'
+  severity: ERROR
+  message: The heap string '$SRC' is filled to a length that does not fit in the fixed-size array '$DST';
+    copying it bounded only by the source length overflows the destination.
+  metadata:
+    vulnerability_class: Heap-based Buffer Overflow
+    help: |
+      ## Summary
+      The heap string '`$SRC`' is filled to a length that does not fit in the fixed-size array '`$DST`'; copying it bounded only by the source length overflows the destination.
+
+      ## Remediation
+      Allocate enough room for the data including the terminator, bound every copy and index by the allocation size, and validate lengths and indexes from input before use.
+    category: security
+    cwe:
+    - 'CWE-122: Heap-based Buffer Overflow'
+    references:
+    - https://cwe.mitre.org/data/definitions/122.html
+    confidence: MEDIUM
+    likelihood: MEDIUM
+    impact: HIGH
+    subcategory:
+    - vuln
+    technology:
+    - c
+    - cpp
+    source: Validated against NIST Juliet C/C++ Test Suite v1.3
+    remediation: Allocate enough room for the data including the terminator, bound every copy and index
+      by the allocation size, and validate lengths and indexes from input before use.
+  patterns:
+  - pattern-either:
+    - pattern: strncpy($DST, $SRC, strlen($SRC))
+    - pattern: wcsncpy($DST, $SRC, wcslen($SRC))
+    - pattern: memcpy($DST, $SRC, strlen($SRC) * sizeof(...))
+    - pattern: memmove($DST, $SRC, strlen($SRC) * sizeof(...))
+    - pattern: memcpy($DST, $SRC, wcslen($SRC) * sizeof(...))
+    - pattern: memmove($DST, $SRC, wcslen($SRC) * sizeof(...))
+    - patterns:
+      - pattern-inside: for ($I = $Z; $I < $BOUND; $I++) { ... }
+      - pattern: $DST[$I] = $SRC[$I];
+      - metavariable-regex:
+          metavariable: $BOUND
+          regex: '[A-Za-z_]'
+    - pattern: snprintf($DST, strlen($SRC), ...)
+    - pattern: _snprintf($DST, strlen($SRC), ...)
+    - pattern: _snwprintf($DST, strlen($SRC), ...)
+    - pattern: swprintf($DST, strlen($SRC), ...)
+    - pattern: vsnprintf($DST, strlen($SRC), ...)
+    - pattern: SNPRINTF($DST, strlen($SRC), ...)
+    - pattern: snprintf($DST, wcslen($SRC), ...)
+    - pattern: _snprintf($DST, wcslen($SRC), ...)
+    - pattern: _snwprintf($DST, wcslen($SRC), ...)
+    - pattern: swprintf($DST, wcslen($SRC), ...)
+    - pattern: vsnprintf($DST, wcslen($SRC), ...)
+    - pattern: SNPRINTF($DST, wcslen($SRC), ...)
+  - pattern-either:
+    - pattern-inside: |-
+        $RET $F(...) {
+          ...
+          $TD $DST[$N];
+          ...
+        }
+    - pattern-inside: |-
+        $RET $F(...) {
+          ...
+          $TD $DST[$N] = $INIT;
+          ...
+        }
+  - pattern-either:
+    - patterns:
+      - pattern-either:
+        - patterns:
+          - pattern-inside: |-
+              $RET $F(...) {
+                ...
+                $V = ($T5 *)$HF(...);
+                ...
+              }
+          - metavariable-regex:
+              metavariable: $HF
+              regex: ^(malloc|calloc|realloc)$
+        - pattern-either:
+          - pattern-inside: |-
+              $RET $F(...) {
+                ...
+                $V = new $T4[$K];
+                ...
+              }
+          - pattern-inside: |-
+              $RET $F(...) {
+                ...
+                $V = new $T4[$K] = $INIT;
+                ...
+              }
+      - patterns:
+        - pattern-inside: |-
+            $RET $F(...) {
+              ...
+              $MS($V1, $C, $L);
+              ...
+            }
+        - metavariable-regex:
+            metavariable: $MS
+            regex: ^w?memset$
+      - metavariable-comparison:
+          comparison: str($V1) == str($V)
+    - patterns:
+      - pattern-either:
+        - patterns:
+          - pattern-inside: |-
+              $CR1 $SINK($PT $V) {
+                ...
+              }
+              ...
+              $CR2 $CALLER(...) {
+                ...
+                $A = ($T5 *)$HF(...);
+                ...
+                $MS($A, $C, $L);
+                ...
+                $SINK($A);
+                ...
+              }
+          - metavariable-regex:
+              metavariable: $HF
+              regex: ^(malloc|calloc|realloc)$
+          - metavariable-regex:
+              metavariable: $MS
+              regex: ^w?memset$
+        - patterns:
+          - pattern-either:
+            - pattern-inside: |-
+                $CR1 $SINK($PT $V) {
+                  ...
+                }
+                ...
+                $CR2 $CALLER(...) {
+                  ...
+                  $A = new $T4[$K];
+                  ...
+                  $MS($A, $C, $L);
+                  ...
+                  $SINK($A);
+                  ...
+                }
+            - pattern-inside: |-
+                $CR1 $SINK($PT $V) {
+                  ...
+                }
+                ...
+                $CR2 $CALLER(...) {
+                  ...
+                  $A = new $T4[$K] = $INIT;
+                  ...
+                  $MS($A, $C, $L);
+                  ...
+                  $SINK($A);
+                  ...
+                }
+          - metavariable-regex:
+              metavariable: $MS
+              regex: ^w?memset$
+      - pattern-inside: |-
+          $CR1 $SINK($PT $V) {
+            ...
+          }
+    - patterns:
+      - pattern-either:
+        - patterns:
+          - pattern-inside: |-
+              $CR1 $SINK($PT $V) {
+                ...
+              }
+              ...
+              $CR2 $CALLER(...) {
+                ...
+                $FT (*$FPTR)(...) = $SINK;
+                ...
+                $A = ($T5 *)$HF(...);
+                ...
+                $MS($A, $C, $L);
+                ...
+                $FPTR($A);
+                ...
+              }
+          - metavariable-regex:
+              metavariable: $HF
+              regex: ^(malloc|calloc|realloc)$
+          - metavariable-regex:
+              metavariable: $MS
+              regex: ^w?memset$
+        - patterns:
+          - pattern-either:
+            - pattern-inside: |-
+                $CR1 $SINK($PT $V) {
+                  ...
+                }
+                ...
+                $CR2 $CALLER(...) {
+                  ...
+                  $FT (*$FPTR)(...) = $SINK;
+                  ...
+                  $A = new $T4[$K];
+                  ...
+                  $MS($A, $C, $L);
+                  ...
+                  $FPTR($A);
+                  ...
+                }
+            - pattern-inside: |-
+                $CR1 $SINK($PT $V) {
+                  ...
+                }
+                ...
+                $CR2 $CALLER(...) {
+                  ...
+                  $FT (*$FPTR)(...) = $SINK;
+                  ...
+                  $A = new $T4[$K] = $INIT;
+                  ...
+                  $MS($A, $C, $L);
+                  ...
+                  $FPTR($A);
+                  ...
+                }
+          - metavariable-regex:
+              metavariable: $MS
+              regex: ^w?memset$
+      - pattern-inside: |-
+          $CR1 $SINK($PT $V) {
+            ...
+          }
+    - patterns:
+      - pattern-either:
+        - patterns:
+          - pattern-inside: |-
+              $CR1 $SINK() {
+                ...
+                $PT $V = $GV;
+                ...
+              }
+              ...
+              $CR2 $CALLER(...) {
+                ...
+                $A = ($T5 *)$HF(...);
+                ...
+                $MS($A, $C, $L);
+                ...
+                $GV = $A;
+                ...
+                $SINK();
+                ...
+              }
+          - metavariable-regex:
+              metavariable: $HF
+              regex: ^(malloc|calloc|realloc)$
+          - metavariable-regex:
+              metavariable: $MS
+              regex: ^w?memset$
+        - patterns:
+          - pattern-either:
+            - pattern-inside: |-
+                $CR1 $SINK() {
+                  ...
+                  $PT $V = $GV;
+                  ...
+                }
+                ...
+                $CR2 $CALLER(...) {
+                  ...
+                  $A = new $T4[$K];
+                  ...
+                  $MS($A, $C, $L);
+                  ...
+                  $GV = $A;
+                  ...
+                  $SINK();
+                  ...
+                }
+            - pattern-inside: |-
+                $CR1 $SINK() {
+                  ...
+                  $PT $V = $GV;
+                  ...
+                }
+                ...
+                $CR2 $CALLER(...) {
+                  ...
+                  $A = new $T4[$K] = $INIT;
+                  ...
+                  $MS($A, $C, $L);
+                  ...
+                  $GV = $A;
+                  ...
+                  $SINK();
+                  ...
+                }
+          - metavariable-regex:
+              metavariable: $MS
+              regex: ^w?memset$
+      - pattern-inside: |-
+          $CR1 $SINK() {
+            ...
+          }
+    - patterns:
+      - pattern-either:
+        - pattern-either:
+          - patterns:
+            - pattern-inside: |-
+                $CR1 $SRCF(...) {
+                  ...
+                  $X = ($T5 *)$HF(...);
+                  ...
+                  $MS($X, $C, $L);
+                  ...
+                  return $X;
+                  ...
+                }
+                ...
+                $CR2 $USEF(...) {
+                  ...
+                  $V = $SRCF(...);
+                  ...
+                }
+            - metavariable-regex:
+                metavariable: $HF
+                regex: ^(malloc|calloc|realloc)$
+            - metavariable-regex:
+                metavariable: $MS
+                regex: ^w?memset$
+          - patterns:
+            - pattern-either:
+              - pattern-inside: |-
+                  $CR1 $SRCF(...) {
+                    ...
+                    $X = new $T4[$K];
+                    ...
+                    $MS($X, $C, $L);
+                    ...
+                    return $X;
+                    ...
+                  }
+                  ...
+                  $CR2 $USEF(...) {
+                    ...
+                    $V = $SRCF(...);
+                    ...
+                  }
+              - pattern-inside: |-
+                  $CR1 $SRCF(...) {
+                    ...
+                    $X = new $T4[$K] = $INIT;
+                    ...
+                    $MS($X, $C, $L);
+                    ...
+                    return $X;
+                    ...
+                  }
+                  ...
+                  $CR2 $USEF(...) {
+                    ...
+                    $V = $SRCF(...);
+                    ...
+                  }
+            - metavariable-regex:
+                metavariable: $MS
+                regex: ^w?memset$
+        - patterns:
+          - patterns:
+            - pattern-inside: |-
+                $CR1 $SRCF(...) {
+                  ...
+                  $MS($X, $C, $L);
+                  ...
+                  return $X;
+                  ...
+                }
+                ...
+                $CR2 $USEF(...) {
+                  ...
+                  $V = $SRCF(...);
+                  ...
+                }
+            - metavariable-regex:
+                metavariable: $MS
+                regex: ^w?memset$
+          - pattern-either:
+            - patterns:
+              - pattern-inside: |-
+                  $RET $F(...) {
+                    ...
+                    $V = ($T5 *)$HF(...);
+                    ...
+                  }
+              - metavariable-regex:
+                  metavariable: $HF
+                  regex: ^(malloc|calloc|realloc)$
+            - pattern-either:
+              - pattern-inside: |-
+                  $RET $F(...) {
+                    ...
+                    $V = new $T4[$K];
+                    ...
+                  }
+              - pattern-inside: |-
+                  $RET $F(...) {
+                    ...
+                    $V = new $T4[$K] = $INIT;
+                    ...
+                  }
+      - pattern-inside: |-
+          $CR2 $USEF(...) {
+            ...
+          }
+    - patterns:
+      - pattern-either:
+        - pattern-either:
+          - patterns:
+            - pattern-inside: |-
+                $CR1 $SRCF($PT &$X) {
+                  ...
+                  $X = ($T5 *)$HF(...);
+                  ...
+                  $MS($X, $C, $L);
+                  ...
+                }
+                ...
+                $CR2 $USEF(...) {
+                  ...
+                  $SRCF($V);
+                  ...
+                }
+            - metavariable-regex:
+                metavariable: $HF
+                regex: ^(malloc|calloc|realloc)$
+            - metavariable-regex:
+                metavariable: $MS
+                regex: ^w?memset$
+          - patterns:
+            - pattern-either:
+              - pattern-inside: |-
+                  $CR1 $SRCF($PT &$X) {
+                    ...
+                    $X = new $T4[$K];
+                    ...
+                    $MS($X, $C, $L);
+                    ...
+                  }
+                  ...
+                  $CR2 $USEF(...) {
+                    ...
+                    $SRCF($V);
+                    ...
+                  }
+              - pattern-inside: |-
+                  $CR1 $SRCF($PT &$X) {
+                    ...
+                    $X = new $T4[$K] = $INIT;
+                    ...
+                    $MS($X, $C, $L);
+                    ...
+                  }
+                  ...
+                  $CR2 $USEF(...) {
+                    ...
+                    $SRCF($V);
+                    ...
+                  }
+            - metavariable-regex:
+                metavariable: $MS
+                regex: ^w?memset$
+        - patterns:
+          - patterns:
+            - pattern-inside: |-
+                $CR1 $SRCF($PT &$X) {
+                  ...
+                  $MS($X, $C, $L);
+                  ...
+                }
+                ...
+                $CR2 $USEF(...) {
+                  ...
+                  $SRCF($V);
+                  ...
+                }
+            - metavariable-regex:
+                metavariable: $MS
+                regex: ^w?memset$
+          - pattern-either:
+            - patterns:
+              - pattern-inside: |-
+                  $RET $F(...) {
+                    ...
+                    $V = ($T5 *)$HF(...);
+                    ...
+                  }
+              - metavariable-regex:
+                  metavariable: $HF
+                  regex: ^(malloc|calloc|realloc)$
+            - pattern-either:
+              - pattern-inside: |-
+                  $RET $F(...) {
+                    ...
+                    $V = new $T4[$K];
+                    ...
+                  }
+              - pattern-inside: |-
+                  $RET $F(...) {
+                    ...
+                    $V = new $T4[$K] = $INIT;
+                    ...
+                  }
+      - pattern-inside: |-
+          $CR2 $USEF(...) {
+            ...
+          }
+  - metavariable-comparison:
+      comparison: str($V) == str($SRC) and $L > $N

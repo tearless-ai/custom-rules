@@ -1,0 +1,202 @@
+rules:
+- id: cwe416-use-after-release-in-helper
+  languages:
+  - cpp
+  paths:
+    include:
+    - '*.c'
+    - '*.h'
+    - '*.cpp'
+    - '*.cc'
+    - '*.cxx'
+    - '*.c++'
+    - '*.hpp'
+    - '*.hh'
+    - '*.hxx'
+    - '*.inc'
+  severity: ERROR
+  message: Pointer $Y is used after a helper function in this file released the memory it points to.
+  metadata:
+    vulnerability_class: Use After Free
+    help: |
+      ## Summary
+      Pointer `$Y` is used after a helper function in this file released the memory it points to.
+
+      ## Remediation
+      Do not use memory after it has been freed; set pointers to NULL after free and restructure ownership so no stale references remain.
+    category: security
+    cwe:
+    - 'CWE-416: Use After Free'
+    references:
+    - https://cwe.mitre.org/data/definitions/416.html
+    confidence: HIGH
+    likelihood: MEDIUM
+    impact: HIGH
+    subcategory:
+    - vuln
+    technology:
+    - c
+    - cpp
+    source: Validated against NIST Juliet C/C++ Test Suite v1.3
+    remediation: Do not use memory after it has been freed; set pointers to NULL after free and restructure
+      ownership so no stale references remain.
+  pattern-either:
+  - patterns:
+    - pattern-inside: |
+        $R1 $S($PT & $D) { ... free($D); ... }
+        ...
+        $R2 $G(...) { ... $S($Y); ... }
+    - pattern-inside: |
+        $R2 $G(...) { ... $S($Y); ... }
+    - pattern-inside: |
+        $S($Y);
+        ...
+    - pattern: $UF(..., $Y, ...)
+    - focus-metavariable: $Y
+    - metavariable-regex:
+        metavariable: $UF
+        regex: ^(?!(free|_aligned_free|g_free)$)
+    - metavariable-comparison:
+        comparison: str($UF) != str($S)
+  - patterns:
+    - pattern-inside: |
+        $R1 $S($PT & $D) { ... free($D); ... }
+        ...
+        $R2 $G(...) { ... $S($Y); ... }
+    - pattern-inside: |
+        $R2 $G(...) { ... $S($Y); ... }
+    - pattern-inside: |
+        $S($Y);
+        ...
+    - pattern: $Y[$UI]
+    - focus-metavariable: $Y
+  - patterns:
+    - pattern-inside: |
+        $R1 $S($PT & $D) { ... free($D); ... }
+        ...
+        $R2 $G(...) { ... $S($Y); ... }
+    - pattern-inside: |
+        $R2 $G(...) { ... $S($Y); ... }
+    - pattern-inside: |
+        $S($Y);
+        ...
+    - pattern: '*$Y'
+    - focus-metavariable: $Y
+  - patterns:
+    - pattern-inside: |
+        $R1 $S($PT & $D) { ... free($D); ... }
+        ...
+        $R2 $G(...) { ... $S($Y); ... }
+    - pattern-inside: |
+        $R2 $G(...) { ... $S($Y); ... }
+    - pattern-inside: |
+        $S($Y);
+        ...
+    - pattern: $Y->$UFLD
+    - focus-metavariable: $Y
+  - patterns:
+    - pattern-inside: |
+        $R1 $S($PT & $D) { ... delete $D; ... }
+        ...
+        $R2 $G(...) { ... $S($Y); ... }
+    - pattern-inside: |
+        $R2 $G(...) { ... $S($Y); ... }
+    - pattern-inside: |
+        $S($Y);
+        ...
+    - pattern: $UF(..., $Y, ...)
+    - focus-metavariable: $Y
+    - metavariable-regex:
+        metavariable: $UF
+        regex: ^(?!(free|_aligned_free|g_free)$)
+    - metavariable-comparison:
+        comparison: str($UF) != str($S)
+  - patterns:
+    - pattern-inside: |
+        $R1 $S($PT & $D) { ... delete $D; ... }
+        ...
+        $R2 $G(...) { ... $S($Y); ... }
+    - pattern-inside: |
+        $R2 $G(...) { ... $S($Y); ... }
+    - pattern-inside: |
+        $S($Y);
+        ...
+    - pattern: $Y[$UI]
+    - focus-metavariable: $Y
+  - patterns:
+    - pattern-inside: |
+        $R1 $S($PT & $D) { ... delete $D; ... }
+        ...
+        $R2 $G(...) { ... $S($Y); ... }
+    - pattern-inside: |
+        $R2 $G(...) { ... $S($Y); ... }
+    - pattern-inside: |
+        $S($Y);
+        ...
+    - pattern: '*$Y'
+    - focus-metavariable: $Y
+  - patterns:
+    - pattern-inside: |
+        $R1 $S($PT & $D) { ... delete $D; ... }
+        ...
+        $R2 $G(...) { ... $S($Y); ... }
+    - pattern-inside: |
+        $R2 $G(...) { ... $S($Y); ... }
+    - pattern-inside: |
+        $S($Y);
+        ...
+    - pattern: $Y->$UFLD
+    - focus-metavariable: $Y
+  - patterns:
+    - pattern-inside: |
+        $R1 $S($PT & $D) { ... delete [] $D; ... }
+        ...
+        $R2 $G(...) { ... $S($Y); ... }
+    - pattern-inside: |
+        $R2 $G(...) { ... $S($Y); ... }
+    - pattern-inside: |
+        $S($Y);
+        ...
+    - pattern: $UF(..., $Y, ...)
+    - focus-metavariable: $Y
+    - metavariable-regex:
+        metavariable: $UF
+        regex: ^(?!(free|_aligned_free|g_free)$)
+    - metavariable-comparison:
+        comparison: str($UF) != str($S)
+  - patterns:
+    - pattern-inside: |
+        $R1 $S($PT & $D) { ... delete [] $D; ... }
+        ...
+        $R2 $G(...) { ... $S($Y); ... }
+    - pattern-inside: |
+        $R2 $G(...) { ... $S($Y); ... }
+    - pattern-inside: |
+        $S($Y);
+        ...
+    - pattern: $Y[$UI]
+    - focus-metavariable: $Y
+  - patterns:
+    - pattern-inside: |
+        $R1 $S($PT & $D) { ... delete [] $D; ... }
+        ...
+        $R2 $G(...) { ... $S($Y); ... }
+    - pattern-inside: |
+        $R2 $G(...) { ... $S($Y); ... }
+    - pattern-inside: |
+        $S($Y);
+        ...
+    - pattern: '*$Y'
+    - focus-metavariable: $Y
+  - patterns:
+    - pattern-inside: |
+        $R1 $S($PT & $D) { ... delete [] $D; ... }
+        ...
+        $R2 $G(...) { ... $S($Y); ... }
+    - pattern-inside: |
+        $R2 $G(...) { ... $S($Y); ... }
+    - pattern-inside: |
+        $S($Y);
+        ...
+    - pattern: $Y->$UFLD
+    - focus-metavariable: $Y

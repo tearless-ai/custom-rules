@@ -1,0 +1,42 @@
+rules:
+- id: cwe426-relative-command-macro-executed
+  languages:
+  - c
+  - cpp
+  paths:
+    include:
+    - '*.c'
+    - '*.h'
+    - '*.cpp'
+    - '*.cc'
+    - '*.cxx'
+    - '*.c++'
+    - '*.hpp'
+    - '*.hh'
+    - '*.hxx'
+    - '*.inc'
+  severity: WARNING
+  message: A command macro whose value has no absolute path is copied into a buffer and executed with
+    $EXEC(), so the program that actually runs is chosen through the search path.
+  metadata:
+    vulnerability_class: Untrusted Search Path
+    help: |
+      ## Summary
+      A command macro whose value has no absolute path is copied into a buffer and executed with `$EXEC()`, so the program that actually runs is chosen through the search path.
+    category: security
+    cwe:
+    - 'CWE-426: Untrusted Search Path'
+    references:
+    - https://cwe.mitre.org/data/definitions/426.html
+    confidence: LOW
+    likelihood: MEDIUM
+    impact: MEDIUM
+    subcategory:
+    - vuln
+    technology:
+    - c
+    - cpp
+    source: Validated against NIST Juliet C/C++ Test Suite v1.3
+  patterns:
+  - pattern-regex: (?s)#define[ \t]+(?P<MACRO>\w+)[ \t]+L?"(?![A-Za-z]:|[\\/%])[^"\r\n]*"[ \t]*\r?\n.*?\b(?:str|wcs|_tcs|_mbs)n?cpy(?:_s)?\((?P<BUF>\w+),\s*(?:[^,()]*,\s*)?(?P=MACRO)\);(?:(?!\n\}).)*?\b(?P<EXEC>SYSTEM|POPEN|system|popen|_popen|_wpopen|_wsystem)\((?P=BUF)\b
+  - focus-metavariable: $EXEC

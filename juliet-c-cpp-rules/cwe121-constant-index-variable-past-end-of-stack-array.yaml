@@ -1,0 +1,254 @@
+rules:
+- id: cwe121-constant-index-variable-past-end-of-stack-array
+  languages:
+  - c
+  - cpp
+  paths:
+    include:
+    - '*.c'
+    - '*.h'
+    - '*.cpp'
+    - '*.cc'
+    - '*.cxx'
+    - '*.c++'
+    - '*.hpp'
+    - '*.hh'
+    - '*.hxx'
+    - '*.inc'
+  severity: ERROR
+  message: The index variable used to write into the stack array '$BUF' is assigned (here or in a calling/called
+    function) a constant not smaller than the array size, and no upper-bound check guards the write.
+  metadata:
+    vulnerability_class: Stack-based Buffer Overflow
+    help: |
+      ## Summary
+      The index variable used to write into the stack array '`$BUF`' is assigned (here or in a calling/called function) a constant not smaller than the array size, and no upper-bound check guards the write.
+
+      ## Remediation
+      Bound every copy and index by the destination's size (sizeof the array), use size-checked APIs such as snprintf, and validate lengths and indexes from input before use.
+    category: security
+    cwe:
+    - 'CWE-121: Stack-based Buffer Overflow'
+    references:
+    - https://cwe.mitre.org/data/definitions/121.html
+    confidence: MEDIUM
+    likelihood: MEDIUM
+    impact: HIGH
+    subcategory:
+    - vuln
+    technology:
+    - c
+    - cpp
+    source: Validated against NIST Juliet C/C++ Test Suite v1.3
+    remediation: Bound every copy and index by the destination's size (sizeof the array), use size-checked
+      APIs such as snprintf, and validate lengths and indexes from input before use.
+  options:
+    constant_propagation: false
+  patterns:
+  - pattern: $BUF[$IDX] = $VAL;
+  - pattern-either:
+    - pattern-inside: |-
+        $RET $F(...) {
+          ...
+          $T $BUF[$N];
+          ...
+        }
+    - pattern-inside: |-
+        $RET $F(...) {
+          ...
+          $T $BUF[$N] = $INIT;
+          ...
+        }
+  - pattern-not-inside: if (<... $IDX < $MAX ...>) { ... }
+  - pattern-not-inside: if (<... $IDX <= $MAX ...>) { ... }
+  - pattern-not-inside: if (<... $MAX > $IDX ...>) { ... }
+  - pattern-not-inside: if (<... $MAX >= $IDX ...>) { ... }
+  - pattern-either:
+    - patterns:
+      - pattern-inside: |-
+          $RET $F(...) {
+            ...
+            $V = $K;
+            ...
+          }
+      - metavariable-regex:
+          metavariable: $K
+          regex: ^\d+$
+    - patterns:
+      - patterns:
+        - pattern-inside: |-
+            $CR1 $SINK($PT $V) {
+              ...
+            }
+            ...
+            $CR2 $CALLER(...) {
+              ...
+              $A = $K;
+              ...
+              $SINK($A);
+              ...
+            }
+        - metavariable-regex:
+            metavariable: $K
+            regex: ^\d+$
+      - pattern-inside: |-
+          $CR1 $SINK($PT $V) {
+            ...
+          }
+    - patterns:
+      - patterns:
+        - pattern-inside: |-
+            $CR1 $SINK($PT $V) {
+              ...
+            }
+            ...
+            $CR2 $CALLER(...) {
+              ...
+              $FT (*$FPTR)(...) = $SINK;
+              ...
+              $A = $K;
+              ...
+              $FPTR($A);
+              ...
+            }
+        - metavariable-regex:
+            metavariable: $K
+            regex: ^\d+$
+      - pattern-inside: |-
+          $CR1 $SINK($PT $V) {
+            ...
+          }
+    - patterns:
+      - patterns:
+        - pattern-inside: |-
+            $CR1 $SINK() {
+              ...
+              $PT $V = $GV;
+              ...
+            }
+            ...
+            $CR2 $CALLER(...) {
+              ...
+              $A = $K;
+              ...
+              $GV = $A;
+              ...
+              $SINK();
+              ...
+            }
+        - metavariable-regex:
+            metavariable: $K
+            regex: ^\d+$
+      - pattern-inside: |-
+          $CR1 $SINK() {
+            ...
+          }
+    - patterns:
+      - patterns:
+        - pattern-inside: |-
+            $CR1 $SRCF(...) {
+              ...
+              $X = $K;
+              ...
+              return $X;
+              ...
+            }
+            ...
+            $CR2 $USEF(...) {
+              ...
+              $V = $SRCF(...);
+              ...
+            }
+        - metavariable-regex:
+            metavariable: $K
+            regex: ^\d+$
+      - pattern-inside: |-
+          $CR2 $USEF(...) {
+            ...
+          }
+    - patterns:
+      - patterns:
+        - pattern-inside: |-
+            $CR1 $SRCF($PT &$X) {
+              ...
+              $X = $K;
+              ...
+            }
+            ...
+            $CR2 $USEF(...) {
+              ...
+              $SRCF($V);
+              ...
+            }
+        - metavariable-regex:
+            metavariable: $K
+            regex: ^\d+$
+      - pattern-inside: |-
+          $CR2 $USEF(...) {
+            ...
+          }
+    - patterns:
+      - patterns:
+        - pattern-inside: |-
+            $CR1 $SETF(...) {
+              ...
+              $V = $K;
+              ...
+            }
+            ...
+            $CR2 $USEF(...) {
+              ...
+            }
+        - metavariable-regex:
+            metavariable: $K
+            regex: ^\d+$
+      - pattern-inside: |-
+          $CR2 $USEF(...) {
+            ...
+          }
+      - pattern-not-inside: |-
+          $CX $USEF(...) {
+            ...
+            $TT $V;
+            ...
+          }
+      - pattern-not-inside: |-
+          $CX $SETF(...) {
+            ...
+            $TT $V;
+            ...
+          }
+          ...
+          $CY $USEF(...) {
+            ...
+          }
+      - pattern-not-inside: |-
+          $CX $USEF(...) {
+            ...
+            $TT $V = $IV;
+            ...
+          }
+      - pattern-not-inside: |-
+          $CX $SETF(...) {
+            ...
+            $TT $V = $IV;
+            ...
+          }
+          ...
+          $CY $USEF(...) {
+            ...
+          }
+      - pattern-not-inside: |-
+          $CX $USEF(..., $TT $V, ...) {
+            ...
+          }
+      - pattern-not-inside: |-
+          $CX $SETF(..., $TT $V, ...) {
+            ...
+          }
+          ...
+          $CY $USEF(...) {
+            ...
+          }
+  - metavariable-comparison:
+      comparison: str($V) == str($IDX) and $K >= $N

@@ -1,0 +1,65 @@
+rules:
+- id: cwe121-constant-index-value-past-end-of-stack-array
+  languages:
+  - c
+  - cpp
+  paths:
+    include:
+    - '*.c'
+    - '*.h'
+    - '*.cpp'
+    - '*.cc'
+    - '*.cxx'
+    - '*.c++'
+    - '*.hpp'
+    - '*.hh'
+    - '*.hxx'
+    - '*.inc'
+  severity: ERROR
+  message: The index written into the stack array '$BUF' evaluates to a constant that is not smaller than
+    the array size, and no upper-bound check guards the write.
+  metadata:
+    vulnerability_class: Stack-based Buffer Overflow
+    help: |
+      ## Summary
+      The index written into the stack array '`$BUF`' evaluates to a constant that is not smaller than the array size, and no upper-bound check guards the write.
+
+      ## Remediation
+      Bound every copy and index by the destination's size (sizeof the array), use size-checked APIs such as snprintf, and validate lengths and indexes from input before use.
+    category: security
+    cwe:
+    - 'CWE-121: Stack-based Buffer Overflow'
+    references:
+    - https://cwe.mitre.org/data/definitions/121.html
+    confidence: MEDIUM
+    likelihood: MEDIUM
+    impact: HIGH
+    subcategory:
+    - vuln
+    technology:
+    - c
+    - cpp
+    source: Validated against NIST Juliet C/C++ Test Suite v1.3
+    remediation: Bound every copy and index by the destination's size (sizeof the array), use size-checked
+      APIs such as snprintf, and validate lengths and indexes from input before use.
+  patterns:
+  - pattern: $BUF[$IDX] = $VAL;
+  - pattern-either:
+    - pattern-inside: |-
+        $RET $F(...) {
+          ...
+          $T $BUF[$N];
+          ...
+        }
+    - pattern-inside: |-
+        $RET $F(...) {
+          ...
+          $T $BUF[$N] = $INIT;
+          ...
+        }
+  - pattern-not-inside: if (<... $IDX < $MAX ...>) { ... }
+  - pattern-not-inside: if (<... $IDX <= $MAX ...>) { ... }
+  - pattern-not-inside: if (<... $MAX > $IDX ...>) { ... }
+  - pattern-not-inside: if (<... $MAX >= $IDX ...>) { ... }
+  - metavariable-comparison:
+      comparison: $IDX >= $N

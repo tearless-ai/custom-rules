@@ -1,0 +1,88 @@
+rules:
+- id: cwe590-free-of-non-heap-memory
+  languages:
+  - c
+  - cpp
+  paths:
+    include:
+    - '*.c'
+    - '*.h'
+    - '*.cpp'
+    - '*.cc'
+    - '*.cxx'
+    - '*.c++'
+    - '*.hpp'
+    - '*.hh'
+    - '*.hxx'
+    - '*.inc'
+  severity: ERROR
+  message: A pointer to stack, static or alloca() memory is released with free(); only memory obtained
+    from the matching heap allocator may be released.
+  metadata:
+    vulnerability_class: Free of Memory not on the Heap
+    help: |
+      ## Summary
+      A pointer to stack, static or alloca() memory is released with free(); only memory obtained from the matching heap allocator may be released.
+
+      ## Remediation
+      Only free memory that was allocated on the heap; never free stack arrays, static data or string literals.
+    category: security
+    cwe:
+    - 'CWE-590: Free of Memory not on the Heap'
+    references:
+    - https://cwe.mitre.org/data/definitions/590.html
+    confidence: HIGH
+    likelihood: MEDIUM
+    impact: HIGH
+    subcategory:
+    - vuln
+    technology:
+    - c
+    - cpp
+    source: Validated against NIST Juliet C/C++ Test Suite v1.3
+    remediation: Only free memory that was allocated on the heap; never free stack arrays, static data
+      or string literals.
+  mode: taint
+  pattern-sources:
+  - patterns:
+    - pattern: $AF(...)
+    - metavariable-regex:
+        metavariable: $AF
+        regex: ^(alloca|_alloca|ALLOCA|__builtin_alloca)$
+  - patterns:
+    - pattern-either:
+      - pattern-inside: |
+          $TD $DB = $SRC;
+          ...
+      - pattern-inside: |
+          $DB = $SRC;
+          ...
+    - pattern: $DB
+    - metavariable-pattern:
+        metavariable: $SRC
+        pattern-either:
+        - patterns:
+          - pattern-either:
+            - pattern: $AF(...)
+            - pattern: ($ACT) $AF(...)
+          - metavariable-regex:
+              metavariable: $AF
+              regex: ^(alloca|_alloca|ALLOCA|__builtin_alloca)$
+  - patterns:
+    - pattern-inside: |
+        $TB $B[$N];
+        ...
+    - pattern: $B
+  - patterns:
+    - pattern-inside: |
+        $TB $B;
+        ...
+    - metavariable-regex:
+        metavariable: $TB
+        regex: ^[^*&]*$
+    - pattern: '&$B'
+  pattern-sinks:
+  - patterns:
+    - pattern-either:
+      - pattern: free($X);
+    - focus-metavariable: $X

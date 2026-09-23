@@ -1,0 +1,91 @@
+rules:
+- id: cwe78-os-command-via-constructor
+  languages:
+  - cpp
+  paths:
+    include:
+    - '*.c'
+    - '*.h'
+    - '*.cpp'
+    - '*.cc'
+    - '*.cxx'
+    - '*.c++'
+    - '*.hpp'
+    - '*.hh'
+    - '*.hxx'
+    - '*.inc'
+  severity: ERROR
+  message: OS command execution (system/popen/exec*/spawn*) in a destructor, using member data that the
+    class constructor read from untrusted input (console, file, socket or environment).
+  metadata:
+    vulnerability_class: Improper Neutralization of Special Elements used in an OS Command ('OS Command
+      Injection')
+    help: |
+      ## Summary
+      OS command execution (system/popen/exec*/spawn*) in a destructor, using member data that the class constructor read from untrusted input (console, file, socket or environment).
+
+      ## Remediation
+      Avoid invoking a shell; use execve/posix_spawn/CreateProcess with a fixed program and an explicit argument vector, and allow-list any external input.
+    category: security
+    cwe:
+    - 'CWE-78: Improper Neutralization of Special Elements used in an OS Command (''OS Command Injection'')'
+    references:
+    - https://cwe.mitre.org/data/definitions/78.html
+    confidence: MEDIUM
+    likelihood: MEDIUM
+    impact: HIGH
+    subcategory:
+    - vuln
+    technology:
+    - c
+    - cpp
+    source: Validated against NIST Juliet C/C++ Test Suite v1.3
+    remediation: Avoid invoking a shell; use execve/posix_spawn/CreateProcess with a fixed program and
+      an explicit argument vector, and allow-list any external input.
+  patterns:
+  - pattern-either:
+    - patterns:
+      - pattern: $EXECFN($CMD)
+      - metavariable-regex:
+          metavariable: $EXECFN
+          regex: ^(SYSTEM|system|_wsystem)$
+      - metavariable-regex:
+          metavariable: $CMD
+          regex: ^(?!\s*(L|u8|u|U)?\")(?!\s*[A-Z][A-Z0-9_]*\s*$)
+    - patterns:
+      - pattern: $EXECFN($CMD, $MODE)
+      - metavariable-regex:
+          metavariable: $EXECFN
+          regex: ^(POPEN|popen|_popen|_wpopen)$
+      - metavariable-regex:
+          metavariable: $CMD
+          regex: ^(?!\s*(L|u8|u|U)?\")(?!\s*[A-Z][A-Z0-9_]*\s*$)
+    - patterns:
+      - pattern: $EXECFN($PATH, ...)
+      - metavariable-regex:
+          metavariable: $EXECFN
+          regex: ^(EXECL|EXECLP|EXECV|EXECVP|execl|execlp|execle|execv|execvp|execve|execvpe|_execl|_execlp|_execv|_execvp|_wexecl|_wexeclp|_wexecv|_wexecvp)$
+    - patterns:
+      - pattern: $EXECFN($MODE, $PATH, ...)
+      - metavariable-regex:
+          metavariable: $EXECFN
+          regex: ^(_spawnl|_spawnlp|_spawnv|_spawnvp|_wspawnl|_wspawnlp|_wspawnv|_wspawnvp|spawnl|spawnlp|spawnv|spawnvp)$
+  - pattern-inside: |
+      $T_D $DTOR(...) { ... }
+  - metavariable-regex:
+      metavariable: $DTOR
+      regex: ^(?:\w+::)*(\w+)::~\1$
+  - pattern-inside: |
+      $T_CTOR $CTOR(...) {
+        ...
+        <... $SRC(...) ...>;
+        ...
+      }
+      ...
+  - metavariable-regex:
+      metavariable: $CTOR
+      regex: ^(?:\w+::)*(\w+)::\1$
+  - metavariable-regex:
+      metavariable: $SRC
+      regex: ^(?:std::)?(fgets|fgetws|gets|_getws|getline|getdelim|scanf|wscanf|fscanf|fwscanf|read|_read|recv|recvfrom|recvmsg|WSARecv|WSARecvFrom|getenv|_wgetenv|secure_getenv|GETENV|ReadFile|ReadConsoleA|ReadConsoleW|InternetReadFile)$
+  - focus-metavariable: $EXECFN

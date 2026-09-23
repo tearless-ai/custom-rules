@@ -1,0 +1,49 @@
+rules:
+- id: cwe562-return-pointer-from-local-object
+  languages:
+  - cpp
+  paths:
+    include:
+    - '*.c'
+    - '*.h'
+    - '*.cpp'
+    - '*.cc'
+    - '*.cxx'
+    - '*.c++'
+    - '*.hpp'
+    - '*.hh'
+    - '*.hxx'
+    - '*.inc'
+  severity: ERROR
+  message: The function returns a pointer obtained from a member function of a local (stack) object, which
+    dangles once the object is destroyed at the end of the function.
+  metadata:
+    vulnerability_class: Return of Stack Variable Address
+    help: |
+      ## Summary
+      The function returns a pointer obtained from a member function of a local (stack) object, which dangles once the object is destroyed at the end of the function.
+
+      ## Remediation
+      Never return the address of a local (stack) variable; return a value, a heap allocation or use a caller-supplied buffer.
+    category: security
+    cwe:
+    - 'CWE-562: Return of Stack Variable Address'
+    references:
+    - https://cwe.mitre.org/data/definitions/562.html
+    confidence: MEDIUM
+    likelihood: MEDIUM
+    impact: HIGH
+    subcategory:
+    - vuln
+    technology:
+    - c
+    - cpp
+    source: Validated against NIST Juliet C/C++ Test Suite v1.3
+    remediation: Never return the address of a local (stack) variable; return a value, a heap allocation
+      or use a caller-supplied buffer.
+  patterns:
+  - pattern-inside: |
+      $R * $F(...) { ... $C $O; ... }
+  - pattern-not-inside: |
+      $R * $F(...) { ... static $C $O; ... }
+  - pattern: return $O.$M(...);

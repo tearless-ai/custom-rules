@@ -1,0 +1,93 @@
+rules:
+- id: cwe761-free-after-pointer-advanced-in-loop
+  languages:
+  - c
+  - cpp
+  paths:
+    include:
+    - '*.c'
+    - '*.h'
+    - '*.cpp'
+    - '*.cc'
+    - '*.cxx'
+    - '*.c++'
+    - '*.hpp'
+    - '*.hh'
+    - '*.hxx'
+    - '*.inc'
+  severity: ERROR
+  message: Pointer $P is advanced by this loop and later passed to free() without being reset, so free()
+    does not receive the start of the allocated block.
+  metadata:
+    vulnerability_class: Free of Pointer not at Start of Buffer
+    help: |
+      ## Summary
+      Pointer `$P` is advanced by this loop and later passed to free() without being reset, so free() does not receive the start of the allocated block.
+
+      ## Remediation
+      Free only the original pointer returned by the allocator; keep a separate pointer for iteration.
+    category: security
+    cwe:
+    - 'CWE-761: Free of Pointer not at Start of Buffer'
+    references:
+    - https://cwe.mitre.org/data/definitions/761.html
+    confidence: HIGH
+    likelihood: MEDIUM
+    impact: HIGH
+    subcategory:
+    - vuln
+    technology:
+    - c
+    - cpp
+    source: Validated against NIST Juliet C/C++ Test Suite v1.3
+    remediation: Free only the original pointer returned by the allocator; keep a separate pointer for
+      iteration.
+  patterns:
+  - pattern-either:
+    - pattern-inside: |
+        for ($I; $C; $INC) $BODY;
+        ...
+        free($P);
+    - pattern-inside: |
+        for (; $C; $INC) $BODY;
+        ...
+        free($P);
+    - pattern-inside: |
+        while ($C) { ... $INC; ... }
+        ...
+        free($P);
+    - pattern-inside: |
+        $LABEL:
+        for (; $C; $INC) $BODY;
+        ...
+        free($P);
+  - pattern-not-inside: |
+      for ($I; $C; $INC) $BODY;
+      ...
+      $P = $RESET;
+      ...
+      free($P);
+  - pattern-not-inside: |
+      for (; $C; $INC) $BODY;
+      ...
+      $P = $RESET;
+      ...
+      free($P);
+  - pattern-not-inside: |
+      while ($C) { ... $INC; ... }
+      ...
+      $P = $RESET;
+      ...
+      free($P);
+  - metavariable-pattern:
+      metavariable: $INC
+      pattern-either:
+      - pattern: $P++
+      - pattern: ++$P
+      - pattern: $P--
+      - pattern: --$P
+      - pattern: $P += $N
+      - pattern: $P -= $N
+      - pattern: $P = $P + $N
+      - pattern: $P = $P - $N
+  - pattern: $INC
