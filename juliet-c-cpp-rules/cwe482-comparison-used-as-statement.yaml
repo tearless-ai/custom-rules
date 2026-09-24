@@ -16,12 +16,12 @@ rules:
     - '*.hxx'
     - '*.inc'
   severity: ERROR
-  message: This statement compares $E with '==' and discards the result; an assignment with '=' was probably intended.
+  message: This statement compares with '==' and discards the result; an assignment with '=' was probably intended.
   metadata:
     vulnerability_class: Comparing instead of Assigning
     help: |
       ## Summary
-      This statement compares `$E` with '==' and discards the result; an assignment with '=' was probably intended.
+      This statement compares with '==' and discards the result; an assignment with '=' was probably intended.
 
       ## Remediation
       Use = for assignment; a standalone comparison statement has no effect.
@@ -40,6 +40,7 @@ rules:
     - cpp
     source: Validated against NIST Juliet C/C++ Test Suite v1.3
     remediation: Use = for assignment; a standalone comparison statement has no effect.
+    policy_name: Comparison Instead of Assignment
   patterns:
   - pattern: |
       $E;

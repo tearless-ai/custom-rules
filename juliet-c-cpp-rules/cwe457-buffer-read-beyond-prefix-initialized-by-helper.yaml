@@ -39,6 +39,7 @@ rules:
     - cpp
     source: Validated against NIST Juliet C/C++ Test Suite v1.3
     remediation: Initialize every variable before it is read.
+    policy_name: 'Uninitialized Memory Read: Helper Initializes Only a Prefix'
   patterns:
   - pattern-either:
     - pattern-inside: |

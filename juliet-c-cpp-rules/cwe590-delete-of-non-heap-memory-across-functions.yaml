@@ -15,12 +15,12 @@ rules:
     - '*.hxx'
     - '*.inc'
   severity: ERROR
-  message: A pointer to stack, static or alloca() memory is released with delete/delete[]; only memory obtained from the matching heap allocator may be released. The non-heap memory is created in a different function of the same file.
+  message: A pointer to stack, static, alloca() or placement-new memory created in another function of this file is released with delete or delete[].
   metadata:
     vulnerability_class: Free of Memory not on the Heap
     help: |
       ## Summary
-      A pointer to stack, static or alloca() memory is released with delete/delete[]; only memory obtained from the matching heap allocator may be released. The non-heap memory is created in a different function of the same file.
+      A pointer to stack, static, alloca() or placement-new memory created in another function of this file is released with delete or delete[].
 
       ## Remediation
       Only free memory that was allocated on the heap; never free stack arrays, static data or string literals.
@@ -39,6 +39,7 @@ rules:
     - cpp
     source: Validated against NIST Juliet C/C++ Test Suite v1.3
     remediation: Only free memory that was allocated on the heap; never free stack arrays, static data or string literals.
+    policy_name: 'Free of Non-Heap Memory: delete on Stack or Static Memory (Helper)'
   pattern-either:
   - patterns:
     - pattern-inside: |

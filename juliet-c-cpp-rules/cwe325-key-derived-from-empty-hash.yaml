@@ -16,12 +16,12 @@ rules:
     - '*.hxx'
     - '*.inc'
   severity: WARNING
-  message: CryptDeriveKey() derives a key from the hash $H without any data having been hashed into it (missing CryptHashData()).
+  message: CryptDeriveKey() derives a key from a hash object into which no data was ever hashed (missing CryptHashData()).
   metadata:
     vulnerability_class: Missing Cryptographic Step
     help: |
       ## Summary
-      CryptDeriveKey() derives a key from the hash `$H` without any data having been hashed into it (missing CryptHashData()).
+      CryptDeriveKey() derives a key from a hash object into which no data was ever hashed (missing CryptHashData()).
 
       ## Remediation
       Perform every required cryptographic step (e.g. hash the key material, call CryptEncrypt/CryptHashData) before using the result.
@@ -40,6 +40,7 @@ rules:
     - cpp
     source: Validated against NIST Juliet C/C++ Test Suite v1.3
     remediation: Perform every required cryptographic step (e.g. hash the key material, call CryptEncrypt/CryptHashData) before using the result.
+    policy_name: 'Missing Cryptographic Step: Key Derived from Empty Hash'
   patterns:
   - pattern: CryptDeriveKey($P, $ALG, $H, ...)
   - pattern-either:

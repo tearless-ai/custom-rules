@@ -39,4 +39,5 @@ rules:
     - cpp
     source: Validated against NIST Juliet C/C++ Test Suite v1.3
     remediation: Implement overridden or interface methods so they honor the documented contract of the base definition.
+    policy_name: 'Expected Behavior Violation: Throw in No-Throw Function'
   pattern-regex: \)\s*(?:const\s*)?(?:throw\s*\(\s*\)|noexcept(?:\s*\(\s*true\s*\))?)\s*(?:/\*(?:[^*]|\*(?!/))*\*/\s*|//[^\n]*\n\s*)*\{(?:(?!\btry\b)[^{}])*\bthrow\b

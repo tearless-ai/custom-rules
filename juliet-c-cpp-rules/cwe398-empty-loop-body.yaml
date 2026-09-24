@@ -16,12 +16,12 @@ rules:
     - '*.hxx'
     - '*.inc'
   severity: WARNING
-  message: This loop has an empty body.
+  message: This loop has an empty body, so it only burns cycles or hides a misplaced statement.
   metadata:
     vulnerability_class: 7PK - Code Quality
     help: |
       ## Summary
-      This loop has an empty body.
+      This loop has an empty body, so it only burns cycles or hides a misplaced statement.
 
       ## Remediation
       Remove empty blocks and statements with no effect, or implement the intended logic.
@@ -40,6 +40,7 @@ rules:
     - cpp
     source: Validated against NIST Juliet C/C++ Test Suite v1.3
     remediation: Remove empty blocks and statements with no effect, or implement the intended logic.
+    policy_name: 'Poor Code Quality: Empty Loop Body'
   pattern-either:
   - pattern: for ($I; $C; $N) {}
   - pattern: while ($C) {}

@@ -39,4 +39,5 @@ rules:
     - cpp
     source: Validated against NIST Juliet C/C++ Test Suite v1.3
     remediation: 'Avoid undefined behavior: do not read uninitialized memory, and always return a value from non-void functions.'
+    policy_name: 'Undefined Behavior: Implicit Int Function Definition'
   pattern-regex: (?m)^(?:static|extern|inline)\s+(?!(?:void|int|char|short|long|float|double|signed|unsigned|const|struct|union|enum|inline|static|extern)\b)[A-Za-z_]\w*\s*\([^;{)]*\)\s*\{[^{}]*\}

@@ -16,12 +16,12 @@ rules:
     - '*.hxx'
     - '*.inc'
   severity: ERROR
-  message: printf-family call with a non-literal format string in a function reached through a forwarding wrapper from a caller which reads untrusted input (console, file, socket or environment).
+  message: A printf-family function is called with a format string that is a variable rather than a literal inside a function reached through a forwarding wrapper from a caller that reads untrusted input from the console, a file, a socket or the environment, so that input can supply format specifiers that read or write memory.
   metadata:
     vulnerability_class: Use of Externally-Controlled Format String
     help: |
       ## Summary
-      printf-family call with a non-literal format string in a function reached through a forwarding wrapper from a caller which reads untrusted input (console, file, socket or environment).
+      A printf-family function is called with a format string that is a variable rather than a literal inside a function reached through a forwarding wrapper from a caller that reads untrusted input from the console, a file, a socket or the environment, so that input can supply format specifiers that read or write memory.
 
       ## Remediation
       Always pass a string literal as the format argument, e.g. printf("%s", data) instead of printf(data).
@@ -40,6 +40,7 @@ rules:
     - cpp
     source: Validated against NIST Juliet C/C++ Test Suite v1.3
     remediation: Always pass a string literal as the format argument, e.g. printf("%s", data) instead of printf(data).
+    policy_name: Uncontrolled Format String (Through Wrapper)
   patterns:
   - pattern-either:
     - patterns:

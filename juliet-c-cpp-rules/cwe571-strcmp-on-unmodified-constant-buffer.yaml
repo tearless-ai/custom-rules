@@ -16,12 +16,12 @@ rules:
     - '*.hxx'
     - '*.inc'
   severity: WARNING
-  message: $S is initialized from a constant string and never modified, so comparing it with $B is always true.
+  message: A character buffer initialized from a string literal and never modified is compared with another literal, so the result is always true.
   metadata:
     vulnerability_class: Expression is Always True
     help: |
       ## Summary
-      `$S` is initialized from a constant string and never modified, so comparing it with `$B` is always true.
+      A character buffer initialized from a string literal and never modified is compared with another literal, so the result is always true.
 
       ## Remediation
       Fix conditions that are always true; they indicate a logic error or a missing check.
@@ -40,6 +40,7 @@ rules:
     - cpp
     source: Validated against NIST Juliet C/C++ Test Suite v1.3
     remediation: Fix conditions that are always true; they indicate a logic error or a missing check.
+    policy_name: 'Expression Always True: Comparison of Unmodified Constant String'
   patterns:
   - pattern-either:
     - pattern-inside: |

@@ -15,12 +15,12 @@ rules:
     - '*.hxx'
     - '*.inc'
   severity: ERROR
-  message: Pointer $Y is used after a helper function in this file released the memory it points to.
+  message: A pointer is used after a helper function in this file released the memory it points to through a reference parameter.
   metadata:
     vulnerability_class: Use After Free
     help: |
       ## Summary
-      Pointer `$Y` is used after a helper function in this file released the memory it points to.
+      A pointer is used after a helper function in this file released the memory it points to through a reference parameter.
 
       ## Remediation
       Do not use memory after it has been freed; set pointers to NULL after free and restructure ownership so no stale references remain.
@@ -39,6 +39,7 @@ rules:
     - cpp
     source: Validated against NIST Juliet C/C++ Test Suite v1.3
     remediation: Do not use memory after it has been freed; set pointers to NULL after free and restructure ownership so no stale references remain.
+    policy_name: 'Use After Free: Pointer Used After Helper Released It'
   pattern-either:
   - patterns:
     - pattern-inside: |
@@ -54,9 +55,7 @@ rules:
     - focus-metavariable: $Y
     - metavariable-regex:
         metavariable: $UF
-        regex: ^(?!(free|_aligned_free|g_free)$)
-    - metavariable-comparison:
-        comparison: str($UF) != str($S)
+        regex: ^(str|wcs|mem|print|puts|fputs|putws|fputws|fwrite|fread|fgets|fgetws|scanf|sscanf|fscanf|swscanf|atoi|atol|atof|sprintf|snprintf|swprintf|fprintf|vsprintf|vfprintf)\w*$
   - patterns:
     - pattern-inside: |
         $R1 $S($PT & $D) { ... free($D); ... }
@@ -107,9 +106,7 @@ rules:
     - focus-metavariable: $Y
     - metavariable-regex:
         metavariable: $UF
-        regex: ^(?!(free|_aligned_free|g_free)$)
-    - metavariable-comparison:
-        comparison: str($UF) != str($S)
+        regex: ^(str|wcs|mem|print|puts|fputs|putws|fputws|fwrite|fread|fgets|fgetws|scanf|sscanf|fscanf|swscanf|atoi|atol|atof|sprintf|snprintf|swprintf|fprintf|vsprintf|vfprintf)\w*$
   - patterns:
     - pattern-inside: |
         $R1 $S($PT & $D) { ... delete $D; ... }
@@ -160,9 +157,7 @@ rules:
     - focus-metavariable: $Y
     - metavariable-regex:
         metavariable: $UF
-        regex: ^(?!(free|_aligned_free|g_free)$)
-    - metavariable-comparison:
-        comparison: str($UF) != str($S)
+        regex: ^(str|wcs|mem|print|puts|fputs|putws|fputws|fwrite|fread|fgets|fgetws|scanf|sscanf|fscanf|swscanf|atoi|atol|atof|sprintf|snprintf|swprintf|fprintf|vsprintf|vfprintf)\w*$
   - patterns:
     - pattern-inside: |
         $R1 $S($PT & $D) { ... delete [] $D; ... }

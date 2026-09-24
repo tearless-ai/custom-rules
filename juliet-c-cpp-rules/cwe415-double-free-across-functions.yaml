@@ -15,12 +15,12 @@ rules:
     - '*.hxx'
     - '*.inc'
   severity: ERROR
-  message: Memory already released in another function of this file is released again here.
+  message: Memory that was already released by another function of this file is released again here.
   metadata:
     vulnerability_class: Double Free
     help: |
       ## Summary
-      Memory already released in another function of this file is released again here.
+      Memory that was already released by another function of this file is released again here.
 
       ## Remediation
       Free each allocation exactly once and set the pointer to NULL after freeing it.
@@ -39,6 +39,7 @@ rules:
     - cpp
     source: Validated against NIST Juliet C/C++ Test Suite v1.3
     remediation: Free each allocation exactly once and set the pointer to NULL after freeing it.
+    policy_name: 'Double Free: Pointer Released Twice (Helper)'
   pattern-either:
   - patterns:
     - pattern-inside: |

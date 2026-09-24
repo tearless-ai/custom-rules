@@ -1,5 +1,5 @@
 rules:
-- id: cwe571-condition-on-constant-function
+- id: cwe571-self-comparison-with-offset
   languages:
   - c
   - cpp
@@ -16,12 +16,12 @@ rules:
     - '*.hxx'
     - '*.inc'
   severity: WARNING
-  message: $F always returns $K, so this condition is always true.
+  message: A variable is compared for equality with itself plus or minus a non-zero constant, which is always true.
   metadata:
     vulnerability_class: Expression is Always True
     help: |
       ## Summary
-      `$F` always returns `$K`, so this condition is always true.
+      A variable is compared for equality with itself plus or minus a non-zero constant, which is always true.
 
       ## Remediation
       Fix conditions that are always true; they indicate a logic error or a missing check.
@@ -40,18 +40,13 @@ rules:
     - cpp
     source: Validated against NIST Juliet C/C++ Test Suite v1.3
     remediation: Fix conditions that are always true; they indicate a logic error or a missing check.
+    policy_name: 'Expression Always True: Variable Compared With Itself Offset'
   patterns:
   - pattern-either:
-    - pattern-inside: |
-        static $T $F() { return $K; }
-        ...
-    - pattern-inside: |
-        static $T $F(void) { return $K; }
-        ...
+    - pattern: $X != $X + $K
+    - pattern: $X != ($X + $K)
+    - pattern: $X != $X - $K
+    - pattern: $X != ($X - $K)
   - metavariable-regex:
       metavariable: $K
-      regex: ^-?[0-9]+$
-  - pattern: if ($F()) $S;
-  - metavariable-comparison:
-      comparison: $K != 0
-  - focus-metavariable: $F
+      regex: ^[1-9][0-9]*[uUlL]*$

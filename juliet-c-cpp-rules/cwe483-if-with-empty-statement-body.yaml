@@ -40,4 +40,5 @@ rules:
     - cpp
     source: Validated against NIST Juliet C/C++ Test Suite v1.3
     remediation: Always use braces for multi-statement if/else/loop bodies.
-  pattern-regex: (?m)^[ \t]*(?:else[ \t]+)?(?:if|while|for)[ \t]*\((?:[^()\n]|\((?:[^()\n]|\([^()\n]*\))*\))*\)[ \t]*;
+    policy_name: 'Incorrect Block Delimitation: Semicolon After If'
+  pattern-regex: (?m)^[ \t]*(?:else[ \t]+)?if[ \t]*\((?:[^()\n]|\((?:[^()\n]|\([^()\n]*\))*\))*\)[ \t]*;

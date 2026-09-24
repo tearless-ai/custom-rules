@@ -1,0 +1,37 @@
+rules:
+- id: cwe510-connect-to-hardcoded-address-macro
+  languages:
+  - regex
+  paths:
+    include:
+    - '*.c'
+    - '*.cpp'
+    - '*.cc'
+    - '*.cxx'
+  severity: INFO
+  message: The program connects to a hard-coded, non-local IP address defined as a preprocessor constant, which may be a covert channel or trapdoor.
+  metadata:
+    vulnerability_class: Trapdoor
+    help: |
+      ## Summary
+      The program connects to a hard-coded, non-local IP address defined as a preprocessor constant, which may be a covert channel or trapdoor.
+
+      ## Remediation
+      Remove hard-coded backdoor credentials and hidden network listeners; authenticate every user through the normal path.
+    category: security
+    cwe:
+    - 'CWE-510: Trapdoor'
+    references:
+    - https://cwe.mitre.org/data/definitions/510.html
+    confidence: LOW
+    likelihood: MEDIUM
+    impact: LOW
+    subcategory:
+    - vuln
+    technology:
+    - c
+    - cpp
+    source: Validated against NIST Juliet C/C++ Test Suite v1.3
+    remediation: Remove hard-coded backdoor credentials and hidden network listeners; authenticate every user through the normal path.
+    policy_name: 'Trapdoor: Connection to Hard-coded Address (Macro)'
+  pattern-regex: (?s)#define[ \t]+(\w+)[ \t]+L?"(?!127\.|0\.0\.0\.0|10\.|192\.168\.|172\.(?:1[6-9]|2\d|3[01])\.)\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}".*?\binet_addr\(\s*\1\s*\).*?\K\bconnect\s*\([^\n]*

@@ -16,12 +16,12 @@ rules:
     - '*.hxx'
     - '*.inc'
   severity: ERROR
-  message: The heap buffer '$DST' was sized in bytes without multiplying by the element size, but this copy writes whole elements; the allocation is too small.
+  message: A heap buffer is allocated with a byte count that was not multiplied by the element size, so copying whole elements into it overflows the allocation.
   metadata:
     vulnerability_class: Heap-based Buffer Overflow
     help: |
       ## Summary
-      The heap buffer '`$DST`' was sized in bytes without multiplying by the element size, but this copy writes whole elements; the allocation is too small.
+      A heap buffer is allocated with a byte count that was not multiplied by the element size, so copying whole elements into it overflows the allocation.
 
       ## Remediation
       Allocate enough room for the data including the terminator, bound every copy and index by the allocation size, and validate lengths and indexes from input before use.
@@ -40,6 +40,7 @@ rules:
     - cpp
     source: Validated against NIST Juliet C/C++ Test Suite v1.3
     remediation: Allocate enough room for the data including the terminator, bound every copy and index by the allocation size, and validate lengths and indexes from input before use.
+    policy_name: 'Heap Buffer Overflow: Allocation Missing Element Size'
   patterns:
   - pattern-either:
     - pattern-either:

@@ -16,12 +16,12 @@ rules:
     - '*.hxx'
     - '*.inc'
   severity: ERROR
-  message: If realloc() fails it returns NULL and the original block pointed to by $X is leaked; assign the result to a temporary first.
+  message: The result of realloc() overwrites the only pointer to the original block, which leaks if realloc() fails and returns NULL.
   metadata:
     vulnerability_class: Missing Release of Memory after Effective Lifetime
     help: |
       ## Summary
-      If realloc() fails it returns NULL and the original block pointed to by `$X` is leaked; assign the result to a temporary first.
+      The result of realloc() overwrites the only pointer to the original block, which leaks if realloc() fails and returns NULL.
 
       ## Remediation
       Free every allocation on every path once it is no longer needed, or use RAII (smart pointers, containers) in C++.
@@ -40,10 +40,23 @@ rules:
     - cpp
     source: Validated against NIST Juliet C/C++ Test Suite v1.3
     remediation: Free every allocation on every path once it is no longer needed, or use RAII (smart pointers, containers) in C++.
+    policy_name: 'Memory Leak: realloc() Result Overwrites Original Pointer'
   patterns:
   - pattern-either:
     - pattern: $X = realloc($X, $SZ);
     - pattern: $X = ($T) realloc($X, $SZ);
+  - pattern-not-inside: |
+      $X = realloc(...);
+      if ($X == NULL) { ... exit(...); }
+  - pattern-not-inside: |
+      $X = ($T) realloc(...);
+      if ($X == NULL) { ... exit(...); }
+  - pattern-not-inside: |
+      $X = realloc(...);
+      if ($X == NULL) exit(...);
+  - pattern-not-inside: |
+      $X = ($T) realloc(...);
+      if ($X == NULL) exit(...);
   - pattern-either:
     - pattern-inside: |
         $R $G(...) { ... $X = $ALLOC; ... }

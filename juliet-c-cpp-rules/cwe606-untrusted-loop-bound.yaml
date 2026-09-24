@@ -40,6 +40,7 @@ rules:
     - cpp
     source: Validated against NIST Juliet C/C++ Test Suite v1.3
     remediation: Validate loop bounds taken from external input against a maximum before looping.
+    policy_name: Unchecked Loop Condition from Untrusted Input
   mode: taint
   options:
     constant_propagation: false
@@ -575,6 +576,12 @@ rules:
       - pattern-inside: if (<... $ABS(<... $X ...>) < $LIM ...>) { ... }
       - pattern-inside: if (<... $ABS(<... $X ...>) <= $LIM ...>) { ... }
     - pattern: $X
+  - pattern-either:
+    - pattern: strlen(...)
+    - pattern: wcslen(...)
+    - pattern: strnlen(...)
+    - pattern: wcsnlen(...)
+    - pattern: sizeof($SZ)
   pattern-sinks:
   - patterns:
     - pattern-either:

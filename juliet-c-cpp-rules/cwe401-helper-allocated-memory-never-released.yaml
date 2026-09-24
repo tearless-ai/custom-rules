@@ -15,12 +15,12 @@ rules:
     - '*.hxx'
     - '*.inc'
   severity: ERROR
-  message: Heap memory obtained from a helper function is never released, returned or handed off in this function.
+  message: Heap memory returned by a helper function in this file is never released, returned or handed off by the caller.
   metadata:
     vulnerability_class: Missing Release of Memory after Effective Lifetime
     help: |
       ## Summary
-      Heap memory obtained from a helper function is never released, returned or handed off in this function.
+      Heap memory returned by a helper function in this file is never released, returned or handed off by the caller.
 
       ## Remediation
       Free every allocation on every path once it is no longer needed, or use RAII (smart pointers, containers) in C++.
@@ -39,6 +39,7 @@ rules:
     - cpp
     source: Validated against NIST Juliet C/C++ Test Suite v1.3
     remediation: Free every allocation on every path once it is no longer needed, or use RAII (smart pointers, containers) in C++.
+    policy_name: 'Memory Leak: Helper-Allocated Memory Never Released'
   options:
     constant_propagation: false
   patterns:
@@ -60,6 +61,10 @@ rules:
             - metavariable-regex:
                 metavariable: $AF
                 regex: ^(malloc|calloc|realloc|strdup|wcsdup|_strdup|_wcsdup|strndup|wcsndup)$
+      - pattern-not-inside: |
+          $R1 $S(...) { ... free($D); ... }
+          ...
+          $R $G(...) { ... }
       - pattern-not-inside: |
           $R $G(...) { ... free(...); ... }
       - pattern-not-inside: |
@@ -135,6 +140,10 @@ rules:
             - metavariable-regex:
                 metavariable: $AF
                 regex: ^(malloc|calloc|realloc|strdup|wcsdup|_strdup|_wcsdup|strndup|wcsndup)$
+      - pattern-not-inside: |
+          $R1 $S(...) { ... free($D); ... }
+          ...
+          $R $G(...) { ... }
       - pattern-not-inside: |
           $R $G(...) { ... free(...); ... }
       - pattern-not-inside: |

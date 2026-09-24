@@ -16,12 +16,12 @@ rules:
     - '*.hxx'
     - '*.inc'
   severity: ERROR
-  message: A pointer to stack, static or alloca() memory is released with free(); only memory obtained from the matching heap allocator may be released.
+  message: A pointer to stack, static or alloca() memory is passed to free(), which may only release heap memory.
   metadata:
     vulnerability_class: Free of Memory not on the Heap
     help: |
       ## Summary
-      A pointer to stack, static or alloca() memory is released with free(); only memory obtained from the matching heap allocator may be released.
+      A pointer to stack, static or alloca() memory is passed to free(), which may only release heap memory.
 
       ## Remediation
       Only free memory that was allocated on the heap; never free stack arrays, static data or string literals.
@@ -40,6 +40,7 @@ rules:
     - cpp
     source: Validated against NIST Juliet C/C++ Test Suite v1.3
     remediation: Only free memory that was allocated on the heap; never free stack arrays, static data or string literals.
+    policy_name: 'Free of Non-Heap Memory: free() on Stack or Static Memory'
   mode: taint
   pattern-sources:
   - patterns:
@@ -71,6 +72,8 @@ rules:
         $TB $B[$N];
         ...
     - pattern: $B
+    - pattern-not-inside: $B[$I]
+    - pattern-not-inside: sizeof($B)
   - patterns:
     - pattern-inside: |
         $TB $B;

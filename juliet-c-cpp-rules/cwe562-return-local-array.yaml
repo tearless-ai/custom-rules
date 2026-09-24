@@ -40,6 +40,7 @@ rules:
     - cpp
     source: Validated against NIST Juliet C/C++ Test Suite v1.3
     remediation: Never return the address of a local (stack) variable; return a value, a heap allocation or use a caller-supplied buffer.
+    policy_name: 'Return of Stack Address: Local Array'
   patterns:
   - pattern-either:
     - pattern-inside: |

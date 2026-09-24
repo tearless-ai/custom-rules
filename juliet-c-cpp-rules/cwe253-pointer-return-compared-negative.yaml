@@ -16,12 +16,12 @@ rules:
     - '*.hxx'
     - '*.inc'
   severity: WARNING
-  message: $F() returns a pointer (NULL on failure), so comparing its result against a negative bound never detects the error.
+  message: A pointer-returning function's result is compared against a negative bound, which can never detect its NULL failure value.
   metadata:
     vulnerability_class: Incorrect Check of Function Return Value
     help: |
       ## Summary
-      `$F()` returns a pointer (NULL on failure), so comparing its result against a negative bound never detects the error.
+      A pointer-returning function's result is compared against a negative bound, which can never detect its NULL failure value.
 
       ## Remediation
       Compare return values against the function's documented error value (e.g. EOF, NULL, INVALID_HANDLE_VALUE, -1) rather than an assumed one.
@@ -40,6 +40,7 @@ rules:
     - cpp
     source: Validated against NIST Juliet C/C++ Test Suite v1.3
     remediation: Compare return values against the function's documented error value (e.g. EOF, NULL, INVALID_HANDLE_VALUE, -1) rather than an assumed one.
+    policy_name: 'Incorrect Return Check: Pointer Result Compared to Negative'
   patterns:
   - pattern-either:
     - pattern: $F(...) < 0

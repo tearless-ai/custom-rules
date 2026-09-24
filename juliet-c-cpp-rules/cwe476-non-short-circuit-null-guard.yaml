@@ -40,6 +40,7 @@ rules:
     - cpp
     source: Validated against NIST Juliet C/C++ Test Suite v1.3
     remediation: Check pointers for NULL before dereferencing them.
+    policy_name: 'NULL Pointer Dereference: Non-Short-Circuit NULL Guard'
   pattern-either:
   - pattern: ($P != NULL) & <... $P->$F ...>
   - pattern: ($P != NULL) & <... *$P ...>

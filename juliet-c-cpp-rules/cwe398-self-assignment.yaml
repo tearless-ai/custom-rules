@@ -16,12 +16,12 @@ rules:
     - '*.hxx'
     - '*.inc'
   severity: WARNING
-  message: $X is assigned to itself, which has no effect.
+  message: A variable is assigned to itself, which has no effect and usually hides a typo.
   metadata:
     vulnerability_class: 7PK - Code Quality
     help: |
       ## Summary
-      `$X` is assigned to itself, which has no effect.
+      A variable is assigned to itself, which has no effect and usually hides a typo.
 
       ## Remediation
       Remove empty blocks and statements with no effect, or implement the intended logic.
@@ -40,4 +40,5 @@ rules:
     - cpp
     source: Validated against NIST Juliet C/C++ Test Suite v1.3
     remediation: Remove empty blocks and statements with no effect, or implement the intended logic.
+    policy_name: 'Poor Code Quality: Self Assignment'
   pattern: $X = $X;

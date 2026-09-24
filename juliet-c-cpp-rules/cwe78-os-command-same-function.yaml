@@ -16,12 +16,12 @@ rules:
     - '*.hxx'
     - '*.inc'
   severity: ERROR
-  message: OS command execution (system/popen/exec*/spawn*) in a function that also reads untrusted input (console, file, socket or environment).
+  message: An OS command is run with system, popen, an exec function or a spawn function in the same function that reads untrusted input from the console, a file, a socket or the environment, so that input can inject shell commands.
   metadata:
     vulnerability_class: Improper Neutralization of Special Elements used in an OS Command ('OS Command Injection')
     help: |
       ## Summary
-      OS command execution (system/popen/exec*/spawn*) in a function that also reads untrusted input (console, file, socket or environment).
+      An OS command is run with system, popen, an exec function or a spawn function in the same function that reads untrusted input from the console, a file, a socket or the environment, so that input can inject shell commands.
 
       ## Remediation
       Avoid invoking a shell; use execve/posix_spawn/CreateProcess with a fixed program and an explicit argument vector, and allow-list any external input.
@@ -40,6 +40,7 @@ rules:
     - cpp
     source: Validated against NIST Juliet C/C++ Test Suite v1.3
     remediation: Avoid invoking a shell; use execve/posix_spawn/CreateProcess with a fixed program and an explicit argument vector, and allow-list any external input.
+    policy_name: OS Command Injection from Untrusted Input (Same Function)
   patterns:
   - pattern-either:
     - patterns:

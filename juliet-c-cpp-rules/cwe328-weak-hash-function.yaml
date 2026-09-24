@@ -16,12 +16,12 @@ rules:
     - '*.hxx'
     - '*.inc'
   severity: WARNING
-  message: $F() computes a weak hash (MD2/MD4/MD5/SHA-1); use SHA-256 or stronger.
+  message: A weak hash function (MD2, MD4, MD5 or SHA-1) is called; use SHA-256 or stronger.
   metadata:
     vulnerability_class: Use of Weak Hash
     help: |
       ## Summary
-      `$F()` computes a weak hash (MD2/MD4/MD5/SHA-1); use SHA-256 or stronger.
+      A weak hash function (MD2, MD4, MD5 or SHA-1) is called; use SHA-256 or stronger.
 
       ## Remediation
       Replace MD5/SHA-1 for security uses with SHA-256 or stronger; use a password-hashing function such as Argon2 or bcrypt for passwords.
@@ -40,6 +40,7 @@ rules:
     - cpp
     source: Validated against NIST Juliet C/C++ Test Suite v1.3
     remediation: Replace MD5/SHA-1 for security uses with SHA-256 or stronger; use a password-hashing function such as Argon2 or bcrypt for passwords.
+    policy_name: 'Weak Hash: Weak Hash Function Call'
   patterns:
   - pattern: $F(...)
   - metavariable-regex:

@@ -16,12 +16,12 @@ rules:
     - '*.hxx'
     - '*.inc'
   severity: WARNING
-  message: $F() targets the HKEY_LOCAL_MACHINE hive, which requires administrative rights; prefer the per-user HKEY_CURRENT_USER hive.
+  message: A shell registry call targets the HKEY_LOCAL_MACHINE hive, which requires administrative rights; prefer the per-user HKEY_CURRENT_USER hive.
   metadata:
     vulnerability_class: Least Privilege Violation
     help: |
       ## Summary
-      `$F()` targets the HKEY_LOCAL_MACHINE hive, which requires administrative rights; prefer the per-user HKEY_CURRENT_USER hive.
+      A shell registry call targets the HKEY_LOCAL_MACHINE hive, which requires administrative rights; prefer the per-user HKEY_CURRENT_USER hive.
 
       ## Remediation
       Request the least privilege needed: write per-user registry keys instead of HKLM, and quote executable paths passed to process-creation APIs.
@@ -40,6 +40,7 @@ rules:
     - cpp
     source: Validated against NIST Juliet C/C++ Test Suite v1.3
     remediation: 'Request the least privilege needed: write per-user registry keys instead of HKLM, and quote executable paths passed to process-creation APIs.'
+    policy_name: 'Least Privilege Violation: Shell Registry Call Targets HKLM'
   patterns:
   - pattern-either:
     - patterns:

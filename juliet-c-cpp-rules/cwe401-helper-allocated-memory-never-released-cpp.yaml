@@ -15,12 +15,12 @@ rules:
     - '*.hxx'
     - '*.inc'
   severity: ERROR
-  message: Heap memory obtained from a helper function is never released, returned or handed off in this function.
+  message: Heap memory obtained from a helper function in this file is never released, returned or handed off by the caller.
   metadata:
     vulnerability_class: Missing Release of Memory after Effective Lifetime
     help: |
       ## Summary
-      Heap memory obtained from a helper function is never released, returned or handed off in this function.
+      Heap memory obtained from a helper function in this file is never released, returned or handed off by the caller.
 
       ## Remediation
       Free every allocation on every path once it is no longer needed, or use RAII (smart pointers, containers) in C++.
@@ -39,6 +39,7 @@ rules:
     - cpp
     source: Validated against NIST Juliet C/C++ Test Suite v1.3
     remediation: Free every allocation on every path once it is no longer needed, or use RAII (smart pointers, containers) in C++.
+    policy_name: 'Memory Leak: Helper-Allocated Memory Never Released (C++)'
   options:
     constant_propagation: false
   patterns:
@@ -66,6 +67,18 @@ rules:
               - pattern: new $ANT(...)
             - pattern-not: new ($PB) $PBT
       - pattern-not-inside: |
+          $R1 $S(...) { ... free($D); ... }
+          ...
+          $R $G(...) { ... }
+      - pattern-not-inside: |
+          $R1 $S(...) { ... delete $D; ... }
+          ...
+          $R $G(...) { ... }
+      - pattern-not-inside: |
+          $R1 $S(...) { ... delete [] $D; ... }
+          ...
+          $R $G(...) { ... }
+      - pattern-not-inside: |
           $R $G(...) { ... free(...); ... }
       - pattern-not-inside: |
           $R $G(...) { ... delete $ANY; ... }
@@ -77,6 +90,18 @@ rules:
           $R $G(...) { ... $O->$FLD = $X; ... }
       - pattern-not-inside: |
           $R $G(...) { ... $ARR[$I] = $X; ... }
+      - pattern-not-inside: |
+          $R $G(...) { ... $CT $CO($X); ... }
+      - pattern-not-inside: |
+          $R $G(...) { ... $CT $CO($CA, $X); ... }
+      - pattern-not-inside: |
+          $R $G(...) { ... $CT $CO($X, $CA); ... }
+      - pattern-not-inside: |
+          $R $G(...) { ... new $CT(..., $X, ...); ... }
+      - pattern-not-inside: |
+          $R $G(...) { ... $CPT $CP = new $CT(..., $X, ...); ... }
+      - pattern-not-inside: |
+          $R $G(...) { ... $CP = new $CT(..., $X, ...); ... }
       - pattern-not-inside:
           patterns:
           - pattern-inside: |
@@ -150,6 +175,18 @@ rules:
               - pattern: new $ANT(...)
             - pattern-not: new ($PB) $PBT
       - pattern-not-inside: |
+          $R1 $S(...) { ... free($D); ... }
+          ...
+          $R $G(...) { ... }
+      - pattern-not-inside: |
+          $R1 $S(...) { ... delete $D; ... }
+          ...
+          $R $G(...) { ... }
+      - pattern-not-inside: |
+          $R1 $S(...) { ... delete [] $D; ... }
+          ...
+          $R $G(...) { ... }
+      - pattern-not-inside: |
           $R $G(...) { ... free(...); ... }
       - pattern-not-inside: |
           $R $G(...) { ... delete $ANY; ... }
@@ -161,6 +198,18 @@ rules:
           $R $G(...) { ... $O->$FLD = $X; ... }
       - pattern-not-inside: |
           $R $G(...) { ... $ARR[$I] = $X; ... }
+      - pattern-not-inside: |
+          $R $G(...) { ... $CT $CO($X); ... }
+      - pattern-not-inside: |
+          $R $G(...) { ... $CT $CO($CA, $X); ... }
+      - pattern-not-inside: |
+          $R $G(...) { ... $CT $CO($X, $CA); ... }
+      - pattern-not-inside: |
+          $R $G(...) { ... new $CT(..., $X, ...); ... }
+      - pattern-not-inside: |
+          $R $G(...) { ... $CPT $CP = new $CT(..., $X, ...); ... }
+      - pattern-not-inside: |
+          $R $G(...) { ... $CP = new $CT(..., $X, ...); ... }
       - pattern-not-inside:
           patterns:
           - pattern-inside: |
@@ -234,6 +283,18 @@ rules:
               - pattern: new $ANT(...)
             - pattern-not: new ($PB) $PBT
       - pattern-not-inside: |
+          $R1 $S($PT & $D) { ... free($D); ... }
+          ...
+          $R $G(...) { ... }
+      - pattern-not-inside: |
+          $R1 $S($PT & $D) { ... delete $D; ... }
+          ...
+          $R $G(...) { ... }
+      - pattern-not-inside: |
+          $R1 $S($PT & $D) { ... delete [] $D; ... }
+          ...
+          $R $G(...) { ... }
+      - pattern-not-inside: |
           $R $G(...) { ... free(...); ... }
       - pattern-not-inside: |
           $R $G(...) { ... delete $ANY; ... }
@@ -245,6 +306,18 @@ rules:
           $R $G(...) { ... $O->$FLD = $X; ... }
       - pattern-not-inside: |
           $R $G(...) { ... $ARR[$I] = $X; ... }
+      - pattern-not-inside: |
+          $R $G(...) { ... $CT $CO($X); ... }
+      - pattern-not-inside: |
+          $R $G(...) { ... $CT $CO($CA, $X); ... }
+      - pattern-not-inside: |
+          $R $G(...) { ... $CT $CO($X, $CA); ... }
+      - pattern-not-inside: |
+          $R $G(...) { ... new $CT(..., $X, ...); ... }
+      - pattern-not-inside: |
+          $R $G(...) { ... $CPT $CP = new $CT(..., $X, ...); ... }
+      - pattern-not-inside: |
+          $R $G(...) { ... $CP = new $CT(..., $X, ...); ... }
       - pattern-not-inside:
           patterns:
           - pattern-inside: |

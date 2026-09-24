@@ -16,12 +16,12 @@ rules:
     - '*.hxx'
     - '*.inc'
   severity: WARNING
-  message: This expression statement computes a value that is discarded and has no side effect, so it does nothing.
+  message: This expression statement computes a value that is immediately discarded and has no side effect, so it does nothing.
   metadata:
     vulnerability_class: 7PK - Code Quality
     help: |
       ## Summary
-      This expression statement computes a value that is discarded and has no side effect, so it does nothing.
+      This expression statement computes a value that is immediately discarded and has no side effect, so it does nothing.
 
       ## Remediation
       Remove empty blocks and statements with no effect, or implement the intended logic.
@@ -40,11 +40,37 @@ rules:
     - cpp
     source: Validated against NIST Juliet C/C++ Test Suite v1.3
     remediation: Remove empty blocks and statements with no effect, or implement the intended logic.
+    policy_name: 'Poor Code Quality: Statement Without Effect'
   patterns:
+  - pattern-inside: |
+      $R $FN(...) { ... }
   - pattern: |
       $E;
       ...
   - metavariable-regex:
       metavariable: $E
-      regex: ^(?!.*(\+\+|--))(?!.*[^=!<>]=[^=])[^(){};,]*[-+*/%<>&|^!~][^(){};,]*;?$|^(-?[0-9][0-9a-fA-FxX.uUlL]*|'[^']*'|"[^"]*"|L'[^']*'|L"[^"]*");?$
+      regex: ^(?!\s*#)(?!.*(?:\[|<<|>>|\bcout\b|\bcerr\b))[^(){};,=]*[-+*/%<>&|^][^(){};,=]*;?$|^(?!\s*#)-?[0-9][0-9a-fA-FxX.uUlL]*;?$
+  - metavariable-pattern:
+      metavariable: $E
+      pattern-either:
+      - pattern: $A + $B
+      - pattern: $A - $B
+      - pattern: $A * $B
+      - pattern: $A / $B
+      - pattern: $A % $B
+      - pattern: $A < $B
+      - pattern: $A > $B
+      - pattern: $A <= $B
+      - pattern: $A >= $B
+      - pattern: $A != $B
+      - pattern: $A && $B
+      - pattern: $A || $B
+      - pattern: $A & $B
+      - pattern: $A | $B
+      - pattern: $A ^ $B
+      - patterns:
+        - pattern: $L
+        - metavariable-regex:
+            metavariable: $L
+            regex: ^-?[0-9][0-9a-fA-FxX.uUlL]*$
   - focus-metavariable: $E

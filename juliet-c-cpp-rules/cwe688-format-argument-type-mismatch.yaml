@@ -16,12 +16,12 @@ rules:
     - '*.hxx'
     - '*.inc'
   severity: ERROR
-  message: The argument $A has type an incompatible type, which does not match the conversion specifier in the format string; this is undefined behavior.
+  message: An argument's type does not match its conversion specifier in the format string (for example an int passed for %s), which is undefined behavior.
   metadata:
     vulnerability_class: Function Call With Incorrect Variable or Reference as Argument
     help: |
       ## Summary
-      The argument `$A` has type an incompatible type, which does not match the conversion specifier in the format string; this is undefined behavior.
+      An argument's type does not match its conversion specifier in the format string (for example an int passed for %s), which is undefined behavior.
 
       ## Remediation
       Pass the intended variable to each argument, matching the types the format string or API expects.
@@ -40,6 +40,7 @@ rules:
     - cpp
     source: Validated against NIST Juliet C/C++ Test Suite v1.3
     remediation: Pass the intended variable to each argument, matching the types the format string or API expects.
+    policy_name: Wrong Argument Type for Format String
   patterns:
   - pattern-either:
     - patterns:

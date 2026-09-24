@@ -16,12 +16,12 @@ rules:
     - '*.hxx'
     - '*.inc'
   severity: WARNING
-  message: $F() signals failure with EOF/WEOF (or a negative value), not 0, so this check does not detect errors.
+  message: This I/O or formatting function signals failure with EOF/WEOF or a negative value, not 0, so comparing its result with 0 does not detect errors.
   metadata:
     vulnerability_class: Incorrect Check of Function Return Value
     help: |
       ## Summary
-      `$F()` signals failure with EOF/WEOF (or a negative value), not 0, so this check does not detect errors.
+      This I/O or formatting function signals failure with EOF/WEOF or a negative value, not 0, so comparing its result with 0 does not detect errors.
 
       ## Remediation
       Compare return values against the function's documented error value (e.g. EOF, NULL, INVALID_HANDLE_VALUE, -1) rather than an assumed one.
@@ -40,6 +40,7 @@ rules:
     - cpp
     source: Validated against NIST Juliet C/C++ Test Suite v1.3
     remediation: Compare return values against the function's documented error value (e.g. EOF, NULL, INVALID_HANDLE_VALUE, -1) rather than an assumed one.
+    policy_name: 'Incorrect Return Check: EOF-Returning Call Compared to Zero'
   patterns:
   - pattern-either:
     - pattern: $F(...) == 0

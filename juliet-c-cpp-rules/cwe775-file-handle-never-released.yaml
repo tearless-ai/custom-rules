@@ -40,6 +40,7 @@ rules:
     - cpp
     source: Validated against NIST Juliet C/C++ Test Suite v1.3
     remediation: Close every file descriptor and handle once it is no longer needed, on every path.
+    policy_name: 'File Handle Leak: Opened Handle Never Closed'
   patterns:
   - pattern-inside: |
       $R $F(...) { ... }

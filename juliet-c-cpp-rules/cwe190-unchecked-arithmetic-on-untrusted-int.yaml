@@ -40,6 +40,7 @@ rules:
     - cpp
     source: Validated against NIST Juliet C/C++ Test Suite v1.3
     remediation: Check operands against the type's limits before arithmetic (e.g. if (x < INT_MAX) x + 1), or use checked-arithmetic builtins such as __builtin_add_overflow.
+    policy_name: 'Integer Overflow: Unchecked Arithmetic on Untrusted Value'
   mode: taint
   options:
     constant_propagation: false
@@ -52,16 +53,6 @@ rules:
       - pattern: fwscanf($FF, $FMT, &$X)
       - pattern: wscanf($FMT, &$X)
     - focus-metavariable: $X
-  - by-side-effect: true
-    patterns:
-    - pattern-either:
-      - pattern: fgets($B, ...)
-      - pattern: fgetws($B, ...)
-      - pattern: recv($SOCK, $B, ...)
-      - pattern: recvfrom($SOCK, $B, ...)
-      - pattern: read($FD, $B, ...)
-      - pattern: fread($B, ...)
-    - focus-metavariable: $B
   - patterns:
     - pattern-either:
       - pattern-inside: |
@@ -559,6 +550,12 @@ rules:
       - pattern-inside: if (<... $ABS(<... $X ...>) < $LIM ...>) { ... }
       - pattern-inside: if (<... $ABS(<... $X ...>) <= $LIM ...>) { ... }
     - pattern: $X
+  - pattern-either:
+    - pattern: strlen(...)
+    - pattern: wcslen(...)
+    - pattern: strnlen(...)
+    - pattern: wcsnlen(...)
+    - pattern: sizeof($SZ)
   pattern-sinks:
   - patterns:
     - pattern-either:
@@ -570,4 +567,7 @@ rules:
       - pattern: $X++
       - pattern: $X += $Y
       - pattern: $X *= $Y
+    - metavariable-regex:
+        metavariable: $X
+        regex: ^[A-Za-z_][A-Za-z0-9_]*(\s*(\.|->)\s*[A-Za-z_][A-Za-z0-9_]*)*$
     - focus-metavariable: $X

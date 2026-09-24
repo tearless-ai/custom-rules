@@ -16,12 +16,12 @@ rules:
     - '*.hxx'
     - '*.inc'
   severity: ERROR
-  message: The stack string '$SRC' is filled to a length that does not fit in the fixed-size array '$DST'; copying it bounded only by the source length overflows the destination.
+  message: A stack string longer than a fixed-size destination array is copied into it with a length taken from the source string, overflowing the destination.
   metadata:
     vulnerability_class: Stack-based Buffer Overflow
     help: |
       ## Summary
-      The stack string '`$SRC`' is filled to a length that does not fit in the fixed-size array '`$DST`'; copying it bounded only by the source length overflows the destination.
+      A stack string longer than a fixed-size destination array is copied into it with a length taken from the source string, overflowing the destination.
 
       ## Remediation
       Bound every copy and index by the destination's size (sizeof the array), use size-checked APIs such as snprintf, and validate lengths and indexes from input before use.
@@ -40,6 +40,7 @@ rules:
     - cpp
     source: Validated against NIST Juliet C/C++ Test Suite v1.3
     remediation: Bound every copy and index by the destination's size (sizeof the array), use size-checked APIs such as snprintf, and validate lengths and indexes from input before use.
+    policy_name: 'Stack Buffer Overflow: Long Stack String Copied by Source Length'
   patterns:
   - pattern-either:
     - pattern: strncpy($DST, $SRC, strlen($SRC))

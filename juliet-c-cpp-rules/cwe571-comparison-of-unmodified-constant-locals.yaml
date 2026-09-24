@@ -1,0 +1,111 @@
+rules:
+- id: cwe571-comparison-of-unmodified-constant-locals
+  languages:
+  - c
+  - cpp
+  paths:
+    include:
+    - '*.c'
+    - '*.h'
+    - '*.cpp'
+    - '*.cc'
+    - '*.cxx'
+    - '*.c++'
+    - '*.hpp'
+    - '*.hh'
+    - '*.hxx'
+    - '*.inc'
+  severity: WARNING
+  message: Both operands of this comparison are local variables initialized from integer literals and never modified, so the comparison is always true.
+  metadata:
+    vulnerability_class: Expression is Always True
+    help: |
+      ## Summary
+      Both operands of this comparison are local variables initialized from integer literals and never modified, so the comparison is always true.
+
+      ## Remediation
+      Fix conditions that are always true; they indicate a logic error or a missing check.
+    category: correctness
+    cwe:
+    - 'CWE-571: Expression is Always True'
+    references:
+    - https://cwe.mitre.org/data/definitions/571.html
+    confidence: HIGH
+    likelihood: MEDIUM
+    impact: MEDIUM
+    subcategory:
+    - vuln
+    technology:
+    - c
+    - cpp
+    source: Validated against NIST Juliet C/C++ Test Suite v1.3
+    remediation: Fix conditions that are always true; they indicate a logic error or a missing check.
+    policy_name: 'Expression Always True: Comparison of Constant Local Variables'
+  patterns:
+  - pattern-inside: |
+      $T1 $A = $CA;
+      ...
+  - metavariable-regex:
+      metavariable: $CA
+      regex: ^-?[0-9]+[uUlL]*$
+  - pattern-not-inside: |
+      $T1 $A = $CA;
+      ...
+      <... &$A ...>;
+      ...
+  - pattern-not-inside: |
+      $T1 $A = $CA;
+      ...
+      $A = $Z;
+      ...
+  - pattern-inside: |
+      if ($COND) $S;
+  - pattern-either:
+    - patterns:
+      - pattern-inside: |
+          $T1 $A = $CA;
+          ...
+      - pattern: $A == $B
+      - metavariable-comparison:
+          comparison: ($CA == $B)
+    - patterns:
+      - pattern-inside: |
+          $T1 $A = $CA;
+          ...
+      - pattern: $A != $B
+      - metavariable-comparison:
+          comparison: ($CA != $B)
+    - patterns:
+      - pattern-inside: |
+          $T1 $A = $CA;
+          ...
+      - pattern: $A < $B
+      - metavariable-comparison:
+          comparison: ($CA < $B)
+    - patterns:
+      - pattern-inside: |
+          $T1 $A = $CA;
+          ...
+      - pattern: $A <= $B
+      - metavariable-comparison:
+          comparison: ($CA <= $B)
+    - patterns:
+      - pattern-inside: |
+          $T1 $A = $CA;
+          ...
+      - pattern: $A > $B
+      - metavariable-comparison:
+          comparison: ($CA > $B)
+    - patterns:
+      - pattern-inside: |
+          $T1 $A = $CA;
+          ...
+      - pattern: $A >= $B
+      - metavariable-comparison:
+          comparison: ($CA >= $B)
+  - metavariable-regex:
+      metavariable: $B
+      regex: ^\(?\s*[A-Za-z_]\w*\s*([-+]\s*[0-9]+)?\s*\)?$
+  - metavariable-regex:
+      metavariable: $A
+      regex: ^[A-Za-z_]\w*$

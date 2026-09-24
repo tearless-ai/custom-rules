@@ -40,6 +40,7 @@ rules:
     - cpp
     source: Validated against NIST Juliet C/C++ Test Suite v1.3
     remediation: Initialize objects and buffers fully (including string terminators) before use.
+    policy_name: 'Improper Initialization: Helper Returns Uninitialized String Buffer'
   patterns:
   - pattern-either:
     - pattern-inside: |

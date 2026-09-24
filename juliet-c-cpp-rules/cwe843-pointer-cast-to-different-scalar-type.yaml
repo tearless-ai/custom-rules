@@ -40,6 +40,7 @@ rules:
     - cpp
     source: Validated against NIST Juliet C/C++ Test Suite v1.3
     remediation: Access memory only through the type it was created with; do not reinterpret objects via incompatible pointer casts.
+    policy_name: 'Type Confusion: Scalar Accessed as Different Scalar Type'
   mode: taint
   options:
     taint_unify_mvars: true
@@ -85,7 +86,7 @@ rules:
       - pattern: static_cast<$T *>($D)
     - metavariable-regex:
         metavariable: $T
-        regex: ^((unsigned|signed)\s+)?(char|short|int|long|long\s+long|float|double|wchar_t|bool|size_t|u?int(8|16|32|64)_t)$
+        regex: ^((unsigned|signed)\s+)?(short|int|long|long\s+long|float|double|wchar_t|bool|size_t|u?int(16|32|64)_t)$
     - metavariable-comparison:
         comparison: str($T) != str($XT)
     - focus-metavariable: $D

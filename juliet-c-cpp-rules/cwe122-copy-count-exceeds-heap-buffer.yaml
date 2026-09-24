@@ -16,12 +16,12 @@ rules:
     - '*.hxx'
     - '*.inc'
   severity: ERROR
-  message: This copy writes more elements than the heap buffer '$DST' was allocated with; the element count exceeds the destination capacity and overflows it.
+  message: A copy writes more elements into a heap buffer than the buffer was allocated to hold, overflowing the destination.
   metadata:
     vulnerability_class: Heap-based Buffer Overflow
     help: |
       ## Summary
-      This copy writes more elements than the heap buffer '`$DST`' was allocated with; the element count exceeds the destination capacity and overflows it.
+      A copy writes more elements into a heap buffer than the buffer was allocated to hold, overflowing the destination.
 
       ## Remediation
       Allocate enough room for the data including the terminator, bound every copy and index by the allocation size, and validate lengths and indexes from input before use.
@@ -40,6 +40,7 @@ rules:
     - cpp
     source: Validated against NIST Juliet C/C++ Test Suite v1.3
     remediation: Allocate enough room for the data including the terminator, bound every copy and index by the allocation size, and validate lengths and indexes from input before use.
+    policy_name: 'Heap Buffer Overflow: Copy Count Exceeds Buffer Size'
   patterns:
   - pattern-either:
     - pattern-either:

@@ -15,12 +15,12 @@ rules:
     - '*.hxx'
     - '*.inc'
   severity: ERROR
-  message: This function receives freshly allocated heap memory from its caller in this file but never releases or hands it off.
+  message: Heap memory allocated here is passed to a function in this file that never releases or hands it off.
   metadata:
     vulnerability_class: Missing Release of Memory after Effective Lifetime
     help: |
       ## Summary
-      This function receives freshly allocated heap memory from its caller in this file but never releases or hands it off.
+      Heap memory allocated here is passed to a function in this file that never releases or hands it off.
 
       ## Remediation
       Free every allocation on every path once it is no longer needed, or use RAII (smart pointers, containers) in C++.
@@ -39,6 +39,7 @@ rules:
     - cpp
     source: Validated against NIST Juliet C/C++ Test Suite v1.3
     remediation: Free every allocation on every path once it is no longer needed, or use RAII (smart pointers, containers) in C++.
+    policy_name: 'Memory Leak: Heap Argument Never Released by Callee'
   options:
     constant_propagation: false
   patterns:
@@ -113,6 +114,8 @@ rules:
       - pattern-inside: |
           $R2 $G(...) { ... }
       - pattern: $X = $ALLOC;
+      - pattern-not-inside: |
+          $R2 $G(...) { ... free($X); ... }
     - patterns:
       - pattern-inside: |
           $R1 $F(..., $PT $D, ...) { ... }
@@ -183,6 +186,8 @@ rules:
       - pattern-inside: |
           $R2 $G(...) { ... }
       - pattern: $X = $ALLOC;
+      - pattern-not-inside: |
+          $R2 $G(...) { ... free($X); ... }
     - patterns:
       - pattern-inside: |
           $R1 $F() { ... $T $D = $GV; ... }
@@ -253,3 +258,5 @@ rules:
       - pattern-inside: |
           $R2 $G(...) { ... }
       - pattern: $X = $ALLOC;
+      - pattern-not-inside: |
+          $R2 $G(...) { ... free($X); ... }

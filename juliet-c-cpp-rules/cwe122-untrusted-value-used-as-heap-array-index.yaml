@@ -16,12 +16,12 @@ rules:
     - '*.hxx'
     - '*.inc'
   severity: ERROR
-  message: A variable assigned from external input (here or in a calling/called function) is used to index the heap array '$BUF' without checking it against the array size.
+  message: A value read from external input is used as an index to write into a heap array without checking it against the array size.
   metadata:
     vulnerability_class: Heap-based Buffer Overflow
     help: |
       ## Summary
-      A variable assigned from external input (here or in a calling/called function) is used to index the heap array '`$BUF`' without checking it against the array size.
+      A value read from external input is used as an index to write into a heap array without checking it against the array size.
 
       ## Remediation
       Allocate enough room for the data including the terminator, bound every copy and index by the allocation size, and validate lengths and indexes from input before use.
@@ -40,6 +40,7 @@ rules:
     - cpp
     source: Validated against NIST Juliet C/C++ Test Suite v1.3
     remediation: Allocate enough room for the data including the terminator, bound every copy and index by the allocation size, and validate lengths and indexes from input before use.
+    policy_name: 'Heap Buffer Overflow: Untrusted Array Index Without Upper Bound'
   options:
     constant_propagation: false
   patterns:

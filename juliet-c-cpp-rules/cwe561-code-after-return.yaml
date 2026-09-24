@@ -40,6 +40,7 @@ rules:
     - cpp
     source: Validated against NIST Juliet C/C++ Test Suite v1.3
     remediation: Remove dead code that can never execute.
+    policy_name: 'Dead Code: Statement After Return'
   patterns:
   - pattern-either:
     - pattern: |

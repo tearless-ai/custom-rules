@@ -16,12 +16,12 @@ rules:
     - '*.hxx'
     - '*.inc'
   severity: WARNING
-  message: $EXEC() runs a command given without an absolute path, so the program that actually runs is chosen through the search path, which an attacker may control.
+  message: A command is executed by a name without an absolute path, so the program that actually runs is chosen through the search path, which an attacker may control.
   metadata:
     vulnerability_class: Untrusted Search Path
     help: |
       ## Summary
-      `$EXEC()` runs a command given without an absolute path, so the program that actually runs is chosen through the search path, which an attacker may control.
+      A command is executed by a name without an absolute path, so the program that actually runs is chosen through the search path, which an attacker may control.
     category: security
     cwe:
     - 'CWE-426: Untrusted Search Path'
@@ -36,6 +36,7 @@ rules:
     - c
     - cpp
     source: Validated against NIST Juliet C/C++ Test Suite v1.3
+    policy_name: 'Untrusted Search Path: Relative Command Literal'
   patterns:
   - pattern-either:
     - patterns:

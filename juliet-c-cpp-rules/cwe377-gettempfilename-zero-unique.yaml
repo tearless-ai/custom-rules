@@ -16,12 +16,12 @@ rules:
     - '*.hxx'
     - '*.inc'
   severity: WARNING
-  message: $F() with uUnique set to 0 creates and closes the file, leaving a race window before the program reopens it.
+  message: GetTempFileName() with uUnique set to 0 creates and closes the file, leaving a race window before the program reopens it.
   metadata:
     vulnerability_class: Insecure Temporary File
     help: |
       ## Summary
-      `$F()` with uUnique set to 0 creates and closes the file, leaving a race window before the program reopens it.
+      GetTempFileName() with uUnique set to 0 creates and closes the file, leaving a race window before the program reopens it.
 
       ## Remediation
       Create temporary files atomically with mkstemp/tmpfile or open(O_CREAT | O_EXCL) instead of tmpnam/tempnam/mktemp.
@@ -40,6 +40,7 @@ rules:
     - cpp
     source: Validated against NIST Juliet C/C++ Test Suite v1.3
     remediation: Create temporary files atomically with mkstemp/tmpfile or open(O_CREAT | O_EXCL) instead of tmpnam/tempnam/mktemp.
+    policy_name: 'Insecure Temporary File: GetTempFileName With Zero Unique Value'
   patterns:
   - pattern: $F($DIR, $PFX, 0, $OUT)
   - metavariable-regex:

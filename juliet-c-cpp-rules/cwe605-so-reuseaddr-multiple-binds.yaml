@@ -40,6 +40,7 @@ rules:
     - cpp
     source: Validated against NIST Juliet C/C++ Test Suite v1.3
     remediation: Do not set SO_REUSEADDR on listening sockets that must be exclusive; use SO_EXCLUSIVEADDRUSE on Windows.
+    policy_name: Multiple Binds to Same Port (SO_REUSEADDR)
   pattern-either:
   - pattern: setsockopt($S, SOL_SOCKET, SO_REUSEADDR, ...)
   - pattern: setsockopt($S, SOL_SOCKET, SO_REUSEPORT, ...)

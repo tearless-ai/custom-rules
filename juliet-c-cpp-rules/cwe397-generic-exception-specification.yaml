@@ -34,4 +34,5 @@ rules:
     - cpp
     source: Validated against NIST Juliet C/C++ Test Suite v1.3
     remediation: Throw specific exception types that describe the error instead of generic ones such as std::exception.
+    policy_name: Generic Exception Specification
   pattern-regex: \)\s*throw\s*\(\s*(?:\.\.\.|(?:std\s*::\s*)?exception)\s*\)

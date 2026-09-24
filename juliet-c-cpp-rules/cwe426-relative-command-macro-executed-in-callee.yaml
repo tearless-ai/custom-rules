@@ -16,12 +16,12 @@ rules:
     - '*.hxx'
     - '*.inc'
   severity: WARNING
-  message: A command macro whose value has no absolute path is copied into a buffer that is passed to $FN(), which executes it with $EXEC(); the program that actually runs is chosen through the search path.
+  message: A command macro whose value has no absolute path is copied into a buffer that a helper executes, so the program that actually runs is chosen through the search path.
   metadata:
     vulnerability_class: Untrusted Search Path
     help: |
       ## Summary
-      A command macro whose value has no absolute path is copied into a buffer that is passed to `$FN()`, which executes it with `$EXEC()`; the program that actually runs is chosen through the search path.
+      A command macro whose value has no absolute path is copied into a buffer that a helper executes, so the program that actually runs is chosen through the search path.
     category: security
     cwe:
     - 'CWE-426: Untrusted Search Path'
@@ -36,6 +36,7 @@ rules:
     - c
     - cpp
     source: Validated against NIST Juliet C/C++ Test Suite v1.3
+    policy_name: 'Untrusted Search Path: Relative Command Macro (Passed to Helper)'
   patterns:
   - pattern-regex: (?s)#define[ \t]+(?P<MACRO>\w+)[ \t]+L?"(?![A-Za-z]:|[\\/%])[^"\r\n]*"[ \t]*\r?\n.*?\n(?:static[ \t]+)?[\w \t\*]*?\b(?P<FN>\w+)\([^)\n]*?\b(?P<P>\w+)\)\s*\{(?:(?!\n\}).)*?\b(?P<EXEC>SYSTEM|POPEN|system|popen|_popen|_wpopen|_wsystem)\((?P=P)\b.*?\b(?:str|wcs|_tcs|_mbs)n?cpy(?:_s)?\((?P<BUF>\w+),\s*(?:[^,()]*,\s*)?(?P=MACRO)\);(?:(?!\n\}).)*?\b(?P=FN)\((?P=BUF)\b
   - focus-metavariable: $EXEC

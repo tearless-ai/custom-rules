@@ -16,12 +16,12 @@ rules:
     - '*.hxx'
     - '*.inc'
   severity: ERROR
-  message: The length of '$SRC' is measured with strlen() on a char* cast, but the data is then copied with wcscpy(); the stack buffer sized from that length is too small for the wide string.
+  message: A stack buffer is sized from strlen() of a wide string cast to char*, and wcscpy() then copies the wide string into the too-small buffer.
   metadata:
     vulnerability_class: Stack-based Buffer Overflow
     help: |
       ## Summary
-      The length of '`$SRC`' is measured with strlen() on a char* cast, but the data is then copied with wcscpy(); the stack buffer sized from that length is too small for the wide string.
+      A stack buffer is sized from strlen() of a wide string cast to char*, and wcscpy() then copies the wide string into the too-small buffer.
 
       ## Remediation
       Bound every copy and index by the destination's size (sizeof the array), use size-checked APIs such as snprintf, and validate lengths and indexes from input before use.
@@ -40,6 +40,7 @@ rules:
     - cpp
     source: Validated against NIST Juliet C/C++ Test Suite v1.3
     remediation: Bound every copy and index by the destination's size (sizeof the array), use size-checked APIs such as snprintf, and validate lengths and indexes from input before use.
+    policy_name: 'Stack Buffer Overflow: Narrow Length Used for Wide String Copy'
   patterns:
   - pattern-either:
     - pattern-inside: |

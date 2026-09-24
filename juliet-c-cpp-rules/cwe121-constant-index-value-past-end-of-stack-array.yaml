@@ -16,12 +16,12 @@ rules:
     - '*.hxx'
     - '*.inc'
   severity: ERROR
-  message: The index written into the stack array '$BUF' evaluates to a constant that is not smaller than the array size, and no upper-bound check guards the write.
+  message: A write into a stack array uses a constant index that is not smaller than the array size.
   metadata:
     vulnerability_class: Stack-based Buffer Overflow
     help: |
       ## Summary
-      The index written into the stack array '`$BUF`' evaluates to a constant that is not smaller than the array size, and no upper-bound check guards the write.
+      A write into a stack array uses a constant index that is not smaller than the array size.
 
       ## Remediation
       Bound every copy and index by the destination's size (sizeof the array), use size-checked APIs such as snprintf, and validate lengths and indexes from input before use.
@@ -40,6 +40,7 @@ rules:
     - cpp
     source: Validated against NIST Juliet C/C++ Test Suite v1.3
     remediation: Bound every copy and index by the destination's size (sizeof the array), use size-checked APIs such as snprintf, and validate lengths and indexes from input before use.
+    policy_name: 'Stack Buffer Overflow: Constant Index Past Array End'
   patterns:
   - pattern: $BUF[$IDX] = $VAL;
   - pattern-either:

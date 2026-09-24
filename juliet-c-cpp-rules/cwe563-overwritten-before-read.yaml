@@ -16,12 +16,12 @@ rules:
     - '*.hxx'
     - '*.inc'
   severity: WARNING
-  message: A value stored in local variable $X is overwritten here before it is ever read, so the earlier assignment is useless.
+  message: A meaningful value stored in a local variable is overwritten here before it was ever read, so the earlier assignment is dead.
   metadata:
     vulnerability_class: Assignment to Variable without Use
     help: |
       ## Summary
-      A value stored in local variable `$X` is overwritten here before it is ever read, so the earlier assignment is useless.
+      A meaningful value stored in a local variable is overwritten here before it was ever read, so the earlier assignment is dead.
 
       ## Remediation
       Remove variables and assignments whose values are never used, or use them as intended.
@@ -40,15 +40,19 @@ rules:
     - cpp
     source: Validated against NIST Juliet C/C++ Test Suite v1.3
     remediation: Remove variables and assignments whose values are never used, or use them as intended.
+    policy_name: 'Unused Variable: Value Overwritten Before Use'
   patterns:
   - pattern-inside: |
-      $T $X;
+      $R $FN(...) {
+        ...
+        $T $X;
+        ...
+      }
+  - pattern-not-inside: |
+      $T2 &$REF = $X;
       ...
   - pattern-not-inside: |
-      $T2 &$R = $X;
-      ...
-  - pattern-not-inside: |
-      $T2 *$R = &$X;
+      $T2 *$REF = &$X;
       ...
   - pattern-either:
     - patterns:
@@ -60,14 +64,427 @@ rules:
           metavariable: $S1
           patterns:
           - pattern: $X = $A
+          - metavariable-regex:
+              metavariable: $A
+              regex: ^(?!(?:0|-1|NULL|nullptr|0[xX]0+|0\.0*[fF]?|0[uUlL]+|-1[lL]*|'\\0'|L'\\0'|' '|L' '|\"\"|L\"\"|false|FALSE|INVALID_SOCKET|INVALID_HANDLE_VALUE|-1\.0*[fF]?)$)
           - pattern-not-inside: |
               $X = $A;
               ...
               $F(..., <... $X ...>, ...);
+          - pattern-not-inside: |
+              $X = $A;
+              ...
+              $X(...);
+          - pattern-not-inside: |
+              $X = $A;
+              ...
+              $Y = <... $X ...>;
+          - pattern-not-inside: |
+              $X = $A;
+              ...
+              $Y += <... $X ...>;
+          - pattern-not-inside: |
+              $X = $A;
+              ...
+              $Y -= <... $X ...>;
+          - pattern-not-inside: |
+              $X = $A;
+              ...
+              $T2 $Y = <... $X ...>;
+          - pattern-not-inside: |
+              $X = $A;
+              ...
+              $T2 *$Y = <... $X ...>;
+          - pattern-not-inside: |
+              $X = $A;
+              ...
+              $T2 &$Y = <... $X ...>;
+          - pattern-not-inside: |
+              $X = $A;
+              ...
+              $T2 $Y(..., <... $X ...>, ...);
+          - pattern-not-inside: |
+              $X = $A;
+              ...
+              return <... $X ...>;
+          - pattern-not-inside: |
+              $X = $A;
+              ...
+              if (<... $X ...>) $S;
+          - pattern-not-inside: |
+              $X = $A;
+              ...
+              if (<... $X ...>) $S; else $S2;
+          - pattern-not-inside: |
+              $X = $A;
+              ...
+              while (<... $X ...>) $S;
+          - pattern-not-inside: |
+              $X = $A;
+              ...
+              do $S; while (<... $X ...>);
+          - pattern-not-inside: |
+              $X = $A;
+              ...
+              for ($I1; <... $X ...>; $I3) $S;
+          - pattern-not-inside: |
+              $X = $A;
+              ...
+              for (<... $X ...>; $I2; $I3) $S;
+          - pattern-not-inside: |
+              $X = $A;
+              ...
+              for ($I1; $I2; <... $X ...>) $S;
+          - pattern-not-inside: |
+              $X = $A;
+              ...
+              switch (<... $X ...>) $S;
+          - pattern-not-inside: |
+              $X = $A;
+              ...
+              <... $X[$IDX] ...>;
+          - pattern-not-inside: |
+              $X = $A;
+              ...
+              <... *$X ...>;
+          - pattern-not-inside: |
+              $X = $A;
+              ...
+              <... $X->$FF ...>;
+          - pattern-not-inside: |
+              $X = $A;
+              ...
+              <... $X.$FF ...>;
+          - pattern-not-inside: |
+              $X = $A;
+              ...
+              <... &$X ...>;
+          - pattern-not-inside: |
+              $X = $A;
+              ...
+              $X++;
+          - pattern-not-inside: |
+              $X = $A;
+              ...
+              ++$X;
+          - pattern-not-inside: |
+              $X = $A;
+              ...
+              $X--;
+          - pattern-not-inside: |
+              $X = $A;
+              ...
+              --$X;
+          - pattern-not-inside: |
+              $X = $A;
+              ...
+              $X += $V2;
+          - pattern-not-inside: |
+              $X = $A;
+              ...
+              $X -= $V2;
+          - pattern-not-inside: |
+              $X = $A;
+              ...
+              $X *= $V2;
+          - pattern-not-inside: |
+              $X = $A;
+              ...
+              $X /= $V2;
+          - pattern-not-inside: |
+              $X = $A;
+              ...
+              $X |= $V2;
+          - pattern-not-inside: |
+              $X = $A;
+              ...
+              $X &= $V2;
+          - pattern-not-inside: |
+              $X = $A;
+              ...
+              delete $X;
+          - pattern-not-inside: |
+              $X = $A;
+              ...
+              delete[] $X;
+          - pattern-not-inside: |
+              $X = $A;
+              ...
+              $O.$M(..., <... $X ...>, ...);
+          - pattern-not-inside: |
+              $X = $A;
+              ...
+              $O->$M(..., <... $X ...>, ...);
+          - pattern-not-inside: |
+              $X = $A;
+              ...
+              $X.$M(...);
+          - pattern-not-inside: |
+              $X = $A;
+              ...
+              $X->$M(...);
+          - pattern-not-inside: |
+              $X = $A;
+              ...
+              $E1 << <... $X ...>;
+          - pattern-not-inside: |
+              $X = $A;
+              ...
+              $E1 >> <... $X ...>;
+          - pattern-not-inside: |
+              $X = $A;
+              ...
+              $T2 *$Y = new $C(..., <... $X ...>, ...);
       - pattern-not: |
           $S1;
           ...
           $F(..., <... $X ...>, ...);
+          ...
+          $X = $B;
+      - pattern-not: |
+          $S1;
+          ...
+          $X(...);
+          ...
+          $X = $B;
+      - pattern-not: |
+          $S1;
+          ...
+          $Y = <... $X ...>;
+          ...
+          $X = $B;
+      - pattern-not: |
+          $S1;
+          ...
+          $Y += <... $X ...>;
+          ...
+          $X = $B;
+      - pattern-not: |
+          $S1;
+          ...
+          $Y -= <... $X ...>;
+          ...
+          $X = $B;
+      - pattern-not: |
+          $S1;
+          ...
+          $T2 $Y = <... $X ...>;
+          ...
+          $X = $B;
+      - pattern-not: |
+          $S1;
+          ...
+          $T2 *$Y = <... $X ...>;
+          ...
+          $X = $B;
+      - pattern-not: |
+          $S1;
+          ...
+          $T2 &$Y = <... $X ...>;
+          ...
+          $X = $B;
+      - pattern-not: |
+          $S1;
+          ...
+          $T2 $Y(..., <... $X ...>, ...);
+          ...
+          $X = $B;
+      - pattern-not: |
+          $S1;
+          ...
+          return <... $X ...>;
+          ...
+          $X = $B;
+      - pattern-not: |
+          $S1;
+          ...
+          if (<... $X ...>) $S;
+          ...
+          $X = $B;
+      - pattern-not: |
+          $S1;
+          ...
+          if (<... $X ...>) $S; else $S2;
+          ...
+          $X = $B;
+      - pattern-not: |
+          $S1;
+          ...
+          while (<... $X ...>) $S;
+          ...
+          $X = $B;
+      - pattern-not: |
+          $S1;
+          ...
+          do $S; while (<... $X ...>);
+          ...
+          $X = $B;
+      - pattern-not: |
+          $S1;
+          ...
+          for ($I1; <... $X ...>; $I3) $S;
+          ...
+          $X = $B;
+      - pattern-not: |
+          $S1;
+          ...
+          for (<... $X ...>; $I2; $I3) $S;
+          ...
+          $X = $B;
+      - pattern-not: |
+          $S1;
+          ...
+          for ($I1; $I2; <... $X ...>) $S;
+          ...
+          $X = $B;
+      - pattern-not: |
+          $S1;
+          ...
+          switch (<... $X ...>) $S;
+          ...
+          $X = $B;
+      - pattern-not: |
+          $S1;
+          ...
+          <... $X[$IDX] ...>;
+          ...
+          $X = $B;
+      - pattern-not: |
+          $S1;
+          ...
+          <... *$X ...>;
+          ...
+          $X = $B;
+      - pattern-not: |
+          $S1;
+          ...
+          <... $X->$FF ...>;
+          ...
+          $X = $B;
+      - pattern-not: |
+          $S1;
+          ...
+          <... $X.$FF ...>;
+          ...
+          $X = $B;
+      - pattern-not: |
+          $S1;
+          ...
+          <... &$X ...>;
+          ...
+          $X = $B;
+      - pattern-not: |
+          $S1;
+          ...
+          $X++;
+          ...
+          $X = $B;
+      - pattern-not: |
+          $S1;
+          ...
+          ++$X;
+          ...
+          $X = $B;
+      - pattern-not: |
+          $S1;
+          ...
+          $X--;
+          ...
+          $X = $B;
+      - pattern-not: |
+          $S1;
+          ...
+          --$X;
+          ...
+          $X = $B;
+      - pattern-not: |
+          $S1;
+          ...
+          $X += $V2;
+          ...
+          $X = $B;
+      - pattern-not: |
+          $S1;
+          ...
+          $X -= $V2;
+          ...
+          $X = $B;
+      - pattern-not: |
+          $S1;
+          ...
+          $X *= $V2;
+          ...
+          $X = $B;
+      - pattern-not: |
+          $S1;
+          ...
+          $X /= $V2;
+          ...
+          $X = $B;
+      - pattern-not: |
+          $S1;
+          ...
+          $X |= $V2;
+          ...
+          $X = $B;
+      - pattern-not: |
+          $S1;
+          ...
+          $X &= $V2;
+          ...
+          $X = $B;
+      - pattern-not: |
+          $S1;
+          ...
+          delete $X;
+          ...
+          $X = $B;
+      - pattern-not: |
+          $S1;
+          ...
+          delete[] $X;
+          ...
+          $X = $B;
+      - pattern-not: |
+          $S1;
+          ...
+          $O.$M(..., <... $X ...>, ...);
+          ...
+          $X = $B;
+      - pattern-not: |
+          $S1;
+          ...
+          $O->$M(..., <... $X ...>, ...);
+          ...
+          $X = $B;
+      - pattern-not: |
+          $S1;
+          ...
+          $X.$M(...);
+          ...
+          $X = $B;
+      - pattern-not: |
+          $S1;
+          ...
+          $X->$M(...);
+          ...
+          $X = $B;
+      - pattern-not: |
+          $S1;
+          ...
+          $E1 << <... $X ...>;
+          ...
+          $X = $B;
+      - pattern-not: |
+          $S1;
+          ...
+          $E1 >> <... $X ...>;
+          ...
+          $X = $B;
+      - pattern-not: |
+          $S1;
+          ...
+          $T2 *$Y = new $C(..., <... $X ...>, ...);
           ...
           $X = $B;
     - patterns:
@@ -79,14 +496,427 @@ rules:
           metavariable: $S1
           patterns:
           - pattern: $X.$FLD = $A
+          - metavariable-regex:
+              metavariable: $A
+              regex: ^(?!(?:0|-1|NULL|nullptr|0[xX]0+|0\.0*[fF]?|0[uUlL]+|-1[lL]*|'\\0'|L'\\0'|' '|L' '|\"\"|L\"\"|false|FALSE|INVALID_SOCKET|INVALID_HANDLE_VALUE|-1\.0*[fF]?)$)
           - pattern-not-inside: |
               $X.$FLD = $A;
               ...
               $F(..., <... $X ...>, ...);
+          - pattern-not-inside: |
+              $X.$FLD = $A;
+              ...
+              $X(...);
+          - pattern-not-inside: |
+              $X.$FLD = $A;
+              ...
+              $Y = <... $X ...>;
+          - pattern-not-inside: |
+              $X.$FLD = $A;
+              ...
+              $Y += <... $X ...>;
+          - pattern-not-inside: |
+              $X.$FLD = $A;
+              ...
+              $Y -= <... $X ...>;
+          - pattern-not-inside: |
+              $X.$FLD = $A;
+              ...
+              $T2 $Y = <... $X ...>;
+          - pattern-not-inside: |
+              $X.$FLD = $A;
+              ...
+              $T2 *$Y = <... $X ...>;
+          - pattern-not-inside: |
+              $X.$FLD = $A;
+              ...
+              $T2 &$Y = <... $X ...>;
+          - pattern-not-inside: |
+              $X.$FLD = $A;
+              ...
+              $T2 $Y(..., <... $X ...>, ...);
+          - pattern-not-inside: |
+              $X.$FLD = $A;
+              ...
+              return <... $X ...>;
+          - pattern-not-inside: |
+              $X.$FLD = $A;
+              ...
+              if (<... $X ...>) $S;
+          - pattern-not-inside: |
+              $X.$FLD = $A;
+              ...
+              if (<... $X ...>) $S; else $S2;
+          - pattern-not-inside: |
+              $X.$FLD = $A;
+              ...
+              while (<... $X ...>) $S;
+          - pattern-not-inside: |
+              $X.$FLD = $A;
+              ...
+              do $S; while (<... $X ...>);
+          - pattern-not-inside: |
+              $X.$FLD = $A;
+              ...
+              for ($I1; <... $X ...>; $I3) $S;
+          - pattern-not-inside: |
+              $X.$FLD = $A;
+              ...
+              for (<... $X ...>; $I2; $I3) $S;
+          - pattern-not-inside: |
+              $X.$FLD = $A;
+              ...
+              for ($I1; $I2; <... $X ...>) $S;
+          - pattern-not-inside: |
+              $X.$FLD = $A;
+              ...
+              switch (<... $X ...>) $S;
+          - pattern-not-inside: |
+              $X.$FLD = $A;
+              ...
+              <... $X[$IDX] ...>;
+          - pattern-not-inside: |
+              $X.$FLD = $A;
+              ...
+              <... *$X ...>;
+          - pattern-not-inside: |
+              $X.$FLD = $A;
+              ...
+              <... $X->$FF ...>;
+          - pattern-not-inside: |
+              $X.$FLD = $A;
+              ...
+              <... $X.$FF ...>;
+          - pattern-not-inside: |
+              $X.$FLD = $A;
+              ...
+              <... &$X ...>;
+          - pattern-not-inside: |
+              $X.$FLD = $A;
+              ...
+              $X++;
+          - pattern-not-inside: |
+              $X.$FLD = $A;
+              ...
+              ++$X;
+          - pattern-not-inside: |
+              $X.$FLD = $A;
+              ...
+              $X--;
+          - pattern-not-inside: |
+              $X.$FLD = $A;
+              ...
+              --$X;
+          - pattern-not-inside: |
+              $X.$FLD = $A;
+              ...
+              $X += $V2;
+          - pattern-not-inside: |
+              $X.$FLD = $A;
+              ...
+              $X -= $V2;
+          - pattern-not-inside: |
+              $X.$FLD = $A;
+              ...
+              $X *= $V2;
+          - pattern-not-inside: |
+              $X.$FLD = $A;
+              ...
+              $X /= $V2;
+          - pattern-not-inside: |
+              $X.$FLD = $A;
+              ...
+              $X |= $V2;
+          - pattern-not-inside: |
+              $X.$FLD = $A;
+              ...
+              $X &= $V2;
+          - pattern-not-inside: |
+              $X.$FLD = $A;
+              ...
+              delete $X;
+          - pattern-not-inside: |
+              $X.$FLD = $A;
+              ...
+              delete[] $X;
+          - pattern-not-inside: |
+              $X.$FLD = $A;
+              ...
+              $O.$M(..., <... $X ...>, ...);
+          - pattern-not-inside: |
+              $X.$FLD = $A;
+              ...
+              $O->$M(..., <... $X ...>, ...);
+          - pattern-not-inside: |
+              $X.$FLD = $A;
+              ...
+              $X.$M(...);
+          - pattern-not-inside: |
+              $X.$FLD = $A;
+              ...
+              $X->$M(...);
+          - pattern-not-inside: |
+              $X.$FLD = $A;
+              ...
+              $E1 << <... $X ...>;
+          - pattern-not-inside: |
+              $X.$FLD = $A;
+              ...
+              $E1 >> <... $X ...>;
+          - pattern-not-inside: |
+              $X.$FLD = $A;
+              ...
+              $T2 *$Y = new $C(..., <... $X ...>, ...);
       - pattern-not: |
           $S1;
           ...
           $F(..., <... $X ...>, ...);
+          ...
+          $X.$FLD = $B;
+      - pattern-not: |
+          $S1;
+          ...
+          $X(...);
+          ...
+          $X.$FLD = $B;
+      - pattern-not: |
+          $S1;
+          ...
+          $Y = <... $X ...>;
+          ...
+          $X.$FLD = $B;
+      - pattern-not: |
+          $S1;
+          ...
+          $Y += <... $X ...>;
+          ...
+          $X.$FLD = $B;
+      - pattern-not: |
+          $S1;
+          ...
+          $Y -= <... $X ...>;
+          ...
+          $X.$FLD = $B;
+      - pattern-not: |
+          $S1;
+          ...
+          $T2 $Y = <... $X ...>;
+          ...
+          $X.$FLD = $B;
+      - pattern-not: |
+          $S1;
+          ...
+          $T2 *$Y = <... $X ...>;
+          ...
+          $X.$FLD = $B;
+      - pattern-not: |
+          $S1;
+          ...
+          $T2 &$Y = <... $X ...>;
+          ...
+          $X.$FLD = $B;
+      - pattern-not: |
+          $S1;
+          ...
+          $T2 $Y(..., <... $X ...>, ...);
+          ...
+          $X.$FLD = $B;
+      - pattern-not: |
+          $S1;
+          ...
+          return <... $X ...>;
+          ...
+          $X.$FLD = $B;
+      - pattern-not: |
+          $S1;
+          ...
+          if (<... $X ...>) $S;
+          ...
+          $X.$FLD = $B;
+      - pattern-not: |
+          $S1;
+          ...
+          if (<... $X ...>) $S; else $S2;
+          ...
+          $X.$FLD = $B;
+      - pattern-not: |
+          $S1;
+          ...
+          while (<... $X ...>) $S;
+          ...
+          $X.$FLD = $B;
+      - pattern-not: |
+          $S1;
+          ...
+          do $S; while (<... $X ...>);
+          ...
+          $X.$FLD = $B;
+      - pattern-not: |
+          $S1;
+          ...
+          for ($I1; <... $X ...>; $I3) $S;
+          ...
+          $X.$FLD = $B;
+      - pattern-not: |
+          $S1;
+          ...
+          for (<... $X ...>; $I2; $I3) $S;
+          ...
+          $X.$FLD = $B;
+      - pattern-not: |
+          $S1;
+          ...
+          for ($I1; $I2; <... $X ...>) $S;
+          ...
+          $X.$FLD = $B;
+      - pattern-not: |
+          $S1;
+          ...
+          switch (<... $X ...>) $S;
+          ...
+          $X.$FLD = $B;
+      - pattern-not: |
+          $S1;
+          ...
+          <... $X[$IDX] ...>;
+          ...
+          $X.$FLD = $B;
+      - pattern-not: |
+          $S1;
+          ...
+          <... *$X ...>;
+          ...
+          $X.$FLD = $B;
+      - pattern-not: |
+          $S1;
+          ...
+          <... $X->$FF ...>;
+          ...
+          $X.$FLD = $B;
+      - pattern-not: |
+          $S1;
+          ...
+          <... $X.$FF ...>;
+          ...
+          $X.$FLD = $B;
+      - pattern-not: |
+          $S1;
+          ...
+          <... &$X ...>;
+          ...
+          $X.$FLD = $B;
+      - pattern-not: |
+          $S1;
+          ...
+          $X++;
+          ...
+          $X.$FLD = $B;
+      - pattern-not: |
+          $S1;
+          ...
+          ++$X;
+          ...
+          $X.$FLD = $B;
+      - pattern-not: |
+          $S1;
+          ...
+          $X--;
+          ...
+          $X.$FLD = $B;
+      - pattern-not: |
+          $S1;
+          ...
+          --$X;
+          ...
+          $X.$FLD = $B;
+      - pattern-not: |
+          $S1;
+          ...
+          $X += $V2;
+          ...
+          $X.$FLD = $B;
+      - pattern-not: |
+          $S1;
+          ...
+          $X -= $V2;
+          ...
+          $X.$FLD = $B;
+      - pattern-not: |
+          $S1;
+          ...
+          $X *= $V2;
+          ...
+          $X.$FLD = $B;
+      - pattern-not: |
+          $S1;
+          ...
+          $X /= $V2;
+          ...
+          $X.$FLD = $B;
+      - pattern-not: |
+          $S1;
+          ...
+          $X |= $V2;
+          ...
+          $X.$FLD = $B;
+      - pattern-not: |
+          $S1;
+          ...
+          $X &= $V2;
+          ...
+          $X.$FLD = $B;
+      - pattern-not: |
+          $S1;
+          ...
+          delete $X;
+          ...
+          $X.$FLD = $B;
+      - pattern-not: |
+          $S1;
+          ...
+          delete[] $X;
+          ...
+          $X.$FLD = $B;
+      - pattern-not: |
+          $S1;
+          ...
+          $O.$M(..., <... $X ...>, ...);
+          ...
+          $X.$FLD = $B;
+      - pattern-not: |
+          $S1;
+          ...
+          $O->$M(..., <... $X ...>, ...);
+          ...
+          $X.$FLD = $B;
+      - pattern-not: |
+          $S1;
+          ...
+          $X.$M(...);
+          ...
+          $X.$FLD = $B;
+      - pattern-not: |
+          $S1;
+          ...
+          $X->$M(...);
+          ...
+          $X.$FLD = $B;
+      - pattern-not: |
+          $S1;
+          ...
+          $E1 << <... $X ...>;
+          ...
+          $X.$FLD = $B;
+      - pattern-not: |
+          $S1;
+          ...
+          $E1 >> <... $X ...>;
+          ...
+          $X.$FLD = $B;
+      - pattern-not: |
+          $S1;
+          ...
+          $T2 *$Y = new $C(..., <... $X ...>, ...);
           ...
           $X.$FLD = $B;
   - metavariable-pattern:

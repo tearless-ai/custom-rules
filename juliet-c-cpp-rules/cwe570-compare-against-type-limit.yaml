@@ -16,12 +16,12 @@ rules:
     - '*.hxx'
     - '*.inc'
   severity: WARNING
-  message: Comparing a value against the limit of its own type like this is always false.
+  message: A value is compared against the minimum or maximum of its own type in a way that is always false.
   metadata:
     vulnerability_class: Expression is Always False
     help: |
       ## Summary
-      Comparing a value against the limit of its own type like this is always false.
+      A value is compared against the minimum or maximum of its own type in a way that is always false.
 
       ## Remediation
       Fix conditions that are always false; they indicate a logic error or dead code.
@@ -40,6 +40,7 @@ rules:
     - cpp
     source: Validated against NIST Juliet C/C++ Test Suite v1.3
     remediation: Fix conditions that are always false; they indicate a logic error or dead code.
+    policy_name: 'Expression Always False: Comparison With Type Limit'
   pattern-either:
   - pattern: (int $X) < INT_MIN
   - pattern: (int $X) > INT_MAX

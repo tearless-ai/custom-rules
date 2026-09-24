@@ -40,6 +40,7 @@ rules:
     - cpp
     source: Validated against NIST Juliet C/C++ Test Suite v1.3
     remediation: Remove empty blocks and statements with no effect, or implement the intended logic.
+    policy_name: 'Poor Code Quality: Empty If Branch'
   patterns:
   - pattern-either:
     - pattern: if ($C) {} else $S;

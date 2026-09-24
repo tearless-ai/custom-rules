@@ -15,12 +15,12 @@ rules:
     - '*.hxx'
     - '*.inc'
   severity: ERROR
-  message: Heap memory assigned to $X is never released, returned or handed off before the last reference to it is lost.
+  message: Heap memory allocated here into a local pointer is never released, returned or handed off before the function returns.
   metadata:
     vulnerability_class: Missing Release of Memory after Effective Lifetime
     help: |
       ## Summary
-      Heap memory assigned to `$X` is never released, returned or handed off before the last reference to it is lost.
+      Heap memory allocated here into a local pointer is never released, returned or handed off before the function returns.
 
       ## Remediation
       Free every allocation on every path once it is no longer needed, or use RAII (smart pointers, containers) in C++.
@@ -39,6 +39,7 @@ rules:
     - cpp
     source: Validated against NIST Juliet C/C++ Test Suite v1.3
     remediation: Free every allocation on every path once it is no longer needed, or use RAII (smart pointers, containers) in C++.
+    policy_name: 'Memory Leak: Local Heap Allocation Never Released'
   options:
     constant_propagation: false
   patterns:

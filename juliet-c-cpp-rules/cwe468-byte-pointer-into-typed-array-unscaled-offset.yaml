@@ -40,6 +40,7 @@ rules:
     - cpp
     source: Validated against NIST Juliet C/C++ Test Suite v1.3
     remediation: Do not multiply by sizeof when doing pointer arithmetic; the compiler already scales offsets by the element size.
+    policy_name: 'Incorrect Pointer Scaling: Unscaled Byte Offset into Array'
   patterns:
   - pattern-either:
     - pattern-inside: |

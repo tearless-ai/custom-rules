@@ -16,12 +16,12 @@ rules:
     - '*.hxx'
     - '*.inc'
   severity: ERROR
-  message: System setting changed to a value taken from external data after calling a helper that fills the data from untrusted input (console, file, socket or environment).
+  message: A system setting such as the computer name is changed to a value on data returned by a helper that reads untrusted input from the console, a file, a socket or the environment, so that input controls the machine configuration.
   metadata:
     vulnerability_class: External Control of System or Configuration Setting
     help: |
       ## Summary
-      System setting changed to a value taken from external data after calling a helper that fills the data from untrusted input (console, file, socket or environment).
+      A system setting such as the computer name is changed to a value on data returned by a helper that reads untrusted input from the console, a file, a socket or the environment, so that input controls the machine configuration.
 
       ## Remediation
       Do not let external input choose system or configuration settings such as the host name or computer name; use fixed, validated values.
@@ -40,6 +40,7 @@ rules:
     - cpp
     source: Validated against NIST Juliet C/C++ Test Suite v1.3
     remediation: Do not let external input choose system or configuration settings such as the host name or computer name; use fixed, validated values.
+    policy_name: System Setting from Untrusted Input (Read in Helper)
   patterns:
   - pattern: $SETFN($VALUE, ...)
   - metavariable-regex:

@@ -40,6 +40,7 @@ rules:
     - cpp
     source: Validated against NIST Juliet C/C++ Test Suite v1.3
     remediation: Use sizeof on the pointed-to type or the element count, not on the pointer variable.
+    policy_name: Allocation Sized by sizeof() of a Pointer
   pattern-either:
   - pattern: $P = ($CT) malloc(sizeof($P))
   - pattern: $P = malloc(sizeof($P))

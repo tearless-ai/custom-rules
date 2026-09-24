@@ -40,7 +40,13 @@ rules:
     - cpp
     source: Validated against NIST Juliet C/C++ Test Suite v1.3
     remediation: Check pointers for NULL before dereferencing them.
+    policy_name: 'NULL Pointer Dereference: NULL Check After Use'
   patterns:
+  - pattern-either:
+    - pattern-inside: |
+        $FR $FN(...) { ... $DT $P; ... }
+    - pattern-inside: |
+        $FR $FN(...) { ... $DT $P = $DI; ... }
   - pattern-either:
     - pattern: |
         *$P = $V;

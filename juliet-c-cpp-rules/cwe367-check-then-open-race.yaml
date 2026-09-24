@@ -16,12 +16,12 @@ rules:
     - '*.hxx'
     - '*.inc'
   severity: WARNING
-  message: $CHK() checks the file $FN before it is opened by name, so the file can be swapped between the check and the use (TOCTOU race).
+  message: A file is checked by name with access() or stat() and then opened by name, so it can be swapped between the check and the use.
   metadata:
     vulnerability_class: Time-of-check Time-of-use (TOCTOU) Race Condition
     help: |
       ## Summary
-      `$CHK()` checks the file `$FN` before it is opened by name, so the file can be swapped between the check and the use (TOCTOU race).
+      A file is checked by name with access() or stat() and then opened by name, so it can be swapped between the check and the use.
 
       ## Remediation
       Open the file first and then check properties on the open handle (fstat) instead of checking a path and then opening it.
@@ -40,6 +40,7 @@ rules:
     - cpp
     source: Validated against NIST Juliet C/C++ Test Suite v1.3
     remediation: Open the file first and then check properties on the open handle (fstat) instead of checking a path and then opening it.
+    policy_name: 'TOCTOU Race: File Checked Then Opened by Name'
   patterns:
   - pattern: $CHK($FN, ...)
   - metavariable-regex:

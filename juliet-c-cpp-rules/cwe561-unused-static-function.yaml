@@ -16,12 +16,12 @@ rules:
     - '*.hxx'
     - '*.inc'
   severity: WARNING
-  message: The file-local function $F is never called or referenced in this translation unit, so it is dead code.
+  message: This file-local (static) function is never called or referenced in its translation unit, so it is dead code.
   metadata:
     vulnerability_class: Dead Code
     help: |
       ## Summary
-      The file-local function `$F` is never called or referenced in this translation unit, so it is dead code.
+      This file-local (static) function is never called or referenced in its translation unit, so it is dead code.
 
       ## Remediation
       Remove dead code that can never execute.
@@ -40,9 +40,11 @@ rules:
     - cpp
     source: Validated against NIST Juliet C/C++ Test Suite v1.3
     remediation: Remove dead code that can never execute.
+    policy_name: 'Dead Code: Unused Static Function'
   patterns:
   - pattern: |
       static $R $F(...) { ... }
+  - pattern-regex: (?m)^[ \t]*static\b[^;{}()]*\([^;{}]*\)\s*\{(?:[^{}]|\{(?:[^{}]|\{(?:[^{}]|\{[^{}]*\})*\})*\})*\}
   - pattern-not-inside: |
       static $R $F(...) { ... }
       ...
@@ -60,5 +62,5 @@ rules:
       ...
   - metavariable-regex:
       metavariable: $F
-      regex: ^(?!main$)
+      regex: ^(?!main$|_)
   - focus-metavariable: $F

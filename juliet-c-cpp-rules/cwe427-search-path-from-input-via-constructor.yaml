@@ -15,12 +15,12 @@ rules:
     - '*.hxx'
     - '*.inc'
   severity: ERROR
-  message: Process environment (e.g. PATH) set from external data in a destructor, using member data that the class constructor read from untrusted input (console, file, socket or environment).
+  message: A process environment variable such as PATH is set from data in a destructor, on member data whose constructor reads untrusted input from the console, a file, a socket or the environment, so that input controls where programs and libraries are searched for.
   metadata:
     vulnerability_class: Uncontrolled Search Path Element
     help: |
       ## Summary
-      Process environment (e.g. PATH) set from external data in a destructor, using member data that the class constructor read from untrusted input (console, file, socket or environment).
+      A process environment variable such as PATH is set from data in a destructor, on member data whose constructor reads untrusted input from the console, a file, a socket or the environment, so that input controls where programs and libraries are searched for.
     category: security
     cwe:
     - 'CWE-427: Uncontrolled Search Path Element'
@@ -35,6 +35,7 @@ rules:
     - c
     - cpp
     source: Validated against NIST Juliet C/C++ Test Suite v1.3
+    policy_name: Search Path Set from Untrusted Input (Constructor to Destructor)
   patterns:
   - pattern-either:
     - pattern: $ENVFN($ENVSTR)

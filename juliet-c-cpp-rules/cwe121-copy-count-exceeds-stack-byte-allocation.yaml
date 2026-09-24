@@ -16,12 +16,12 @@ rules:
     - '*.hxx'
     - '*.inc'
   severity: ERROR
-  message: The stack buffer '$DST' was sized in bytes without multiplying by the element size, but this copy writes whole elements; the allocation is too small.
+  message: A stack buffer is allocated with a byte count that was not multiplied by the element size, so copying whole elements into it overflows the allocation.
   metadata:
     vulnerability_class: Stack-based Buffer Overflow
     help: |
       ## Summary
-      The stack buffer '`$DST`' was sized in bytes without multiplying by the element size, but this copy writes whole elements; the allocation is too small.
+      A stack buffer is allocated with a byte count that was not multiplied by the element size, so copying whole elements into it overflows the allocation.
 
       ## Remediation
       Bound every copy and index by the destination's size (sizeof the array), use size-checked APIs such as snprintf, and validate lengths and indexes from input before use.
@@ -40,6 +40,7 @@ rules:
     - cpp
     source: Validated against NIST Juliet C/C++ Test Suite v1.3
     remediation: Bound every copy and index by the destination's size (sizeof the array), use size-checked APIs such as snprintf, and validate lengths and indexes from input before use.
+    policy_name: 'Stack Buffer Overflow: Allocation Missing Element Size'
   patterns:
   - pattern-either:
     - pattern-either:

@@ -40,6 +40,7 @@ rules:
     - cpp
     source: Validated against NIST Juliet C/C++ Test Suite v1.3
     remediation: Validate that values are non-negative and in range before widening signed values to larger or unsigned types.
+    policy_name: 'Unexpected Sign Extension: Short or Char Used as Size'
   mode: taint
   options:
     constant_propagation: false
@@ -52,16 +53,6 @@ rules:
       - pattern: fwscanf($FF, $FMT, &$X)
       - pattern: wscanf($FMT, &$X)
     - focus-metavariable: $X
-  - by-side-effect: true
-    patterns:
-    - pattern-either:
-      - pattern: fgets($B, ...)
-      - pattern: fgetws($B, ...)
-      - pattern: recv($SOCK, $B, ...)
-      - pattern: recvfrom($SOCK, $B, ...)
-      - pattern: read($FD, $B, ...)
-      - pattern: fread($B, ...)
-    - focus-metavariable: $B
   - patterns:
     - pattern-either:
       - pattern-inside: |
@@ -437,6 +428,12 @@ rules:
       - pattern-inside: if (<... $LIM < $X ...>) { ... }
       - pattern-inside: if (<... $LIM <= $X ...>) { ... }
     - pattern: $X
+  - pattern-either:
+    - pattern: strlen(...)
+    - pattern: wcslen(...)
+    - pattern: strnlen(...)
+    - pattern: wcsnlen(...)
+    - pattern: sizeof($SZ)
   pattern-sinks:
   - patterns:
     - pattern-either:
@@ -463,6 +460,9 @@ rules:
         - signed char
         - int8_t
         - int16_t
+    - metavariable-regex:
+        metavariable: $X
+        regex: ^[A-Za-z_][A-Za-z0-9_]*(\s*(\.|->)\s*[A-Za-z_][A-Za-z0-9_]*)*$
     - focus-metavariable: $X
   - patterns:
     - pattern-either:
@@ -490,4 +490,7 @@ rules:
     - pattern-not-inside: |
         $LT $X = $LI;
         ...
+    - metavariable-regex:
+        metavariable: $X
+        regex: ^[A-Za-z_][A-Za-z0-9_]*(\s*(\.|->)\s*[A-Za-z_][A-Za-z0-9_]*)*$
     - focus-metavariable: $X

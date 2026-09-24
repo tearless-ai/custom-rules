@@ -16,12 +16,12 @@ rules:
     - '*.hxx'
     - '*.inc'
   severity: WARNING
-  message: $F() requests all access rights; request only the specific rights the code needs.
+  message: This Windows object is created or opened with all access rights; request only the specific rights the code needs.
   metadata:
     vulnerability_class: Improper Access Control
     help: |
       ## Summary
-      `$F()` requests all access rights; request only the specific rights the code needs.
+      This Windows object is created or opened with all access rights; request only the specific rights the code needs.
 
       ## Remediation
       Request only the access rights actually needed instead of GENERIC_ALL/KEY_ALL_ACCESS, and create named pipes with FILE_FLAG_FIRST_PIPE_INSTANCE.
@@ -40,6 +40,7 @@ rules:
     - cpp
     source: Validated against NIST Juliet C/C++ Test Suite v1.3
     remediation: Request only the access rights actually needed instead of GENERIC_ALL/KEY_ALL_ACCESS, and create named pipes with FILE_FLAG_FIRST_PIPE_INSTANCE.
+    policy_name: 'Improper Access Control: All-Access Rights Requested'
   patterns:
   - pattern-either:
     - patterns:

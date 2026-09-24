@@ -16,12 +16,12 @@ rules:
     - '*.hxx'
     - '*.inc'
   severity: ERROR
-  message: Process environment (e.g. PATH) set from external data in a function that is invoked with data from a caller which reads untrusted input (console, file, socket or environment).
+  message: A process environment variable such as PATH is set from data inside a function whose caller reads untrusted input from the console, a file, a socket or the environment and passes the data in, so that input controls where programs and libraries are searched for.
   metadata:
     vulnerability_class: Uncontrolled Search Path Element
     help: |
       ## Summary
-      Process environment (e.g. PATH) set from external data in a function that is invoked with data from a caller which reads untrusted input (console, file, socket or environment).
+      A process environment variable such as PATH is set from data inside a function whose caller reads untrusted input from the console, a file, a socket or the environment and passes the data in, so that input controls where programs and libraries are searched for.
     category: security
     cwe:
     - 'CWE-427: Uncontrolled Search Path Element'
@@ -36,6 +36,7 @@ rules:
     - c
     - cpp
     source: Validated against NIST Juliet C/C++ Test Suite v1.3
+    policy_name: Search Path Set from Untrusted Input (Passed to Helper)
   patterns:
   - pattern-either:
     - pattern: $ENVFN($ENVSTR)

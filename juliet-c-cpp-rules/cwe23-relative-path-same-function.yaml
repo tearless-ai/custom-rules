@@ -16,12 +16,12 @@ rules:
     - '*.hxx'
     - '*.inc'
   severity: ERROR
-  message: File opened with a path built by appending external data to a base directory in a function that also reads untrusted input (console, file, socket or environment).
+  message: A file is opened with a path built by appending data to a base directory in the same function that reads untrusted input from the console, a file, a socket or the environment, so '../' sequences in that input can escape the directory.
   metadata:
     vulnerability_class: Relative Path Traversal
     help: |
       ## Summary
-      File opened with a path built by appending external data to a base directory in a function that also reads untrusted input (console, file, socket or environment).
+      A file is opened with a path built by appending data to a base directory in the same function that reads untrusted input from the console, a file, a socket or the environment, so '../' sequences in that input can escape the directory.
 
       ## Remediation
       Canonicalize the path and verify it stays inside the intended base directory; reject input containing '..' or path separators.
@@ -40,6 +40,10 @@ rules:
     - cpp
     source: Validated against NIST Juliet C/C++ Test Suite v1.3
     remediation: Canonicalize the path and verify it stays inside the intended base directory; reject input containing '..' or path separators.
+    policy_name: Relative Path Traversal from Untrusted Input (Same Function)
+  options:
+    constant_propagation: false
+    symbolic_propagation: false
   patterns:
   - pattern-either:
     - patterns:
@@ -60,6 +64,12 @@ rules:
       - pattern-either:
         - pattern: $STREAM.open($PATH, ...)
         - pattern: $STREAM_T $STREAM($PATH, ...);
+  - pattern-not-inside: |
+      $PATH_T * $PATH = "...";
+      ...
+  - pattern-not-inside: |
+      $PATH_T * const $PATH = "...";
+      ...
   - metavariable-regex:
       metavariable: $PATH
       regex: ^(?!\s*(L|u8|u|U)?\")(?!\s*[A-Z][A-Z0-9_]*\s*$)

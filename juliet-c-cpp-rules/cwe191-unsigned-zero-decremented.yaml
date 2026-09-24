@@ -40,6 +40,7 @@ rules:
     - cpp
     source: Validated against NIST Juliet C/C++ Test Suite v1.3
     remediation: Check operands against the type's minimum before subtraction or decrement, or use checked-arithmetic builtins such as __builtin_sub_overflow.
+    policy_name: 'Integer Underflow: Unsigned Zero Decremented'
   patterns:
   - pattern-either:
     - pattern: $X - $Y

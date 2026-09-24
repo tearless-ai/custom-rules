@@ -16,12 +16,12 @@ rules:
     - '*.hxx'
     - '*.inc'
   severity: WARNING
-  message: $F() returns 0 on success, but this branch runs on success and handles it as a failure.
+  message: This file-system call returns 0 on success, but the branch taken on 0 reports a failure, so the check is inverted.
   metadata:
     vulnerability_class: Incorrect Check of Function Return Value
     help: |
       ## Summary
-      `$F()` returns 0 on success, but this branch runs on success and handles it as a failure.
+      This file-system call returns 0 on success, but the branch taken on 0 reports a failure, so the check is inverted.
 
       ## Remediation
       Compare return values against the function's documented error value (e.g. EOF, NULL, INVALID_HANDLE_VALUE, -1) rather than an assumed one.
@@ -40,6 +40,7 @@ rules:
     - cpp
     source: Validated against NIST Juliet C/C++ Test Suite v1.3
     remediation: Compare return values against the function's documented error value (e.g. EOF, NULL, INVALID_HANDLE_VALUE, -1) rather than an assumed one.
+    policy_name: 'Incorrect Return Check: Success Branch Reports Failure'
   patterns:
   - pattern-either:
     - pattern: |

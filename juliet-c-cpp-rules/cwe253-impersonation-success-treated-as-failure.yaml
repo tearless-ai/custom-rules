@@ -16,12 +16,12 @@ rules:
     - '*.hxx'
     - '*.inc'
   severity: ERROR
-  message: The result of $F() is tested with the wrong sense, so the code bails out when impersonation succeeds and continues when it fails.
+  message: The result of an impersonation call is tested with the wrong sense, so the code bails out when impersonation succeeds and continues when it fails.
   metadata:
     vulnerability_class: Incorrect Check of Function Return Value
     help: |
       ## Summary
-      The result of `$F()` is tested with the wrong sense, so the code bails out when impersonation succeeds and continues when it fails.
+      The result of an impersonation call is tested with the wrong sense, so the code bails out when impersonation succeeds and continues when it fails.
 
       ## Remediation
       Compare return values against the function's documented error value (e.g. EOF, NULL, INVALID_HANDLE_VALUE, -1) rather than an assumed one.
@@ -40,6 +40,7 @@ rules:
     - cpp
     source: Validated against NIST Juliet C/C++ Test Suite v1.3
     remediation: Compare return values against the function's documented error value (e.g. EOF, NULL, INVALID_HANDLE_VALUE, -1) rather than an assumed one.
+    policy_name: 'Incorrect Return Check: Impersonation Result Inverted'
   patterns:
   - pattern-either:
     - patterns:

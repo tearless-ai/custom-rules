@@ -15,12 +15,12 @@ rules:
     - '*.hxx'
     - '*.inc'
   severity: ERROR
-  message: Dynamic library loaded by a bare file name (no directory), so the loader search order decides which file runs, in a destructor, using member data that the class constructor read from a bare library name into the buffer.
+  message: A dynamic library is loaded by name in a destructor, on member data whose constructor copies a bare file name with no directory into the library path, so the loader search order, not the program, decides which file is loaded.
   metadata:
     vulnerability_class: Process Control
     help: |
       ## Summary
-      Dynamic library loaded by a bare file name (no directory), so the loader search order decides which file runs, in a destructor, using member data that the class constructor read from a bare library name into the buffer.
+      A dynamic library is loaded by name in a destructor, on member data whose constructor copies a bare file name with no directory into the library path, so the loader search order, not the program, decides which file is loaded.
 
       ## Remediation
       Load libraries and programs only from fixed absolute paths; never let external input choose the module or command to load.
@@ -39,6 +39,7 @@ rules:
     - cpp
     source: Validated against NIST Juliet C/C++ Test Suite v1.3
     remediation: Load libraries and programs only from fixed absolute paths; never let external input choose the module or command to load.
+    policy_name: Library Loaded by Bare File Name (Constructor to Destructor)
   patterns:
   - pattern: $LOADLIB($LIB, ...)
   - metavariable-regex:

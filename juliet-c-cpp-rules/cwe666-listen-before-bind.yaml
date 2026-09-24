@@ -40,6 +40,7 @@ rules:
     - cpp
     source: Validated against NIST Juliet C/C++ Test Suite v1.3
     remediation: Only operate on resources that are in the correct lifecycle state (e.g. do not use a handle before it is opened).
+    policy_name: 'Socket Used in Wrong Phase: Listen Before Bind'
   patterns:
   - pattern-either:
     - pattern: |

@@ -16,12 +16,12 @@ rules:
     - '*.hxx'
     - '*.inc'
   severity: ERROR
-  message: $F calls itself unconditionally with no base case, so the recursion never terminates and exhausts the stack.
+  message: This function calls itself unconditionally with no base case, so the recursion never terminates and exhausts the stack.
   metadata:
     vulnerability_class: Uncontrolled Recursion
     help: |
       ## Summary
-      `$F` calls itself unconditionally with no base case, so the recursion never terminates and exhausts the stack.
+      This function calls itself unconditionally with no base case, so the recursion never terminates and exhausts the stack.
 
       ## Remediation
       Bound recursion depth or replace recursion with iteration.
@@ -40,6 +40,7 @@ rules:
     - cpp
     source: Validated against NIST Juliet C/C++ Test Suite v1.3
     remediation: Bound recursion depth or replace recursion with iteration.
+    policy_name: 'Uncontrolled Recursion: No Base Case'
   patterns:
   - pattern-inside: |
       $R $F(...) { ... }

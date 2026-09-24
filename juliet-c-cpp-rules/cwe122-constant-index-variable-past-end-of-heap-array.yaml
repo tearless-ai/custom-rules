@@ -16,12 +16,12 @@ rules:
     - '*.hxx'
     - '*.inc'
   severity: ERROR
-  message: The index variable used to write into the heap array '$BUF' is assigned (here or in a calling/called function) a constant not smaller than the array size, and no upper-bound check guards the write.
+  message: A write into a heap array uses an index variable that was assigned a constant not smaller than the array size, with no upper-bound check.
   metadata:
     vulnerability_class: Heap-based Buffer Overflow
     help: |
       ## Summary
-      The index variable used to write into the heap array '`$BUF`' is assigned (here or in a calling/called function) a constant not smaller than the array size, and no upper-bound check guards the write.
+      A write into a heap array uses an index variable that was assigned a constant not smaller than the array size, with no upper-bound check.
 
       ## Remediation
       Allocate enough room for the data including the terminator, bound every copy and index by the allocation size, and validate lengths and indexes from input before use.
@@ -40,6 +40,7 @@ rules:
     - cpp
     source: Validated against NIST Juliet C/C++ Test Suite v1.3
     remediation: Allocate enough room for the data including the terminator, bound every copy and index by the allocation size, and validate lengths and indexes from input before use.
+    policy_name: 'Heap Buffer Overflow: Index Variable Set Past Array End'
   options:
     constant_propagation: false
   patterns:

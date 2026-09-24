@@ -16,12 +16,12 @@ rules:
     - '*.hxx'
     - '*.inc'
   severity: ERROR
-  message: A pointer that was set to NULL is dereferenced on a path where it is not checked or reassigned.
+  message: A pointer that was set to NULL and never reassigned is dereferenced on a path where it is not checked.
   metadata:
     vulnerability_class: NULL Pointer Dereference
     help: |
       ## Summary
-      A pointer that was set to NULL is dereferenced on a path where it is not checked or reassigned.
+      A pointer that was set to NULL and never reassigned is dereferenced on a path where it is not checked.
 
       ## Remediation
       Check pointers for NULL before dereferencing them.
@@ -40,49 +40,139 @@ rules:
     - cpp
     source: Validated against NIST Juliet C/C++ Test Suite v1.3
     remediation: Check pointers for NULL before dereferencing them.
+    policy_name: 'NULL Pointer Dereference: Pointer Set to NULL Then Used'
   mode: taint
   pattern-sources:
   - patterns:
     - pattern-either:
       - pattern: $X = $NULL
-      - pattern: $T $X = $NULL;
+      - pattern: $DT $X = $NULL;
     - metavariable-regex:
         metavariable: $NULL
         regex: ^(NULL|nullptr)$
+    - pattern-not-inside: |
+        $R $F(...) { ... $X = $NULL; ... $X = $OTHER; ... }
+    - pattern-not-inside: |
+        $R $F(...) { ... $DT $X = $NULL; ... $X = $OTHER; ... }
+    - pattern-not-inside: |
+        $R $F(...) { ... <... &$X ...>; ... }
+    - pattern-not-inside: |
+        $HR $HF(..., $HT &$HP, ...);
+        ...
+        $R $F(...) { ... $HF(..., $X, ...); ... }
+    - pattern-not-inside: |
+        $HR $HF(..., $HT &$HP, ...) { ... }
+        ...
+        $R $F(...) { ... $HF(..., $X, ...); ... }
+    - focus-metavariable: $NULL
+  - patterns:
+    - pattern-either:
+      - pattern-inside: |
+          if ($C) { ... $X = $NULL; ... } else { ... }
+      - pattern-inside: |
+          if ($C) { ... } else { ... $X = $NULL; ... }
+    - pattern: $X = $NULL
+    - metavariable-regex:
+        metavariable: $NULL
+        regex: ^(NULL|nullptr)$
+    - pattern-not-inside: |
+        $X = $NULL;
+        ...
+        $X = $OTHER;
+    - pattern-not-inside: |
+        if ($C) { ... } else { ... }
+        ...
+        $X = $OTHER;
+    - pattern-not-inside: |
+        $R $F(...) { ... <... &$X ...>; ... }
+    - pattern-not-inside: |
+        $HR $HF(..., $HT &$HP, ...);
+        ...
+        $R $F(...) { ... $HF(..., $X, ...); ... }
+    - pattern-not-inside: |
+        $HR $HF(..., $HT &$HP, ...) { ... }
+        ...
+        $R $F(...) { ... $HF(..., $X, ...); ... }
     - focus-metavariable: $NULL
   - patterns:
     - pattern-inside: |
-        $R $SINKF(..., $T $P, ...) { ... }
+        $R $CALLEE(..., $T $P, ...) { ... }
         ...
-        $R2 $CALLER(...) { ... $D = NULL; ... $SINKF(..., $D, ...); ... }
+        $R2 $CALLER(...) { ... $D = NULL; ... $CALLEE(..., $D, ...); ... }
     - pattern-not-inside: |
-        $R $SINKF(..., $T $P, ...) { ... }
+        $R $CALLEE(..., $T $P, ...) { ... }
         ...
-        $R2 $CALLER(...) { ... $D = NULL; ... $D = $OTHER; ... $SINKF(..., $D, ...); ... }
+        $R2 $CALLER(...) { ... if (<... $D ...>) $CHK; ... }
+    - pattern-not-inside: |
+        $R $CALLEE(..., $T $P, ...) { ... }
+        ...
+        $R2 $CALLER(...) { ... $D = NULL; ... $D = $OTHER; ... }
     - pattern: |
-        $R $SINKF(..., $T $P, ...) { ... }
+        $R $CALLEE(..., $T $P, ...) { ... }
     - focus-metavariable: $P
   - patterns:
     - pattern-inside: |
-        $R $SINKF(..., $T $P, ...) { ... }
+        $R $CALLEE(..., $T $P, ...) { ... }
         ...
-        $R2 $CALLER(...) { ... $FT (*$FP)(...) = $SINKF; ... $D = NULL; ... $FP(..., $D, ...); ... }
+        $R2 $CALLER(...) { ... $FT (*$FP)(...) = $CALLEE; ... $D = NULL; ... $FP(..., $D, ...); ... }
+    - pattern-not-inside: |
+        $R $CALLEE(..., $T $P, ...) { ... }
+        ...
+        $R2 $CALLER(...) { ... if (<... $D ...>) $CHK; ... }
+    - pattern-not-inside: |
+        $R $CALLEE(..., $T $P, ...) { ... }
+        ...
+        $R2 $CALLER(...) { ... $D = NULL; ... $D = $OTHER; ... }
     - pattern: |
-        $R $SINKF(..., $T $P, ...) { ... }
+        $R $CALLEE(..., $T $P, ...) { ... }
     - focus-metavariable: $P
   - patterns:
     - pattern-inside: |
-        $R $SINKF(...) { ... }
+        $R $READER(...) { ... }
         ...
-        $R2 $CALLER(...) { ... $D = NULL; ... $G = $D; ... }
+        $R2 $WRITER(...) { ... $D = NULL; ... $G = $D; ... }
+    - pattern-not-inside: |
+        $R $READER(...) { ... }
+        ...
+        $R2 $WRITER(...) { ... if (<... $D ...>) $CHK; ... }
+    - pattern-not-inside: |
+        $R $READER(...) { ... }
+        ...
+        $R2 $WRITER(...) { ... $D = NULL; ... $D = $OTHER; ... }
     - pattern-inside: |
-        $R $SINKF(...) { ... }
-    - pattern: $G
+        $R $READER(...) { ... }
+    - pattern-either:
+      - pattern: $LT $L = $G;
+      - pattern: $L = $G
+    - focus-metavariable: $G
+  - patterns:
+    - pattern-inside: |
+        $R $HELPER(...) { ... $X = NULL; ... return $X; }
+        ...
+    - pattern-not-inside: |
+        $R $HELPER(...) { ... if (<... $X ...>) $CHK; ... }
+        ...
+    - pattern: $HELPER(...)
+  - patterns:
+    - pattern-inside: |
+        $R $HELPER(..., $T &$X, ...) { ... $X = NULL; ... }
+        ...
+    - pattern-not-inside: |
+        $R $HELPER(..., $T &$X, ...) { ... if (<... $X ...>) $CHK; ... }
+        ...
+    - pattern: $HELPER($D)
+    - focus-metavariable: $D
+    by-side-effect: true
   - patterns:
     - pattern-inside: |
         $T &$REF = $D;
         ...
         $D = NULL;
+        ...
+    - pattern-not-inside: |
+        $D = NULL;
+        ...
+        $D = $OTHER;
         ...
     - pattern: $REF
   - patterns:
@@ -105,6 +195,11 @@ rules:
             *$P1 = $V;
           }
           ...
+    - pattern-not-inside: |
+        $V = NULL;
+        ...
+        $V = $OTHER;
+        ...
     - pattern: '*$P2'
   pattern-propagators:
   - patterns:
@@ -144,7 +239,11 @@ rules:
     - pattern: $F($P, ...)
     - metavariable-regex:
         metavariable: $F
-        regex: ^(strcpy|wcscpy|strncpy|wcsncpy|strcat|wcscat|strncat|wcsncat|memcpy|memmove|memset|wmemset|sprintf|swprintf|snprintf|fclose|fputs|fputws|fgets|fgetws|fprintf|fwprintf|fwrite|fread|strlen|wcslen)$
+        regex: ^(strcpy|wcscpy|strncpy|wcsncpy|strcat|wcscat|strncat|wcsncat|memcpy|memmove|memset|wmemset|sprintf|swprintf|snprintf|_snprintf|_snwprintf|fclose|fputs|fputws|fgets|fgetws|fprintf|fwprintf|fwrite|fread|fputc|fgetc|fseek|ftell|rewind|fflush|strlen|wcslen)$
+    - pattern-not-inside: sizeof(...)
+    - pattern-not-inside: malloc(...)
+    - pattern-not-inside: calloc(...)
+    - pattern-not-inside: realloc(...)
     - focus-metavariable: $P
   - patterns:
     - pattern-either:
@@ -153,6 +252,10 @@ rules:
       - pattern: $P->$FLD
     - pattern-not-inside: '*$P = $V'
     - pattern-not-inside: $T * $X = *$P;
+    - pattern-not-inside: sizeof(...)
+    - pattern-not-inside: malloc(...)
+    - pattern-not-inside: calloc(...)
+    - pattern-not-inside: realloc(...)
     - focus-metavariable: $P
   - patterns:
     - pattern: '*$P = $V'

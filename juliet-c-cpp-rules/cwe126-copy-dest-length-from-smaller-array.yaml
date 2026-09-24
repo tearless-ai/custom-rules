@@ -40,6 +40,7 @@ rules:
     - cpp
     source: Validated against NIST Juliet C/C++ Test Suite v1.3
     remediation: Bound reads by the source buffer's real size, ensure strings are NUL-terminated after strncpy/memcpy, and validate indexes against the buffer length.
+    policy_name: 'Buffer Over-read: Copy Length Exceeds Source Array'
   mode: taint
   options:
     taint_unify_mvars: true

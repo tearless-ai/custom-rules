@@ -40,6 +40,7 @@ rules:
     - cpp
     source: Validated against NIST Juliet C/C++ Test Suite v1.3
     remediation: Do not assert on conditions that external input can violate; validate input and handle errors explicitly.
+    policy_name: 'Reachable Assertion: Constant False Condition'
   pattern-either:
   - pattern: assert(0)
   - pattern: assert(false)

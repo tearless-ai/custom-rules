@@ -16,12 +16,12 @@ rules:
     - '*.hxx'
     - '*.inc'
   severity: WARNING
-  message: $F() reports failure only through errno, but errno is neither cleared before the call nor checked before the result is used.
+  message: This call reports failure only through errno, but errno is neither cleared before the call nor checked before the result is used.
   metadata:
     vulnerability_class: Unchecked Error Condition
     help: |
       ## Summary
-      `$F()` reports failure only through errno, but errno is neither cleared before the call nor checked before the result is used.
+      This call reports failure only through errno, but errno is neither cleared before the call nor checked before the result is used.
 
       ## Remediation
       Check error indicators (return values, errno) after calls that can fail and handle the failure.
@@ -40,6 +40,7 @@ rules:
     - cpp
     source: Validated against NIST Juliet C/C++ Test Suite v1.3
     remediation: Check error indicators (return values, errno) after calls that can fail and handle the failure.
+    policy_name: 'Unchecked Error Condition: errno Not Checked'
   patterns:
   - pattern-either:
     - pattern: |

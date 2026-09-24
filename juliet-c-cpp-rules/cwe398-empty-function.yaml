@@ -16,12 +16,12 @@ rules:
     - '*.hxx'
     - '*.inc'
   severity: INFO
-  message: Function $F has an empty body and does nothing.
+  message: This function has an empty body and does nothing.
   metadata:
     vulnerability_class: 7PK - Code Quality
     help: |
       ## Summary
-      Function `$F` has an empty body and does nothing.
+      This function has an empty body and does nothing.
 
       ## Remediation
       Remove empty blocks and statements with no effect, or implement the intended logic.
@@ -40,5 +40,6 @@ rules:
     - cpp
     source: Validated against NIST Juliet C/C++ Test Suite v1.3
     remediation: Remove empty blocks and statements with no effect, or implement the intended logic.
+    policy_name: 'Poor Code Quality: Empty Function Body'
   pattern: |
     $R $F(...) {}

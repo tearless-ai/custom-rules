@@ -33,4 +33,5 @@ rules:
     - cpp
     source: Validated against NIST Juliet C/C++ Test Suite v1.3
     remediation: 'Handle detected errors: report, recover or abort instead of leaving the error branch empty.'
+    policy_name: 'Error Detected Without Action: Empty Catch Block'
   pattern-regex: \}\s*catch\s*\([^()]*\)\s*\{(?:\s|/\*(?:[^*]|\*(?!/))*\*/|//[^\n]*)*\}

@@ -16,12 +16,12 @@ rules:
     - '*.hxx'
     - '*.inc'
   severity: ERROR
-  message: $DEL() destroys data only when a date, random-number or counter trigger fires, which is the signature of a logic bomb.
+  message: A file or directory is deleted only when a date, random-number or counter trigger fires, which is the signature of a logic bomb.
   metadata:
     vulnerability_class: Logic/Time Bomb
     help: |
       ## Summary
-      `$DEL()` destroys data only when a date, random-number or counter trigger fires, which is the signature of a logic bomb.
+      A file or directory is deleted only when a date, random-number or counter trigger fires, which is the signature of a logic bomb.
 
       ## Remediation
       Remove date- or time-triggered logic that performs destructive or unauthorized actions.
@@ -40,6 +40,7 @@ rules:
     - cpp
     source: Validated against NIST Juliet C/C++ Test Suite v1.3
     remediation: Remove date- or time-triggered logic that performs destructive or unauthorized actions.
+    policy_name: 'Logic or Time Bomb: Triggered Deletion'
   patterns:
   - pattern: $DEL(...)
   - metavariable-regex:

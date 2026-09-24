@@ -15,12 +15,12 @@ rules:
     - '*.hxx'
     - '*.inc'
   severity: ERROR
-  message: Memory obtained from new[] is released with scalar delete or free(); it must be released with delete[]. Allocation and release happen in different functions of the same file.
+  message: Memory obtained from new[] in one function of this file is released with scalar delete or free() in another instead of delete[].
   metadata:
     vulnerability_class: Mismatched Memory Management Routines
     help: |
       ## Summary
-      Memory obtained from new[] is released with scalar delete or free(); it must be released with delete[]. Allocation and release happen in different functions of the same file.
+      Memory obtained from new[] in one function of this file is released with scalar delete or free() in another instead of delete[].
 
       ## Remediation
       Pair allocation and release functions correctly: malloc/free, new/delete, new[]/delete[].
@@ -39,6 +39,7 @@ rules:
     - cpp
     source: Validated against NIST Juliet C/C++ Test Suite v1.3
     remediation: 'Pair allocation and release functions correctly: malloc/free, new/delete, new[]/delete[].'
+    policy_name: 'Mismatched Deallocation: new[] Released without delete[] (Helper)'
   pattern-either:
   - patterns:
     - pattern-inside: |

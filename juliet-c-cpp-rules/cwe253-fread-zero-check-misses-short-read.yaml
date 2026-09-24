@@ -40,6 +40,7 @@ rules:
     - cpp
     source: Validated against NIST Juliet C/C++ Test Suite v1.3
     remediation: Compare return values against the function's documented error value (e.g. EOF, NULL, INVALID_HANDLE_VALUE, -1) rather than an assumed one.
+    policy_name: 'Incorrect Return Check: fread() Compared to Zero'
   pattern-either:
   - pattern: fread(...) == 0
   - pattern: 0 == fread(...)

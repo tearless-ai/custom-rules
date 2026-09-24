@@ -16,12 +16,12 @@ rules:
     - '*.hxx'
     - '*.inc'
   severity: ERROR
-  message: The condition assigns the constant $V to $X instead of comparing with it; this was almost certainly meant to be '=='.
+  message: The condition assigns a constant to a variable instead of comparing with it; '==' was almost certainly intended.
   metadata:
     vulnerability_class: Assigning instead of Comparing
     help: |
       ## Summary
-      The condition assigns the constant `$V` to `$X` instead of comparing with it; this was almost certainly meant to be '=='.
+      The condition assigns a constant to a variable instead of comparing with it; '==' was almost certainly intended.
 
       ## Remediation
       Use == for comparison in conditions; enable compiler warnings for assignments in conditions.
@@ -40,6 +40,7 @@ rules:
     - cpp
     source: Validated against NIST Juliet C/C++ Test Suite v1.3
     remediation: Use == for comparison in conditions; enable compiler warnings for assignments in conditions.
+    policy_name: Assignment Instead of Comparison in Condition
   patterns:
   - pattern-either:
     - pattern: if ($X = $V) $S;

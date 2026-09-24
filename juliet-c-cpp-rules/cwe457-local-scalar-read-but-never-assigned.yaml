@@ -15,12 +15,12 @@ rules:
     - '*.hxx'
     - '*.inc'
   severity: ERROR
-  message: A local variable declared without an initializer is read, but it is never assigned anywhere in the function, so its indeterminate value is used.
+  message: A local scalar or pointer variable declared without an initializer is read, but it is never assigned anywhere in the function, so its indeterminate value is used.
   metadata:
     vulnerability_class: Use of Uninitialized Variable
     help: |
       ## Summary
-      A local variable declared without an initializer is read, but it is never assigned anywhere in the function, so its indeterminate value is used.
+      A local scalar or pointer variable declared without an initializer is read, but it is never assigned anywhere in the function, so its indeterminate value is used.
 
       ## Remediation
       Initialize every variable before it is read.
@@ -39,6 +39,7 @@ rules:
     - cpp
     source: Validated against NIST Juliet C/C++ Test Suite v1.3
     remediation: Initialize every variable before it is read.
+    policy_name: 'Uninitialized Variable: Scalar or Pointer Local Never Assigned (C++)'
   patterns:
   - pattern-inside: |
       $R $FN(...) { ... $T $X; ... }
@@ -59,6 +60,52 @@ rules:
       $R $FN(...) { ... <... &$X.$FLD ...>; ... }
   - pattern-not-inside: |
       $R $FN(...) { ... <... $STREAM >> $X ...>; ... }
+  - pattern-not-inside: |
+      $R $FN(...) { ... va_start($X, ...); ... }
+  - pattern-not-inside: |
+      $R $FN(...) { ... va_copy($X, ...); ... }
+  - pattern-not-inside: |
+      $R $FN(...) { ... <... memcpy($X.$FLD, ...) ...>; ... }
+  - pattern-not-inside: |
+      $R $FN(...) { ... <... memmove($X.$FLD, ...) ...>; ... }
+  - pattern-not-inside: |
+      $R $FN(...) { ... <... memset($X.$FLD, ...) ...>; ... }
+  - pattern-not-inside: |
+      $R $FN(...) { ... <... wmemset($X.$FLD, ...) ...>; ... }
+  - pattern-not-inside: |
+      $R $FN(...) { ... <... wmemcpy($X.$FLD, ...) ...>; ... }
+  - pattern-not-inside: |
+      $R $FN(...) { ... <... strcpy($X.$FLD, ...) ...>; ... }
+  - pattern-not-inside: |
+      $R $FN(...) { ... <... wcscpy($X.$FLD, ...) ...>; ... }
+  - pattern-not-inside: |
+      $R $FN(...) { ... <... strncpy($X.$FLD, ...) ...>; ... }
+  - pattern-not-inside: |
+      $R $FN(...) { ... <... wcsncpy($X.$FLD, ...) ...>; ... }
+  - pattern-not-inside: |
+      $R $FN(...) { ... <... sprintf($X.$FLD, ...) ...>; ... }
+  - pattern-not-inside: |
+      $R $FN(...) { ... <... snprintf($X.$FLD, ...) ...>; ... }
+  - pattern-not-inside: |
+      $R $FN(...) { ... <... swprintf($X.$FLD, ...) ...>; ... }
+  - pattern-not-inside: |
+      $R $FN(...) { ... <... fgets($X.$FLD, ...) ...>; ... }
+  - pattern-not-inside: |
+      $R $FN(...) { ... <... fgetws($X.$FLD, ...) ...>; ... }
+  - pattern-not-inside: |
+      $R $FN(...) { ... <... fread($X.$FLD, ...) ...>; ... }
+  - pattern-not-inside: |
+      $R $FN(...) { ... <... read($X.$FLD, ...) ...>; ... }
+  - pattern-not-inside: |
+      $R $FN(...) { ... <... recv($X.$FLD, ...) ...>; ... }
+  - pattern-not-inside: |
+      $R $FN(...) { ... <... scanf($X.$FLD, ...) ...>; ... }
+  - pattern-not-inside: |
+      $R $FN(...) { ... <... sscanf($X.$FLD, ...) ...>; ... }
+  - pattern-not-inside: |
+      $R $FN(...) { ... <... fscanf($X.$FLD, ...) ...>; ... }
+  - pattern-not-inside: |
+      $R $FN(...) { ... <... gets($X.$FLD, ...) ...>; ... }
   - pattern-not-inside: |
       $R2 $SRC(..., $PT &$P, ...) { ... $P = $V; ... }
       ...

@@ -16,12 +16,12 @@ rules:
     - '*.hxx'
     - '*.inc'
   severity: WARNING
-  message: The only base case of recursive function $F is '$P == 0' and there is no upper limit on $P, yet $F is called with a huge depth, so recursion depth is effectively unbounded.
+  message: The only base case of this recursive function is the depth argument reaching zero and there is no upper limit on it, yet it is called with a huge depth.
   metadata:
     vulnerability_class: Uncontrolled Recursion
     help: |
       ## Summary
-      The only base case of recursive function `$F` is '`$P` == 0' and there is no upper limit on `$P`, yet `$F` is called with a huge depth, so recursion depth is effectively unbounded.
+      The only base case of this recursive function is the depth argument reaching zero and there is no upper limit on it, yet it is called with a huge depth.
 
       ## Remediation
       Bound recursion depth or replace recursion with iteration.
@@ -40,6 +40,7 @@ rules:
     - cpp
     source: Validated against NIST Juliet C/C++ Test Suite v1.3
     remediation: Bound recursion depth or replace recursion with iteration.
+    policy_name: 'Uncontrolled Recursion: No Upper Depth Limit'
   patterns:
   - pattern-inside: |
       $R $F($T $P) { ... }
@@ -53,7 +54,25 @@ rules:
   - pattern-not-inside: |
       $R $F($T $P) { ... if ($P > $MAX) $S; ... }
   - pattern-not-inside: |
+      $R $F($T $P) {
+        ...
+        if ($P > $MAX) { ... }
+        ...
+      }
+  - pattern-not-inside: |
       $R $F($T $P) { ... if ($P >= $MAX) $S; ... }
   - pattern-not-inside: |
+      $R $F($T $P) {
+        ...
+        if ($P >= $MAX) { ... }
+        ...
+      }
+  - pattern-not-inside: |
       $R $F($T $P) { ... if ($MAX < $P) $S; ... }
+  - pattern-not-inside: |
+      $R $F($T $P) {
+        ...
+        if ($MAX < $P) { ... }
+        ...
+      }
   - pattern: if ($P == 0) $S;

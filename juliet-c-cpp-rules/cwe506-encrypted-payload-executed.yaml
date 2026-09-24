@@ -16,12 +16,12 @@ rules:
     - '*.hxx'
     - '*.inc'
   severity: ERROR
-  message: The embedded byte array $P is decrypted at run time and then executed, which hides the real command from reviewers.
+  message: An embedded byte array is decrypted at run time and then executed, which hides the real command from reviewers.
   metadata:
     vulnerability_class: Embedded Malicious Code
     help: |
       ## Summary
-      The embedded byte array `$P` is decrypted at run time and then executed, which hides the real command from reviewers.
+      An embedded byte array is decrypted at run time and then executed, which hides the real command from reviewers.
 
       ## Remediation
       Remove hidden functionality that deletes, modifies or exfiltrates data or executes encoded commands.
@@ -40,6 +40,7 @@ rules:
     - cpp
     source: Validated against NIST Juliet C/C++ Test Suite v1.3
     remediation: Remove hidden functionality that deletes, modifies or exfiltrates data or executes encoded commands.
+    policy_name: 'Embedded Malicious Code: Encrypted Payload Executed'
   patterns:
   - pattern: $T $P[$N] = $INIT;
   - pattern-inside: |

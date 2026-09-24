@@ -40,6 +40,7 @@ rules:
     - cpp
     source: Validated against NIST Juliet C/C++ Test Suite v1.3
     remediation: Do not insert sentinel values such as NUL into data structures where they can truncate or corrupt the data.
+    policy_name: Data Structure Sentinel Injected from Input Character
   mode: taint
   pattern-sources:
   - patterns:

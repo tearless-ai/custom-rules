@@ -40,6 +40,7 @@ rules:
     - cpp
     source: Validated against NIST Juliet C/C++ Test Suite v1.3
     remediation: Only cast pointers to struct types when they actually point to that struct.
+    policy_name: Structure Access Through Pointer to Scalar Object
   mode: taint
   options:
     taint_unify_mvars: true
@@ -85,7 +86,7 @@ rules:
       - pattern: static_cast<$T *>($D)
     - metavariable-regex:
         metavariable: $T
-        regex: ^(?!((unsigned|signed)\s+)?(char|short|int|long|long\s+long|float|double|wchar_t|bool|size_t|u?int(8|16|32|64)_t)$|void$)
+        regex: ^(?!(const\s+)?(((unsigned|signed)\s+)?(char|short|int|long|long\s+long|float|double|wchar_t|bool|size_t|u?int(8|16|32|64)_t)|void|BYTE|UCHAR|CHAR|WCHAR|TCHAR|BOOLEAN|u_char|u_int8_t|u8|uint8|guint8|gchar|guchar|byte|std::byte|std::uint8_t)$)
     - metavariable-comparison:
         comparison: str($T) != str($XT)
     - focus-metavariable: $D

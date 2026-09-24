@@ -16,12 +16,12 @@ rules:
     - '*.hxx'
     - '*.inc'
   severity: WARNING
-  message: A helper copies a command macro whose value has no absolute path into the buffer that is then executed with $EXEC(); the program that actually runs is chosen through the search path.
+  message: A helper copies a command macro whose value has no absolute path into a buffer that is then executed, so the program that actually runs is chosen through the search path.
   metadata:
     vulnerability_class: Untrusted Search Path
     help: |
       ## Summary
-      A helper copies a command macro whose value has no absolute path into the buffer that is then executed with `$EXEC()`; the program that actually runs is chosen through the search path.
+      A helper copies a command macro whose value has no absolute path into a buffer that is then executed, so the program that actually runs is chosen through the search path.
     category: security
     cwe:
     - 'CWE-426: Untrusted Search Path'
@@ -36,6 +36,7 @@ rules:
     - c
     - cpp
     source: Validated against NIST Juliet C/C++ Test Suite v1.3
+    policy_name: 'Untrusted Search Path: Relative Command Macro (Read in Helper)'
   patterns:
   - pattern-regex: (?s)#define[ \t]+(?P<MACRO>\w+)[ \t]+L?"(?![A-Za-z]:|[\\/%])[^"\r\n]*"[ \t]*\r?\n.*?\n(?:static[ \t]+)?[\w \t\*]*?\b(?P<SRC>\w+)\([^)\n]*?\b(?P<BUF>\w+)\)\s*\{(?:(?!\n\}).)*?\b(?:str|wcs|_tcs|_mbs)n?cpy(?:_s)?\((?P=BUF),\s*(?:[^,()]*,\s*)?(?P=MACRO)\);.*?\b(?P=SRC)\((?P<ARG>\w+)\)(?:(?!\n\}).)*?\b(?P<EXEC>SYSTEM|POPEN|system|popen|_popen|_wpopen|_wsystem)\((?P=ARG)\b
   - focus-metavariable: $EXEC

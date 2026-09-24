@@ -1,0 +1,121 @@
+rules:
+- id: cwe36-absolute-path-from-file-via-source-function
+  languages:
+  - c
+  - cpp
+  paths:
+    include:
+    - '*.c'
+    - '*.h'
+    - '*.cpp'
+    - '*.cc'
+    - '*.cxx'
+    - '*.c++'
+    - '*.hpp'
+    - '*.hh'
+    - '*.hxx'
+    - '*.inc'
+  severity: ERROR
+  message: A file is opened with a path taken entirely from data on data returned by a helper that reads the path from another file, so that input can name any file on the system.
+  metadata:
+    vulnerability_class: Absolute Path Traversal
+    help: |
+      ## Summary
+      A file is opened with a path taken entirely from data on data returned by a helper that reads the path from another file, so that input can name any file on the system.
+
+      ## Remediation
+      Never open a path taken directly from input; map input to an allow-list of known files or join it to a fixed base directory and re-check the canonical result.
+    category: security
+    cwe:
+    - 'CWE-36: Absolute Path Traversal'
+    references:
+    - https://cwe.mitre.org/data/definitions/36.html
+    confidence: MEDIUM
+    likelihood: MEDIUM
+    impact: HIGH
+    subcategory:
+    - vuln
+    technology:
+    - c
+    - cpp
+    source: Validated against NIST Juliet C/C++ Test Suite v1.3
+    remediation: Never open a path taken directly from input; map input to an allow-list of known files or join it to a fixed base directory and re-check the canonical result.
+    policy_name: Absolute Path Traversal from File Contents (Read in Helper)
+  options:
+    constant_propagation: false
+    symbolic_propagation: false
+  patterns:
+  - pattern-either:
+    - patterns:
+      - pattern: $OPEN($PATH, ...)
+      - metavariable-regex:
+          metavariable: $OPEN
+          regex: ^(FOPEN|fopen|_wfopen|fopen_s|freopen|_wfreopen|OPEN|open|_open|_wopen|open64|creat|openat|CreateFile|CreateFileA|CreateFileW|_sopen|_wsopen|_sopen_s|_wsopen_s)$
+    - patterns:
+      - pattern-either:
+        - pattern-inside: |
+            $STREAM_T $STREAM;
+            ...
+        - pattern-inside: |
+            $STREAM_T $STREAM($PATH, ...);
+      - metavariable-regex:
+          metavariable: $STREAM_T
+          regex: ^(std::)?(basic_)?(i|o|w|wi|wo)?fstream$
+      - pattern-either:
+        - pattern: $STREAM.open($PATH, ...)
+        - pattern: $STREAM_T $STREAM($PATH, ...);
+  - pattern-not-inside: |
+      $PATH_T * $PATH = "...";
+      ...
+  - pattern-not-inside: |
+      $PATH_T * const $PATH = "...";
+      ...
+  - metavariable-regex:
+      metavariable: $PATH
+      regex: ^(?!\s*(L|u8|u|U)?\")(?!\s*[A-Z][A-Z0-9_]*\s*$)
+  - pattern-either:
+    - pattern-inside: |
+        $T_SRCFN $SRCFN(...) {
+          ...
+          <... $SRC(..., $INSTREAM) ...>;
+          ...
+        }
+        ...
+        $T_F $F(...) {
+          ...
+          $BUF_T $BUF[$BUF_N] = $BUF_INIT;
+          ...
+          <... $SRCFN(...) ...>;
+          ...
+        }
+    - pattern-inside: |
+        $T_F $F(...) {
+          ...
+          $BUF_T $BUF[$BUF_N] = $BUF_INIT;
+          ...
+          <... $SRCFN(...) ...>;
+          ...
+        }
+        ...
+        $T_SRCFN $SRCFN(...) {
+          ...
+          <... $SRC(..., $INSTREAM) ...>;
+          ...
+        }
+  - pattern-inside: |
+      $T_F $F(...) {
+        ...
+      }
+  - pattern-inside: |
+      <... $SRCFN(...) ...>;
+      ...
+  - metavariable-regex:
+      metavariable: $SRC
+      regex: ^(?:std::)?(fgets|fgetws|fscanf|fwscanf|getline|getdelim)$
+  - metavariable-regex:
+      metavariable: $BUF_INIT
+      regex: ^\s*L?""\s*$
+  - metavariable-regex:
+      metavariable: $INSTREAM
+      regex: ^(?!\s*(stdin|std::cin)\s*$)
+  - focus-metavariable: $PATH

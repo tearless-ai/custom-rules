@@ -40,4 +40,5 @@ rules:
     - cpp
     source: Validated against NIST Juliet C/C++ Test Suite v1.3
     remediation: Always use braces for multi-statement if/else/loop bodies.
+    policy_name: 'Incorrect Block Delimitation: Misleading Indentation'
   pattern-regex: (?m)^([ \t]*)(?:if|while|for)[ \t]*\((?:[^()\n]|\((?:[^()\n]|\([^()\n]*\))*\))*\)[ \t]*\r?\n\1([ \t]+)[^\s{}/][^\n]*;[ \t]*\r?\n\1\2(?!else\b)[^\s{}/]

@@ -16,12 +16,12 @@ rules:
     - '*.hxx'
     - '*.inc'
   severity: WARNING
-  message: An unsigned value compared this way against zero is always false.
+  message: An unsigned value is compared against zero in a way that is always false, because an unsigned value can never be negative.
   metadata:
     vulnerability_class: Expression is Always False
     help: |
       ## Summary
-      An unsigned value compared this way against zero is always false.
+      An unsigned value is compared against zero in a way that is always false, because an unsigned value can never be negative.
 
       ## Remediation
       Fix conditions that are always false; they indicate a logic error or dead code.
@@ -40,8 +40,10 @@ rules:
     - cpp
     source: Validated against NIST Juliet C/C++ Test Suite v1.3
     remediation: Fix conditions that are always false; they indicate a logic error or dead code.
+    policy_name: 'Expression Always False: Unsigned Compared With Zero'
   pattern-either:
   - pattern: (unsigned int $U) < 0
   - pattern: (unsigned $U) < 0
   - pattern: (unsigned long $U) < 0
   - pattern: (size_t $U) < 0
+  - pattern: 0 > (unsigned int $U)

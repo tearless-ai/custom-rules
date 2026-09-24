@@ -16,12 +16,12 @@ rules:
     - '*.hxx'
     - '*.inc'
   severity: ERROR
-  message: The memory pointed to by $P was freshly allocated and never written, so reading *$P yields an indeterminate value (undefined behavior).
+  message: Freshly allocated heap or stack memory is read through a pointer before anything was written to it, so the value is indeterminate and the behavior is undefined.
   metadata:
     vulnerability_class: Reliance on Undefined, Unspecified, or Implementation-Defined Behavior
     help: |
       ## Summary
-      The memory pointed to by `$P` was freshly allocated and never written, so reading *`$P` yields an indeterminate value (undefined behavior).
+      Freshly allocated heap or stack memory is read through a pointer before anything was written to it, so the value is indeterminate and the behavior is undefined.
 
       ## Remediation
       Avoid undefined behavior: do not read uninitialized memory, and always return a value from non-void functions.
@@ -40,6 +40,7 @@ rules:
     - cpp
     source: Validated against NIST Juliet C/C++ Test Suite v1.3
     remediation: 'Avoid undefined behavior: do not read uninitialized memory, and always return a value from non-void functions.'
+    policy_name: 'Undefined Behavior: Read of Uninitialized Allocated Memory'
   patterns:
   - pattern-either:
     - pattern-inside: |

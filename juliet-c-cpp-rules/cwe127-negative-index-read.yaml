@@ -40,6 +40,7 @@ rules:
     - cpp
     source: Validated against NIST Juliet C/C++ Test Suite v1.3
     remediation: Check that indexes and pointer offsets are not negative and do not move before the start of the buffer before reading.
+    policy_name: 'Buffer Under-read: Unchecked Negative Array Index'
   mode: taint
   pattern-sources:
   - patterns:

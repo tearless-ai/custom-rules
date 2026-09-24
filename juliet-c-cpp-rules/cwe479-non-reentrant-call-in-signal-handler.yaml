@@ -16,12 +16,12 @@ rules:
     - '*.hxx'
     - '*.inc'
   severity: ERROR
-  message: $FN is not async-signal-safe but is called from $H, which is installed as a signal handler; if the signal interrupts another call to it, heap or stdio state can be corrupted.
+  message: A function that is not async-signal-safe (such as malloc, free or printf) is called from an installed signal handler, which can corrupt heap or stdio state.
   metadata:
     vulnerability_class: Signal Handler Use of a Non-reentrant Function
     help: |
       ## Summary
-      `$FN` is not async-signal-safe but is called from `$H`, which is installed as a signal handler; if the signal interrupts another call to it, heap or stdio state can be corrupted.
+      A function that is not async-signal-safe (such as malloc, free or printf) is called from an installed signal handler, which can corrupt heap or stdio state.
 
       ## Remediation
       Call only async-signal-safe functions from signal handlers.
@@ -40,6 +40,7 @@ rules:
     - cpp
     source: Validated against NIST Juliet C/C++ Test Suite v1.3
     remediation: Call only async-signal-safe functions from signal handlers.
+    policy_name: Signal Handler Calls Non-Reentrant Function
   patterns:
   - pattern-inside: |
       $R $H($T $SG) { ... }

@@ -39,6 +39,7 @@ rules:
     - cpp
     source: Validated against NIST Juliet C/C++ Test Suite v1.3
     remediation: Throw specific exception types that describe the error instead of generic ones such as std::exception.
+    policy_name: Throw of Generic Exception
   pattern-either:
   - pattern: throw exception();
   - pattern: throw std::exception();

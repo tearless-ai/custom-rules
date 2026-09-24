@@ -16,12 +16,12 @@ rules:
     - '*.hxx'
     - '*.inc'
   severity: WARNING
-  message: $F() uses the weak hash algorithm $ALG, which is vulnerable to collision or preimage attacks; use SHA-256 or stronger.
+  message: A hash object is created with a weak algorithm (MD2, MD4, MD5 or SHA-1) that is vulnerable to collision or preimage attacks; use SHA-256 or stronger.
   metadata:
     vulnerability_class: Use of Weak Hash
     help: |
       ## Summary
-      `$F()` uses the weak hash algorithm `$ALG`, which is vulnerable to collision or preimage attacks; use SHA-256 or stronger.
+      A hash object is created with a weak algorithm (MD2, MD4, MD5 or SHA-1) that is vulnerable to collision or preimage attacks; use SHA-256 or stronger.
 
       ## Remediation
       Replace MD5/SHA-1 for security uses with SHA-256 or stronger; use a password-hashing function such as Argon2 or bcrypt for passwords.
@@ -40,6 +40,7 @@ rules:
     - cpp
     source: Validated against NIST Juliet C/C++ Test Suite v1.3
     remediation: Replace MD5/SHA-1 for security uses with SHA-256 or stronger; use a password-hashing function such as Argon2 or bcrypt for passwords.
+    policy_name: 'Weak Hash: Weak Algorithm Identifier'
   patterns:
   - pattern-either:
     - pattern: CryptCreateHash($P, $ALG, ...)

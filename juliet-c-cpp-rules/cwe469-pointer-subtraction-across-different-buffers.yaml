@@ -40,6 +40,7 @@ rules:
     - cpp
     source: Validated against NIST Juliet C/C++ Test Suite v1.3
     remediation: Only subtract pointers that point into the same buffer; track sizes explicitly instead.
+    policy_name: Pointer Subtraction Across Different Buffers
   patterns:
   - pattern-either:
     - pattern-inside: |

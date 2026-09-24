@@ -40,6 +40,7 @@ rules:
     - cpp
     source: Validated against NIST Juliet C/C++ Test Suite v1.3
     remediation: Bound reads by the source buffer's real size, ensure strings are NUL-terminated after strncpy/memcpy, and validate indexes against the buffer length.
+    policy_name: 'Buffer Over-read: Input Index Without Upper Bound Check'
   mode: taint
   pattern-sources:
   - patterns:

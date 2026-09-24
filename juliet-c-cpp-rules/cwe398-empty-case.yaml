@@ -40,4 +40,5 @@ rules:
     - cpp
     source: Validated against NIST Juliet C/C++ Test Suite v1.3
     remediation: Remove empty blocks and statements with no effect, or implement the intended logic.
+    policy_name: 'Poor Code Quality: Empty Case Label'
   pattern-regex: \bcase\s+[^:\n]+:\s*break\s*;

@@ -1,0 +1,53 @@
+rules:
+- id: cwe252-output-result-ignored
+  languages:
+  - c
+  - cpp
+  paths:
+    include:
+    - '*.c'
+    - '*.h'
+    - '*.cpp'
+    - '*.cc'
+    - '*.cxx'
+    - '*.c++'
+    - '*.hpp'
+    - '*.hh'
+    - '*.hxx'
+    - '*.inc'
+  severity: INFO
+  message: The return value of this output or formatting call is discarded, so a failed or truncated write goes unnoticed.
+  metadata:
+    vulnerability_class: Unchecked Return Value
+    help: |
+      ## Summary
+      The return value of this output or formatting call is discarded, so a failed or truncated write goes unnoticed.
+
+      ## Remediation
+      Check the return value of every call that can fail and handle the error before using any output of the call.
+    category: security
+    cwe:
+    - 'CWE-252: Unchecked Return Value'
+    references:
+    - https://cwe.mitre.org/data/definitions/252.html
+    confidence: LOW
+    likelihood: MEDIUM
+    impact: LOW
+    subcategory:
+    - vuln
+    technology:
+    - c
+    - cpp
+    source: Validated against NIST Juliet C/C++ Test Suite v1.3
+    remediation: Check the return value of every call that can fail and handle the error before using any output of the call.
+    policy_name: 'Unchecked Return Value: Output or Formatting Call'
+  patterns:
+  - pattern: $F(...);
+  - pattern-not: $X = $F(...);
+  - pattern-not: $X = ($T) $F(...);
+  - metavariable-regex:
+      metavariable: $F
+      regex: ^(fprintf|fwprintf|fputc|fputwc|fputs|fputws|fwrite|putc|putwc|putchar|putwchar|puts|_putws|PUTS|snprintf|_snprintf|_snwprintf|swprintf|SNPRINTF)$
+  - pattern-not: $F(stderr, ...);
+  - pattern-not: $F($A, stderr);
+  - pattern-not: $F($A, $B, $C, stderr);

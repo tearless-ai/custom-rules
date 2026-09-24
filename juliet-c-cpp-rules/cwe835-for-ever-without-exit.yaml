@@ -40,6 +40,7 @@ rules:
     - cpp
     source: Validated against NIST Juliet C/C++ Test Suite v1.3
     remediation: Ensure every loop has a reachable exit condition.
+    policy_name: 'Infinite Loop: Endless For Loop Without Exit'
   patterns:
   - pattern-regex: \bfor\s*\(\s*[^;()]*;\s*;[^)]*\)
   - pattern-inside: for (...) { ... }

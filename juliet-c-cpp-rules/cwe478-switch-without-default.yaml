@@ -40,4 +40,5 @@ rules:
     - cpp
     source: Validated against NIST Juliet C/C++ Test Suite v1.3
     remediation: Add a default case to every switch to handle unexpected values.
+    policy_name: Missing Default Case in Switch
   pattern-regex: \bswitch\s*\([^;{}]*\)\s*\{(?:(?!\bdefault\s*:)[^{}])*\bcase\b(?:(?!\bdefault\s*:)[^{}])*\K\}

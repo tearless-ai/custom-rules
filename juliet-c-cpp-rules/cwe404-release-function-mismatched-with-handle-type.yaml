@@ -40,6 +40,7 @@ rules:
     - cpp
     source: Validated against NIST Juliet C/C++ Test Suite v1.3
     remediation: Release each resource with the matching function (fclose for fopen, close for open, CloseHandle for CreateFile) and on every path.
+    policy_name: 'Improper Resource Release: Close Function Mismatches Handle Type'
   pattern-either:
   - pattern: fclose((FILE *)(int $X))
   - pattern: fclose((int $X))

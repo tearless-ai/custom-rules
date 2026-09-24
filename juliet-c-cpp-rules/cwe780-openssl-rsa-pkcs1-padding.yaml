@@ -40,6 +40,7 @@ rules:
     - cpp
     source: Validated against NIST Juliet C/C++ Test Suite v1.3
     remediation: Use RSA with OAEP padding (e.g. CRYPT_OAEP) instead of PKCS#1 v1.5 or no padding.
+    policy_name: 'RSA Without OAEP: OpenSSL Padding Mode'
   patterns:
   - pattern: $F($LEN, $FROM, $TO, $RSA, $PAD)
   - metavariable-regex:

@@ -16,12 +16,12 @@ rules:
     - '*.hxx'
     - '*.inc'
   severity: ERROR
-  message: Non-void function $F can reach the end of its body without returning a value; using the result is undefined behavior.
+  message: A function declared to return a value can reach the end of its body without a return statement, so using its result is undefined behavior.
   metadata:
     vulnerability_class: Reliance on Undefined, Unspecified, or Implementation-Defined Behavior
     help: |
       ## Summary
-      Non-void function `$F` can reach the end of its body without returning a value; using the result is undefined behavior.
+      A function declared to return a value can reach the end of its body without a return statement, so using its result is undefined behavior.
 
       ## Remediation
       Avoid undefined behavior: do not read uninitialized memory, and always return a value from non-void functions.
@@ -40,6 +40,7 @@ rules:
     - cpp
     source: Validated against NIST Juliet C/C++ Test Suite v1.3
     remediation: 'Avoid undefined behavior: do not read uninitialized memory, and always return a value from non-void functions.'
+    policy_name: 'Undefined Behavior: Missing Return in Non-Void Function'
   patterns:
   - pattern: |
       $T $F(...) { ... }

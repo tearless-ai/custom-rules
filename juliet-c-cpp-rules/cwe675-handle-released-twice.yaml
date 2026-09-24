@@ -40,11 +40,29 @@ rules:
     - cpp
     source: Validated against NIST Juliet C/C++ Test Suite v1.3
     remediation: Do not perform the same release or open operation twice on a resource.
+    policy_name: 'Duplicate Resource Release: Closed Handle Reaches Another Close'
   mode: taint
   pattern-sources:
   - patterns:
     - pattern: $REL($X)
     - pattern-not-inside: for (...) { ... }
+    - pattern-not-inside: do { ... } while ($LC);
+    - pattern-not-inside: |
+        $REL($X);
+        ...
+        exit($EC);
+    - pattern-not-inside: |
+        $REL($X);
+        ...
+        abort();
+    - pattern-not-inside: |
+        $REL($X);
+        ...
+        return;
+    - pattern-not-inside: |
+        $REL($X);
+        ...
+        return $RV;
     - metavariable-regex:
         metavariable: $REL
         regex: ^(fclose|close|_close|CLOSE|CloseHandle|pclose|closesocket)$
@@ -140,6 +158,11 @@ rules:
     - pattern: $U.$F1 = $D
     from: $D
     to: $U
+  pattern-sanitizers:
+  - patterns:
+    - pattern: $ACQ(..., &$X, ...)
+    - focus-metavariable: $X
+    by-side-effect: true
   pattern-sinks:
   - patterns:
     - pattern: $REL2($X)

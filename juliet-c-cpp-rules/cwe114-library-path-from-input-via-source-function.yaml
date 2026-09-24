@@ -16,12 +16,12 @@ rules:
     - '*.hxx'
     - '*.inc'
   severity: ERROR
-  message: Dynamic library loaded from a path that comes from external data after calling a helper that fills the data from untrusted input (console, file, socket or environment).
+  message: A dynamic library is loaded from a path on data returned by a helper that reads untrusted input from the console, a file, a socket or the environment, so that input decides which code the process loads.
   metadata:
     vulnerability_class: Process Control
     help: |
       ## Summary
-      Dynamic library loaded from a path that comes from external data after calling a helper that fills the data from untrusted input (console, file, socket or environment).
+      A dynamic library is loaded from a path on data returned by a helper that reads untrusted input from the console, a file, a socket or the environment, so that input decides which code the process loads.
 
       ## Remediation
       Load libraries and programs only from fixed absolute paths; never let external input choose the module or command to load.
@@ -40,6 +40,7 @@ rules:
     - cpp
     source: Validated against NIST Juliet C/C++ Test Suite v1.3
     remediation: Load libraries and programs only from fixed absolute paths; never let external input choose the module or command to load.
+    policy_name: Library Loaded from Untrusted Path (Read in Helper)
   patterns:
   - pattern: $LOADLIB($LIB, ...)
   - metavariable-regex:

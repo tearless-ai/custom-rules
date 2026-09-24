@@ -40,6 +40,7 @@ rules:
     - cpp
     source: Validated against NIST Juliet C/C++ Test Suite v1.3
     remediation: Never write through a pointer or to an address derived from untrusted data; validate the target against known-good objects before any write.
+    policy_name: 'Write-What-Where: Write Through Pointer Read from Input'
   mode: taint
   pattern-sources:
   - patterns:

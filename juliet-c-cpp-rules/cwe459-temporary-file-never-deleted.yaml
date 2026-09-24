@@ -15,7 +15,7 @@ rules:
     - '*.hh'
     - '*.hxx'
     - '*.inc'
-  severity: WARNING
+  severity: INFO
   message: A temporary file is created here from a name template, but the function never deletes it (unlink/remove) or returns its name, so the temporary file is left behind.
   metadata:
     vulnerability_class: Incomplete Cleanup
@@ -30,9 +30,9 @@ rules:
     - 'CWE-459: Incomplete Cleanup'
     references:
     - https://cwe.mitre.org/data/definitions/459.html
-    confidence: MEDIUM
+    confidence: LOW
     likelihood: MEDIUM
-    impact: MEDIUM
+    impact: LOW
     subcategory:
     - vuln
     technology:
@@ -40,6 +40,7 @@ rules:
     - cpp
     source: Validated against NIST Juliet C/C++ Test Suite v1.3
     remediation: Clean up all temporary resources (files, handles, memory) on every exit path.
+    policy_name: 'Incomplete Cleanup: Temporary File Never Deleted'
   patterns:
   - pattern-either:
     - pattern-inside: |

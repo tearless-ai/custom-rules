@@ -16,12 +16,12 @@ rules:
     - '*.hxx'
     - '*.inc'
   severity: WARNING
-  message: SetFileTime() rewrites a file's timestamps, a common anti-forensics technique used by embedded malicious code.
+  message: A file's timestamps are rewritten, a common anti-forensics technique used by embedded malicious code.
   metadata:
     vulnerability_class: Embedded Malicious Code
     help: |
       ## Summary
-      SetFileTime() rewrites a file's timestamps, a common anti-forensics technique used by embedded malicious code.
+      A file's timestamps are rewritten, a common anti-forensics technique used by embedded malicious code.
 
       ## Remediation
       Remove hidden functionality that deletes, modifies or exfiltrates data or executes encoded commands.
@@ -40,6 +40,7 @@ rules:
     - cpp
     source: Validated against NIST Juliet C/C++ Test Suite v1.3
     remediation: Remove hidden functionality that deletes, modifies or exfiltrates data or executes encoded commands.
+    policy_name: 'Embedded Malicious Code: File Timestamp Tampering'
   patterns:
   - pattern: $F(...)
   - metavariable-regex:

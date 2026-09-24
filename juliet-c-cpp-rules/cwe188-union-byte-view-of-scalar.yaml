@@ -40,17 +40,20 @@ rules:
     - cpp
     source: Validated against NIST Juliet C/C++ Test Suite v1.3
     remediation: Access struct and union members by name; do not rely on member offsets, padding or layout via pointer arithmetic.
+    policy_name: 'Reliance on Memory Layout: Union Byte View of Integer'
   patterns:
   - pattern-inside: |
       $U.$SCALAR = $V;
       ...
+  - metavariable-regex:
+      metavariable: $V
+      regex: ^(0[xX][0-9a-fA-F]+|[0-9]+)[uUlL]*$
   - pattern-either:
-    - pattern: $U.$VIEW.$PART = $X
     - pattern: $U.$VIEW.$PART |= $X
     - pattern: $U.$VIEW.$PART &= $X
     - pattern: $U.$VIEW.$PART ^= $X
-    - pattern: $U.$VIEW.$PART += $X
-    - pattern: $U.$VIEW[$I] = $X
     - pattern: $U.$VIEW[$I] |= $X
+    - pattern: $U.$VIEW[$I] &= $X
+    - pattern: $U.$VIEW[$I] ^= $X
   - metavariable-comparison:
       comparison: str($SCALAR) != str($VIEW)

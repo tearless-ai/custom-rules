@@ -16,12 +16,12 @@ rules:
     - '*.hxx'
     - '*.inc'
   severity: WARNING
-  message: $CREATE() reports failure with a different sentinel than the one checked here, so the error is never detected.
+  message: This handle is compared with the wrong failure value (NULL versus INVALID_HANDLE_VALUE) for the API that created it, so the error is never detected.
   metadata:
     vulnerability_class: Incorrect Check of Function Return Value
     help: |
       ## Summary
-      `$CREATE()` reports failure with a different sentinel than the one checked here, so the error is never detected.
+      This handle is compared with the wrong failure value (NULL versus INVALID_HANDLE_VALUE) for the API that created it, so the error is never detected.
 
       ## Remediation
       Compare return values against the function's documented error value (e.g. EOF, NULL, INVALID_HANDLE_VALUE, -1) rather than an assumed one.
@@ -40,6 +40,7 @@ rules:
     - cpp
     source: Validated against NIST Juliet C/C++ Test Suite v1.3
     remediation: Compare return values against the function's documented error value (e.g. EOF, NULL, INVALID_HANDLE_VALUE, -1) rather than an assumed one.
+    policy_name: 'Incorrect Return Check: Wrong Handle Failure Sentinel'
   pattern-either:
   - patterns:
     - pattern-inside: |

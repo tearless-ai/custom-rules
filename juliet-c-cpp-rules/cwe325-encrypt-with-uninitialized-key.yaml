@@ -16,12 +16,12 @@ rules:
     - '*.hxx'
     - '*.inc'
   severity: WARNING
-  message: $CRYPT() is called with the key handle $KEY, which is still NULL because no key was derived, generated or imported.
+  message: An encrypt or decrypt call uses a key handle that is still NULL because no key was derived, generated or imported.
   metadata:
     vulnerability_class: Missing Cryptographic Step
     help: |
       ## Summary
-      `$CRYPT()` is called with the key handle `$KEY`, which is still NULL because no key was derived, generated or imported.
+      An encrypt or decrypt call uses a key handle that is still NULL because no key was derived, generated or imported.
 
       ## Remediation
       Perform every required cryptographic step (e.g. hash the key material, call CryptEncrypt/CryptHashData) before using the result.
@@ -40,6 +40,7 @@ rules:
     - cpp
     source: Validated against NIST Juliet C/C++ Test Suite v1.3
     remediation: Perform every required cryptographic step (e.g. hash the key material, call CryptEncrypt/CryptHashData) before using the result.
+    policy_name: 'Missing Cryptographic Step: Key Never Created'
   patterns:
   - pattern: $CRYPT($KEY, ...)
   - metavariable-regex:

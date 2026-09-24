@@ -40,6 +40,7 @@ rules:
     - cpp
     source: Validated against NIST Juliet C/C++ Test Suite v1.3
     remediation: Keep a reference to every open handle so it can be closed; do not overwrite handle variables while they are open.
+    policy_name: 'Lost File Handle: Open Handle Overwritten Before Close'
   mode: taint
   pattern-sources:
   - patterns:

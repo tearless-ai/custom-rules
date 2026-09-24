@@ -16,12 +16,12 @@ rules:
     - '*.hxx'
     - '*.inc'
   severity: ERROR
-  message: The return value of $F() is ignored, so if the privilege change fails the code keeps running with the wrong security context.
+  message: The return value of a privilege-changing call is ignored, so if it fails the code keeps running with the wrong security context.
   metadata:
     vulnerability_class: Improper Check for Dropped Privileges
     help: |
       ## Summary
-      The return value of `$F()` is ignored, so if the privilege change fails the code keeps running with the wrong security context.
+      The return value of a privilege-changing call is ignored, so if it fails the code keeps running with the wrong security context.
 
       ## Remediation
       Check the return value of privilege-dropping calls (setuid, RevertToSelf, ImpersonateLoggedOnUser) and abort if they fail.
@@ -40,6 +40,7 @@ rules:
     - cpp
     source: Validated against NIST Juliet C/C++ Test Suite v1.3
     remediation: Check the return value of privilege-dropping calls (setuid, RevertToSelf, ImpersonateLoggedOnUser) and abort if they fail.
+    policy_name: Unchecked Privilege Change or Impersonation Result
   patterns:
   - pattern: $F(...);
   - metavariable-regex:

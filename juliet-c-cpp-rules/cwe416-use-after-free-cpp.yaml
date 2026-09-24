@@ -15,12 +15,12 @@ rules:
     - '*.hxx'
     - '*.inc'
   severity: ERROR
-  message: Pointer $X is used after the memory it points to was released.
+  message: A pointer is dereferenced, returned or passed to a routine that accesses it after the memory it points to was released.
   metadata:
     vulnerability_class: Use After Free
     help: |
       ## Summary
-      Pointer `$X` is used after the memory it points to was released.
+      A pointer is dereferenced, returned or passed to a routine that accesses it after the memory it points to was released.
 
       ## Remediation
       Do not use memory after it has been freed; set pointers to NULL after free and restructure ownership so no stale references remain.
@@ -39,6 +39,7 @@ rules:
     - cpp
     source: Validated against NIST Juliet C/C++ Test Suite v1.3
     remediation: Do not use memory after it has been freed; set pointers to NULL after free and restructure ownership so no stale references remain.
+    policy_name: 'Use After Free: Released Pointer Used (C++)'
   mode: taint
   pattern-sources:
   - by-side-effect: only
@@ -60,7 +61,10 @@ rules:
         - pattern: $UF(..., $X, ...)
         - metavariable-regex:
             metavariable: $UF
-            regex: ^(?!(free|_aligned_free|g_free)$)
+            regex: ^(str|wcs|mem|print|puts|fputs|putws|fputws|fwrite|fread|fgets|fgetws|scanf|sscanf|fscanf|swscanf|atoi|atol|atof|sprintf|snprintf|swprintf|fprintf|vsprintf|vfprintf)\w*$
+        - metavariable-regex:
+            metavariable: $X
+            regex: ^[A-Za-z_]\w*$
       - pattern: $X[$UI]
       - pattern: '*$X'
       - pattern: $X->$UFLD
@@ -68,4 +72,10 @@ rules:
     - metavariable-regex:
         metavariable: $X
         regex: ^[^&]
+    - pattern-not-inside: for (...) { ... free($X); ... }
+    - pattern-not-inside: while ($LC) { ... free($X); ... }
+    - pattern-not-inside: for (...) { ... delete $X; ... }
+    - pattern-not-inside: for (...) { ... delete [] $X; ... }
+    - pattern-not-inside: while ($LC) { ... delete $X; ... }
+    - pattern-not-inside: while ($LC) { ... delete [] $X; ... }
     - focus-metavariable: $X

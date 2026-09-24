@@ -16,12 +16,12 @@ rules:
     - '*.hxx'
     - '*.inc'
   severity: ERROR
-  message: $H runs as a thread entry point and performs a non-atomic read-modify-write of shared data without holding a lock, so concurrent threads can lose updates.
+  message: A thread entry function performs a non-atomic read-modify-write of shared data without holding a lock, so concurrent threads can lose updates.
   metadata:
     vulnerability_class: Race Condition within a Thread
     help: |
       ## Summary
-      `$H` runs as a thread entry point and performs a non-atomic read-modify-write of shared data without holding a lock, so concurrent threads can lose updates.
+      A thread entry function performs a non-atomic read-modify-write of shared data without holding a lock, so concurrent threads can lose updates.
 
       ## Remediation
       Protect shared data accessed by multiple threads with a mutex or use atomic operations.
@@ -40,6 +40,7 @@ rules:
     - cpp
     source: Validated against NIST Juliet C/C++ Test Suite v1.3
     remediation: Protect shared data accessed by multiple threads with a mutex or use atomic operations.
+    policy_name: 'Race Condition Within Thread: Unlocked Shared Update'
   patterns:
   - pattern-either:
     - pattern-inside: |

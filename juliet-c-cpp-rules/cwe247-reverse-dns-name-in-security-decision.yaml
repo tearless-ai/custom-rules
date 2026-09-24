@@ -16,12 +16,12 @@ rules:
     - '*.hxx'
     - '*.inc'
   severity: WARNING
-  message: The host name returned by a reverse DNS lookup is compared with $CMP() to make a trust decision; an attacker who controls the DNS records of their address can return any name.
+  message: The host name returned by a reverse DNS lookup is compared in a trust decision, but whoever controls the DNS records for the client address can return any name.
   metadata:
     vulnerability_class: Reliance on DNS Lookups in a Security Decision
     help: |
       ## Summary
-      The host name returned by a reverse DNS lookup is compared with `$CMP()` to make a trust decision; an attacker who controls the DNS records of their address can return any name.
+      The host name returned by a reverse DNS lookup is compared in a trust decision, but whoever controls the DNS records for the client address can return any name.
 
       ## Remediation
       Do not make security decisions based on DNS names; authenticate the peer cryptographically instead.
@@ -40,6 +40,7 @@ rules:
     - cpp
     source: Validated against NIST Juliet C/C++ Test Suite v1.3
     remediation: Do not make security decisions based on DNS names; authenticate the peer cryptographically instead.
+    policy_name: Reverse DNS Host Name Used in Security Decision
   patterns:
   - pattern-either:
     - patterns:

@@ -40,6 +40,7 @@ rules:
     - cpp
     source: Validated against NIST Juliet C/C++ Test Suite v1.3
     remediation: Remove hard-coded cryptographic keys; derive keys from protected secrets or load them from a key store.
+    policy_name: Hard-coded Cryptographic Key Material
   options:
     constant_propagation: false
   patterns:

@@ -40,6 +40,7 @@ rules:
     - cpp
     source: Validated against NIST Juliet C/C++ Test Suite v1.3
     remediation: Check the return value of allocation and lookup functions for NULL before dereferencing it.
+    policy_name: 'Unchecked NULL Return: Allocation or File Open Result Dereferenced'
   mode: taint
   pattern-sources:
   - patterns:
@@ -49,53 +50,86 @@ rules:
         regex: ^(malloc|calloc|realloc|strdup|wcsdup|_strdup|_wcsdup|fopen|_wfopen|fdopen|freopen|tmpfile)$
   - patterns:
     - pattern-inside: |
-        $R $SINKF(..., $T $P, ...) { ... }
+        $R $CALLEE(..., $T $P, ...) { ... }
         ...
-        $R2 $CALLER(...) { ... $D = <... $ALLOC(...) ...>; ... $SINKF(..., $D, ...); ... }
+        $R2 $CALLER(...) { ... $D = <... $ALLOC(...) ...>; ... $CALLEE(..., $D, ...); ... }
+    - pattern-not-inside: |
+        $R $CALLEE(..., $T $P, ...) { ... }
+        ...
+        $R2 $CALLER(...) { ... if (<... $D ...>) $CHK; ... }
+    - pattern-not-inside: |
+        $R $CALLEE(..., $T $P, ...) { ... }
+        ...
+        $R2 $CALLER(...) { ... $D = <... $ALLOC(...) ...>; ... $D = $OTHER; ... }
     - pattern: |
-        $R $SINKF(..., $T $P, ...) { ... }
+        $R $CALLEE(..., $T $P, ...) { ... }
     - metavariable-regex:
         metavariable: $ALLOC
         regex: ^(malloc|calloc|realloc|strdup|wcsdup|_strdup|_wcsdup|fopen|_wfopen|fdopen|freopen|tmpfile)$
     - focus-metavariable: $P
   - patterns:
     - pattern-inside: |
-        $R $SINKF(..., $T $P, ...) { ... }
+        $R $CALLEE(..., $T $P, ...) { ... }
         ...
-        $R2 $CALLER(...) { ... $FT (*$FP)(...) = $SINKF; ... $D = <... $ALLOC(...) ...>; ... $FP(..., $D, ...); ... }
+        $R2 $CALLER(...) { ... $FT (*$FP)(...) = $CALLEE; ... $D = <... $ALLOC(...) ...>; ... $FP(..., $D, ...); ... }
+    - pattern-not-inside: |
+        $R $CALLEE(..., $T $P, ...) { ... }
+        ...
+        $R2 $CALLER(...) { ... if (<... $D ...>) $CHK; ... }
+    - pattern-not-inside: |
+        $R $CALLEE(..., $T $P, ...) { ... }
+        ...
+        $R2 $CALLER(...) { ... $D = <... $ALLOC(...) ...>; ... $D = $OTHER; ... }
     - pattern: |
-        $R $SINKF(..., $T $P, ...) { ... }
+        $R $CALLEE(..., $T $P, ...) { ... }
     - metavariable-regex:
         metavariable: $ALLOC
         regex: ^(malloc|calloc|realloc|strdup|wcsdup|_strdup|_wcsdup|fopen|_wfopen|fdopen|freopen|tmpfile)$
     - focus-metavariable: $P
   - patterns:
     - pattern-inside: |
-        $R $SINKF(...) { ... }
+        $R $READER(...) { ... }
         ...
-        $R2 $CALLER(...) { ... $D = <... $ALLOC(...) ...>; ... $G = $D; ... }
+        $R2 $WRITER(...) { ... $D = <... $ALLOC(...) ...>; ... $G = $D; ... }
+    - pattern-not-inside: |
+        $R $READER(...) { ... }
+        ...
+        $R2 $WRITER(...) { ... if (<... $D ...>) $CHK; ... }
+    - pattern-not-inside: |
+        $R $READER(...) { ... }
+        ...
+        $R2 $WRITER(...) { ... $D = <... $ALLOC(...) ...>; ... $D = $OTHER; ... }
     - pattern-inside: |
-        $R $SINKF(...) { ... }
+        $R $READER(...) { ... }
+    - pattern-either:
+      - pattern: $LT $L = $G;
+      - pattern: $L = $G
     - metavariable-regex:
         metavariable: $ALLOC
         regex: ^(malloc|calloc|realloc|strdup|wcsdup|_strdup|_wcsdup|fopen|_wfopen|fdopen|freopen|tmpfile)$
-    - pattern: $G
+    - focus-metavariable: $G
   - patterns:
     - pattern-inside: |
-        $R $SRCF(...) { ... $X = <... $ALLOC(...) ...>; ... return $X; }
+        $R $HELPER(...) { ... $X = <... $ALLOC(...) ...>; ... return $X; }
+        ...
+    - pattern-not-inside: |
+        $R $HELPER(...) { ... if (<... $X ...>) $CHK; ... }
         ...
     - metavariable-regex:
         metavariable: $ALLOC
         regex: ^(malloc|calloc|realloc|strdup|wcsdup|_strdup|_wcsdup|fopen|_wfopen|fdopen|freopen|tmpfile)$
-    - pattern: $SRCF(...)
+    - pattern: $HELPER(...)
   - patterns:
     - pattern-inside: |
-        $R $SRCF(..., $T &$X, ...) { ... $X = <... $ALLOC(...) ...>; ... }
+        $R $HELPER(..., $T &$X, ...) { ... $X = <... $ALLOC(...) ...>; ... }
+        ...
+    - pattern-not-inside: |
+        $R $HELPER(..., $T &$X, ...) { ... if (<... $X ...>) $CHK; ... }
         ...
     - metavariable-regex:
         metavariable: $ALLOC
         regex: ^(malloc|calloc|realloc|strdup|wcsdup|_strdup|_wcsdup|fopen|_wfopen|fdopen|freopen|tmpfile)$
-    - pattern: $SRCF($D)
+    - pattern: $HELPER($D)
     - focus-metavariable: $D
     by-side-effect: true
   - patterns:
@@ -103,6 +137,11 @@ rules:
         $T &$REF = $D;
         ...
         $D = <... $ALLOC(...) ...>;
+        ...
+    - pattern-not-inside: |
+        $D = <... $ALLOC(...) ...>;
+        ...
+        $D = $OTHER;
         ...
     - metavariable-regex:
         metavariable: $ALLOC
@@ -128,6 +167,11 @@ rules:
             *$P1 = $V;
           }
           ...
+    - pattern-not-inside: |
+        $V = <... $ALLOC(...) ...>;
+        ...
+        $V = $OTHER;
+        ...
     - metavariable-regex:
         metavariable: $ALLOC
         regex: ^(malloc|calloc|realloc|strdup|wcsdup|_strdup|_wcsdup|fopen|_wfopen|fdopen|freopen|tmpfile)$
@@ -148,6 +192,8 @@ rules:
     - pattern-either:
       - pattern: $X != NULL
       - pattern: $X == NULL
+      - pattern: $X != nullptr
+      - pattern: $X == nullptr
       - pattern: '!$X'
       - pattern: '$X ? $A : $B'
       - pattern: assert($X)
@@ -169,6 +215,7 @@ rules:
     - metavariable-regex:
         metavariable: $F
         regex: ^(strcpy|wcscpy|strncpy|wcsncpy|strcat|wcscat|strncat|wcsncat|memcpy|memmove|memset|wmemset|sprintf|swprintf|snprintf|_snprintf|_snwprintf|fclose|fputs|fputws|fgets|fgetws|fprintf|fwprintf|fwrite|fread|fputc|fgetc|fseek|ftell|rewind|fflush|strlen|wcslen)$
+    - pattern-not-inside: sizeof(...)
     - pattern-not-inside: malloc(...)
     - pattern-not-inside: calloc(...)
     - pattern-not-inside: realloc(...)
@@ -180,6 +227,10 @@ rules:
       - pattern: $P->$FLD
     - pattern-not-inside: '*$P = $V'
     - pattern-not-inside: $T * $X = *$P;
+    - pattern-not-inside: sizeof(...)
+    - pattern-not-inside: malloc(...)
+    - pattern-not-inside: calloc(...)
+    - pattern-not-inside: realloc(...)
     - focus-metavariable: $P
   - patterns:
     - pattern: '*$P = $V'

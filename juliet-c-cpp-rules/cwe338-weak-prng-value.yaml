@@ -1,0 +1,52 @@
+rules:
+- id: cwe338-weak-prng-value
+  languages:
+  - c
+  - cpp
+  paths:
+    include:
+    - '*.c'
+    - '*.h'
+    - '*.cpp'
+    - '*.cc'
+    - '*.cxx'
+    - '*.c++'
+    - '*.hpp'
+    - '*.hh'
+    - '*.hxx'
+    - '*.inc'
+  severity: INFO
+  message: A value is taken directly from rand()/random(), which is predictable and must not be used where unpredictability matters.
+  metadata:
+    vulnerability_class: Use of Cryptographically Weak Pseudo-Random Number Generator (PRNG)
+    help: |
+      ## Summary
+      A value is taken directly from rand()/random(), which is predictable and must not be used where unpredictability matters.
+
+      ## Remediation
+      Use a cryptographically secure generator (getrandom, BCryptGenRandom/CryptGenRandom, RAND_bytes) instead of rand()/random().
+    category: security
+    cwe:
+    - 'CWE-338: Use of Cryptographically Weak Pseudo-Random Number Generator (PRNG)'
+    references:
+    - https://cwe.mitre.org/data/definitions/338.html
+    confidence: LOW
+    likelihood: MEDIUM
+    impact: LOW
+    subcategory:
+    - vuln
+    technology:
+    - c
+    - cpp
+    source: Validated against NIST Juliet C/C++ Test Suite v1.3
+    remediation: Use a cryptographically secure generator (getrandom, BCryptGenRandom/CryptGenRandom, RAND_bytes) instead of rand()/random().
+    policy_name: Weak PRNG Value (Review Use)
+  patterns:
+  - pattern-either:
+    - pattern: $X = $F();
+    - pattern: $T $X = $F();
+    - pattern: $X = ($C) $F();
+    - pattern: $T $X = ($C) $F();
+  - metavariable-regex:
+      metavariable: $F
+      regex: ^(rand|random|drand48|lrand48|mrand48)$

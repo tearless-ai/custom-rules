@@ -40,6 +40,7 @@ rules:
     - cpp
     source: Validated against NIST Juliet C/C++ Test Suite v1.3
     remediation: Do not assign fixed numeric addresses to pointers; obtain addresses from allocations or objects.
+    policy_name: Fixed Address Assigned to Pointer
   patterns:
   - pattern-either:
     - pattern: $T * $P = ($CT) $ADDR;

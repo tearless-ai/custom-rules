@@ -16,12 +16,12 @@ rules:
     - '*.hxx'
     - '*.inc'
   severity: WARNING
-  message: $F() returns an unsigned size_t, so a negative-result check can never detect a short or failed transfer.
+  message: An unsigned size_t result is checked for a negative value, so a short or failed transfer is never detected.
   metadata:
     vulnerability_class: Incorrect Check of Function Return Value
     help: |
       ## Summary
-      `$F()` returns an unsigned size_t, so a negative-result check can never detect a short or failed transfer.
+      An unsigned size_t result is checked for a negative value, so a short or failed transfer is never detected.
 
       ## Remediation
       Compare return values against the function's documented error value (e.g. EOF, NULL, INVALID_HANDLE_VALUE, -1) rather than an assumed one.
@@ -40,6 +40,7 @@ rules:
     - cpp
     source: Validated against NIST Juliet C/C++ Test Suite v1.3
     remediation: Compare return values against the function's documented error value (e.g. EOF, NULL, INVALID_HANDLE_VALUE, -1) rather than an assumed one.
+    policy_name: 'Incorrect Return Check: Unsigned Size Compared to Negative'
   patterns:
   - pattern-either:
     - pattern: $F(...) < 0

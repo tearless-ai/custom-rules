@@ -39,4 +39,5 @@ rules:
     - cpp
     source: Validated against NIST Juliet C/C++ Test Suite v1.3
     remediation: Make public static fields const or private with accessors.
+    policy_name: Public Static Field Not Const
   pattern-regex: (?m)\bpublic\s*:(?:(?!\b(?:private|protected)\s*:)[^{}])*?^[ \t]*\Kstatic[ \t]+(?!const\b|constexpr\b|inline\b|volatile\s+const\b)[A-Za-z_][\w:<>]*(?:[ \t]*[*&])*[ \t]+[*&]*[A-Za-z_]\w*[ \t]*(?:\[[^\]]*\])?[ \t]*;

@@ -40,6 +40,7 @@ rules:
     - cpp
     source: Validated against NIST Juliet C/C++ Test Suite v1.3
     remediation: Reject negative values before converting a signed value to an unsigned type such as size_t.
+    policy_name: 'Signed to Unsigned Conversion: Negative Int Used as Size'
   patterns:
   - pattern-either:
     - pattern: malloc($X)

@@ -16,12 +16,12 @@ rules:
     - '*.hxx'
     - '*.inc'
   severity: ERROR
-  message: File opened with a path taken entirely from external data in a function that also reads untrusted input (console, file, socket or environment).
+  message: A file is opened with a path taken entirely from data in the same function that reads untrusted input from a socket or the environment, so that input can name any file on the system.
   metadata:
     vulnerability_class: Absolute Path Traversal
     help: |
       ## Summary
-      File opened with a path taken entirely from external data in a function that also reads untrusted input (console, file, socket or environment).
+      A file is opened with a path taken entirely from data in the same function that reads untrusted input from a socket or the environment, so that input can name any file on the system.
 
       ## Remediation
       Never open a path taken directly from input; map input to an allow-list of known files or join it to a fixed base directory and re-check the canonical result.
@@ -40,6 +40,10 @@ rules:
     - cpp
     source: Validated against NIST Juliet C/C++ Test Suite v1.3
     remediation: Never open a path taken directly from input; map input to an allow-list of known files or join it to a fixed base directory and re-check the canonical result.
+    policy_name: Absolute Path Traversal from Socket or Environment (Same Function)
+  options:
+    constant_propagation: false
+    symbolic_propagation: false
   patterns:
   - pattern-either:
     - patterns:
@@ -60,6 +64,12 @@ rules:
       - pattern-either:
         - pattern: $STREAM.open($PATH, ...)
         - pattern: $STREAM_T $STREAM($PATH, ...);
+  - pattern-not-inside: |
+      $PATH_T * $PATH = "...";
+      ...
+  - pattern-not-inside: |
+      $PATH_T * const $PATH = "...";
+      ...
   - metavariable-regex:
       metavariable: $PATH
       regex: ^(?!\s*(L|u8|u|U)?\")(?!\s*[A-Z][A-Z0-9_]*\s*$)
@@ -73,7 +83,7 @@ rules:
       }
   - metavariable-regex:
       metavariable: $SRC
-      regex: ^(?:std::)?(fgets|fgetws|gets|_getws|getline|getdelim|scanf|wscanf|fscanf|fwscanf|read|_read|recv|recvfrom|recvmsg|WSARecv|WSARecvFrom|getenv|_wgetenv|secure_getenv|GETENV|ReadFile|ReadConsoleA|ReadConsoleW|InternetReadFile)$
+      regex: ^(?:std::)?(read|_read|recv|recvfrom|recvmsg|WSARecv|WSARecvFrom|getenv|_wgetenv|secure_getenv|GETENV|InternetReadFile)$
   - metavariable-regex:
       metavariable: $BUF_INIT
       regex: ^\s*L?""\s*$

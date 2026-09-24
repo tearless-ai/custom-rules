@@ -16,12 +16,12 @@ rules:
     - '*.hxx'
     - '*.inc'
   severity: ERROR
-  message: $I is only ever updated modulo $M starting from a non-negative value, so the loop condition '$I >= 0' is always true and the loop has no other exit.
+  message: The loop counter is only updated modulo a constant from a non-negative start, so the condition 'counter >= 0' is always true and the loop never exits.
   metadata:
     vulnerability_class: Loop with Unreachable Exit Condition ('Infinite Loop')
     help: |
       ## Summary
-      `$I` is only ever updated modulo `$M` starting from a non-negative value, so the loop condition '`$I` >= 0' is always true and the loop has no other exit.
+      The loop counter is only updated modulo a constant from a non-negative start, so the condition 'counter >= 0' is always true and the loop never exits.
 
       ## Remediation
       Ensure every loop has a reachable exit condition.
@@ -40,6 +40,7 @@ rules:
     - cpp
     source: Validated against NIST Juliet C/C++ Test Suite v1.3
     remediation: Ensure every loop has a reachable exit condition.
+    policy_name: 'Infinite Loop: Modular Counter Never Negative'
   patterns:
   - pattern-either:
     - pattern: |

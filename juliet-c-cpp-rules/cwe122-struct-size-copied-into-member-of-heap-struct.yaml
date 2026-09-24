@@ -16,12 +16,12 @@ rules:
     - '*.hxx'
     - '*.inc'
   severity: ERROR
-  message: The copy length is the size of the whole structure but the destination is only its member '$FLD'; the copy overruns the member.
+  message: A copy into one member array of a heap structure uses the size of the whole structure, overrunning the member.
   metadata:
     vulnerability_class: Heap-based Buffer Overflow
     help: |
       ## Summary
-      The copy length is the size of the whole structure but the destination is only its member '`$FLD`'; the copy overruns the member.
+      A copy into one member array of a heap structure uses the size of the whole structure, overrunning the member.
 
       ## Remediation
       Allocate enough room for the data including the terminator, bound every copy and index by the allocation size, and validate lengths and indexes from input before use.
@@ -40,6 +40,7 @@ rules:
     - cpp
     source: Validated against NIST Juliet C/C++ Test Suite v1.3
     remediation: Allocate enough room for the data including the terminator, bound every copy and index by the allocation size, and validate lengths and indexes from input before use.
+    policy_name: 'Heap Buffer Overflow: Whole Struct Size Copied Into Member'
   patterns:
   - pattern-either:
     - pattern: memcpy($S->$FLD, $X, sizeof(*$S))

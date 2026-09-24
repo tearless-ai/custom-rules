@@ -40,6 +40,7 @@ rules:
     - cpp
     source: Validated against NIST Juliet C/C++ Test Suite v1.3
     remediation: Access struct and union members by name; do not rely on member offsets, padding or layout via pointer arithmetic.
+    policy_name: 'Reliance on Memory Layout: Offset Between Struct Members'
   patterns:
   - pattern-inside: |
       $P = &$S.$FLD;

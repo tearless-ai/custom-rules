@@ -15,12 +15,12 @@ rules:
     - '*.hxx'
     - '*.inc'
   severity: WARNING
-  message: Extracting a string from $IN into the fixed-size array $BUF without setting width() first can overflow the buffer.
+  message: A string is extracted from an input stream into a fixed-size character array without setting width() first, which can overflow the buffer.
   metadata:
     vulnerability_class: Use of Potentially Dangerous Function
     help: |
       ## Summary
-      Extracting a string from `$IN` into the fixed-size array `$BUF` without setting width() first can overflow the buffer.
+      A string is extracted from an input stream into a fixed-size character array without setting width() first, which can overflow the buffer.
 
       ## Remediation
       Replace potentially dangerous functions with bounded, safer alternatives and validate their inputs.
@@ -39,6 +39,7 @@ rules:
     - cpp
     source: Validated against NIST Juliet C/C++ Test Suite v1.3
     remediation: Replace potentially dangerous functions with bounded, safer alternatives and validate their inputs.
+    policy_name: 'Dangerous Function: Unbounded Stream Extraction into Array'
   patterns:
   - pattern: $IN >> $BUF
   - pattern-either:

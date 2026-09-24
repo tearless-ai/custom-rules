@@ -16,12 +16,12 @@ rules:
     - '*.hxx'
     - '*.inc'
   severity: WARNING
-  message: A value below $M flows into this assertion that requires a value greater than $M, so the assertion is guaranteed to fail when reached.
+  message: A value below the asserted lower bound is assigned and flows into this assertion, so the assertion is guaranteed to fail when reached.
   metadata:
     vulnerability_class: Reachable Assertion
     help: |
       ## Summary
-      A value below `$M` flows into this assertion that requires a value greater than `$M`, so the assertion is guaranteed to fail when reached.
+      A value below the asserted lower bound is assigned and flows into this assertion, so the assertion is guaranteed to fail when reached.
 
       ## Remediation
       Do not assert on conditions that external input can violate; validate input and handle errors explicitly.
@@ -40,6 +40,7 @@ rules:
     - cpp
     source: Validated against NIST Juliet C/C++ Test Suite v1.3
     remediation: Do not assert on conditions that external input can violate; validate input and handle errors explicitly.
+    policy_name: 'Reachable Assertion: Assigned Value Violates Assertion'
   mode: taint
   options:
     taint_unify_mvars: true

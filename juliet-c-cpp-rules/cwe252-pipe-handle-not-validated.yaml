@@ -16,12 +16,12 @@ rules:
     - '*.hxx'
     - '*.inc'
   severity: WARNING
-  message: The handle returned by $CREATE() is used without first checking it against INVALID_HANDLE_VALUE.
+  message: A pipe or file handle is used without first checking it against INVALID_HANDLE_VALUE.
   metadata:
     vulnerability_class: Unchecked Return Value
     help: |
       ## Summary
-      The handle returned by `$CREATE()` is used without first checking it against INVALID_HANDLE_VALUE.
+      A pipe or file handle is used without first checking it against INVALID_HANDLE_VALUE.
 
       ## Remediation
       Check the return value of every call that can fail and handle the error before using any output of the call.
@@ -40,6 +40,7 @@ rules:
     - cpp
     source: Validated against NIST Juliet C/C++ Test Suite v1.3
     remediation: Check the return value of every call that can fail and handle the error before using any output of the call.
+    policy_name: 'Unchecked Return Value: Pipe or File Handle Used Unvalidated'
   patterns:
   - pattern: $USE(..., $H, ...)
   - metavariable-regex:
